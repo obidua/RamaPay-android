@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
+import android.widget.ImageView;
 
 import androidx.lifecycle.ViewModelProvider;
 
@@ -27,6 +28,7 @@ import com.alphawallet.app.util.RootUtil;
 import com.alphawallet.app.viewmodel.SplashViewModel;
 import com.alphawallet.app.widget.AWalletAlertDialog;
 import com.alphawallet.app.widget.SignTransactionDialog;
+import com.bumptech.glide.Glide;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -62,6 +64,13 @@ public class SplashActivity extends BaseActivity implements CreateWalletCallback
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
+
+        // Load animated GIF for splash screen
+        ImageView splashImage = findViewById(R.id.splash_image);
+        Glide.with(this)
+            .asGif()
+            .load(R.raw.ramapay_splash)
+            .into(splashImage);
 
         //detect previous launch
         viewModel = new ViewModelProvider(this)

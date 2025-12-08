@@ -16,11 +16,12 @@ import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static com.alphawallet.ethereum.EthereumNetworkBase.MAINNET_ID;
+import static com.alphawallet.ethereum.EthereumNetworkBase.RAMESTTA_MAINNET_ID;
 
 public class CustomViewSettings
 {
-    public static final long primaryChain = MAINNET_ID;
-    private static final String primaryChainName = C.ETHEREUM_NETWORK_NAME;
+    public static final long primaryChain = RAMESTTA_MAINNET_ID;
+    private static final String primaryChainName = "Ramestta Mainnet";
 
     //You can use the settings in this file to customise the wallet appearance
 

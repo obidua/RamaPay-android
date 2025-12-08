@@ -49,6 +49,8 @@ public abstract class EthereumNetworkBase
     public static final long MANTLE_TESTNET_ID = 5003;
     public static final long MINT_ID = 185;
     public static final long MINT_SEPOLIA_TESTNET_ID = 1687;
+    public static final long RAMESTTA_MAINNET_ID = 1370;
+    public static final long RAMESTTA_TESTNET_ID = 1369;
 
 
     public static final String MAINNET_RPC_URL = "https://mainnet.infura.io/v3/da3717f25f824cc1baa32d812386d93f";
@@ -97,6 +99,9 @@ public abstract class EthereumNetworkBase
     public static final String MANTLE_TESTNET_RPC = "https://rpc.sepolia.mantle.xyz";
     public static final String MINT_MAINNET_RPC = "https://global.rpc.mintchain.io";
     public static final String MINT_SEPOLIA_RPC = "https://sepolia-testnet-rpc.mintchain.io";
+    public static final String RAMESTTA_MAINNET_RPC = "https://blockchain.ramestta.com";
+    public static final String RAMESTTA_MAINNET_RPC_2 = "https://blockchain2.ramestta.com";
+    public static final String RAMESTTA_TESTNET_RPC = "https://testnet.ramestta.com";
 
 
     static Map<Long, NetworkInfo> networkMap = new LinkedHashMap<Long, NetworkInfo>()
@@ -188,6 +193,11 @@ public abstract class EthereumNetworkBase
                     MINT_ID, false));
             put(MINT_SEPOLIA_TESTNET_ID, new NetworkInfo("Mint Sepolia (Test)", "ETH", MINT_SEPOLIA_RPC, "https://sepolia-testnet-explorer.mintchain.io/tx/",
                     MINT_SEPOLIA_TESTNET_ID, false));
+            
+            put(RAMESTTA_MAINNET_ID, new NetworkInfo("Ramestta", "RAMA", RAMESTTA_MAINNET_RPC, "https://ramascan.com/tx/",
+                    RAMESTTA_MAINNET_ID, false));
+            put(RAMESTTA_TESTNET_ID, new NetworkInfo("Ramestta (Test)", "RAMA", RAMESTTA_TESTNET_RPC, "https://testnet.ramascan.com/tx/",
+                    RAMESTTA_TESTNET_ID, false));
         }
     };
 

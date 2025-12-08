@@ -49,7 +49,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "io.stormbird.wallet"
+        applicationId "com.ramapay.wallet"
         minSdk 24
         targetSdk 34
         versionCode 273
@@ -157,8 +157,8 @@ android {
         }
     }
     compileOptions {
-        targetCompatibility JavaVersion.VERSION_21
-        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility JavaVersion.VERSION_17
     }
     externalNativeBuild {
         cmake {

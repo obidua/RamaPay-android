@@ -49,6 +49,8 @@ import static com.alphawallet.ethereum.EthereumNetworkBase.PALM_TEST_ID;
 import static com.alphawallet.ethereum.EthereumNetworkBase.POLYGON_AMOY_ID;
 import static com.alphawallet.ethereum.EthereumNetworkBase.POLYGON_ID;
 import static com.alphawallet.ethereum.EthereumNetworkBase.POLYGON_TEST_ID;
+import static com.alphawallet.ethereum.EthereumNetworkBase.RAMESTTA_MAINNET_ID;
+import static com.alphawallet.ethereum.EthereumNetworkBase.RAMESTTA_TESTNET_ID;
 import static com.alphawallet.ethereum.EthereumNetworkBase.ROOTSTOCK_MAINNET_ID;
 import static com.alphawallet.ethereum.EthereumNetworkBase.ROOTSTOCK_TESTNET_ID;
 import static com.alphawallet.ethereum.EthereumNetworkBase.SEPOLIA_TESTNET_ID;
@@ -179,11 +181,11 @@ public abstract class EthereumNetworkBase implements EthereumNetworkRepositoryTy
     //If your wallet prioritises xDai for example, you may want to move the XDAI_ID to the front of this list,
     //Then xDai would appear as the first token at the top of the wallet
     private static final List<Long> hasValue = new ArrayList<>(Arrays.asList(
-            MAINNET_ID, GNOSIS_ID, POLYGON_ID, ROOTSTOCK_MAINNET_ID, CLASSIC_ID, LINEA_ID, BASE_MAINNET_ID, MANTLE_MAINNET_ID, MINT_ID, BINANCE_MAIN_ID, AVALANCHE_ID,
+            RAMESTTA_MAINNET_ID, MAINNET_ID, GNOSIS_ID, POLYGON_ID, ROOTSTOCK_MAINNET_ID, CLASSIC_ID, LINEA_ID, BASE_MAINNET_ID, MANTLE_MAINNET_ID, MINT_ID, BINANCE_MAIN_ID, AVALANCHE_ID,
             FANTOM_ID, OPTIMISTIC_MAIN_ID, CRONOS_MAIN_ID, ARBITRUM_MAIN_ID, PALM_ID, KLAYTN_ID, IOTEX_MAINNET_ID, AURORA_MAINNET_ID, MILKOMEDA_C1_ID, OKX_ID));
 
     private static final List<Long> testnetList = new ArrayList<>(Arrays.asList(
-            SEPOLIA_TESTNET_ID, POLYGON_AMOY_ID, HOLESKY_ID, BASE_TESTNET_ID, MINT_SEPOLIA_TESTNET_ID, GOERLI_ID, BINANCE_TEST_ID,
+            RAMESTTA_TESTNET_ID, SEPOLIA_TESTNET_ID, POLYGON_AMOY_ID, HOLESKY_ID, BASE_TESTNET_ID, MINT_SEPOLIA_TESTNET_ID, GOERLI_ID, BINANCE_TEST_ID,
             ROOTSTOCK_TESTNET_ID, CRONOS_TEST_ID, MANTLE_TESTNET_ID, POLYGON_TEST_ID, ARBITRUM_TEST_ID, LINEA_TEST_ID, KLAYTN_BAOBAB_ID,
             FANTOM_TEST_ID, IOTEX_TESTNET_ID, FUJI_TEST_ID,
             AURORA_TESTNET_ID, PALM_TEST_ID));
@@ -392,6 +394,13 @@ public abstract class EthereumNetworkBase implements EthereumNetworkRepositoryTy
         });
         CHAIN_CONFIG_RPC.put(MINT_SEPOLIA_TESTNET_ID, new String[]{
                 "https://sepolia-testnet-rpc.mintchain.io"
+        });
+        CHAIN_CONFIG_RPC.put(RAMESTTA_MAINNET_ID, new String[]{
+                "https://blockchain.ramestta.com",
+                "https://blockchain2.ramestta.com"
+        });
+        CHAIN_CONFIG_RPC.put(RAMESTTA_TESTNET_ID, new String[]{
+                "https://testnet.ramestta.com"
         });
         CHAIN_CONFIG_RPC.put(GNOSIS_ID, new String[]{
                 "https://1rpc.io/gnosis",
@@ -631,6 +640,16 @@ public abstract class EthereumNetworkBase implements EthereumNetworkRepositoryTy
                     CHAIN_CONFIG_RPC.get(MINT_SEPOLIA_TESTNET_ID),
                     "https://sepolia-testnet-explorer.mintchain.io/tx/", MINT_SEPOLIA_TESTNET_ID,
                     "https://sepolia-testnet-explorer.mintchain.io/api/v2/")); //https://sepolia-testnet-explorer.mintchain.io/api/v2/addresses/0x76626Fc07d050d59c9fc1Ac5b853a9952B5E9Afe/transactions?filter=to%20%7C%20from
+            
+            put(RAMESTTA_MAINNET_ID, new NetworkInfo("Ramestta Mainnet", "RAMA",
+                    CHAIN_CONFIG_RPC.get(RAMESTTA_MAINNET_ID),
+                    "https://ramascan.com/tx/", RAMESTTA_MAINNET_ID,
+                    "https://ramascan.com/api?"));
+
+            put(RAMESTTA_TESTNET_ID, new NetworkInfo("Ramestta Testnet", "RAMA",
+                    CHAIN_CONFIG_RPC.get(RAMESTTA_TESTNET_ID),
+                    "https://testnet.ramascan.com/tx/", RAMESTTA_TESTNET_ID,
+                    "https://testnet.ramascan.com/api?"));
         }
     };
 
@@ -681,6 +700,8 @@ public abstract class EthereumNetworkBase implements EthereumNetworkRepositoryTy
             put(MANTLE_TESTNET_ID, R.drawable.ic_mantle_test_logo);
             put(MINT_ID, R.drawable.ic_mint_logo);
             put(MINT_SEPOLIA_TESTNET_ID, R.drawable.ic_mint_test_logo);
+            put(RAMESTTA_MAINNET_ID, R.drawable.ic_token_rama);
+            put(RAMESTTA_TESTNET_ID, R.drawable.ic_token_rama);
         }
     };
 
@@ -727,6 +748,8 @@ public abstract class EthereumNetworkBase implements EthereumNetworkRepositoryTy
             put(MANTLE_TESTNET_ID, R.drawable.ic_mantle_test_logo);
             put(MINT_ID, R.drawable.ic_mint_logo);
             put(MINT_SEPOLIA_TESTNET_ID, R.drawable.ic_mint_test_logo);
+            put(RAMESTTA_MAINNET_ID, R.drawable.ic_icons_network_rama);
+            put(RAMESTTA_TESTNET_ID, R.drawable.ic_icons_network_rama);
         }
     };
 
@@ -773,6 +796,8 @@ public abstract class EthereumNetworkBase implements EthereumNetworkRepositoryTy
             put(MANTLE_TESTNET_ID, R.color.rootstock);
             put(MINT_ID, R.color.mint_chain);
             put(MINT_SEPOLIA_TESTNET_ID, R.color.mint_chain);
+            put(RAMESTTA_MAINNET_ID, R.color.polygon_main); // TODO: Add Ramestta brand color
+            put(RAMESTTA_TESTNET_ID, R.color.polygon_test); // TODO: Add Ramestta testnet color
         }
     };
 

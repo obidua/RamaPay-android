@@ -15,9 +15,10 @@
 
         <ImageView
             android:id="@+id/splash_image"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/ic_logo_vertical"
+            android:layout_width="300dp"
+            android:layout_height="300dp"
+            android:scaleType="fitCenter"
+            android:contentDescription="@string/app_name"
             android:gravity="center_horizontal" />
 
     </LinearLayout>

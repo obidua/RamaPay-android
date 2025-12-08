@@ -63,6 +63,8 @@ public abstract class C {
     public static final String MANTLE_TESTNET_NAME = "Mantle Sepolia (Test)";
     public static final String MINT_MAINNET_NAME = "Mint";
     public static final String MINT_TESTNET_NAME = "Mint Sepolia (Test)";
+    public static final String RAMESTTA_MAINNET_NAME = "Ramestta";
+    public static final String RAMESTTA_TESTNET_NAME = "Ramestta (Test)";
 
     public static final String ETHEREUM_TICKER_NAME = "ethereum";
     public static final String CLASSIC_TICKER_NAME = "ethereum-classic";
