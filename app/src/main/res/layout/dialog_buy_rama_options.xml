@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <com.alphawallet.app.widget.BottomSheetHandleView
+        android:layout_width="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/buy_from_bitmart"
+        style="@style/Aw.Component.ActionItem"
+        android:text="@string/buy_from_bitmart" />
+
+    <TextView
+        android:id="@+id/buy_from_koinpark"
+        style="@style/Aw.Component.ActionItem"
+        android:text="@string/buy_from_koinpark" />
+
+    <TextView
+        android:id="@+id/buy_from_ramaswap"
+        style="@style/Aw.Component.ActionItem"
+        android:text="@string/buy_from_ramaswap" />
+
+</LinearLayout>

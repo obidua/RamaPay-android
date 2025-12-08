@@ -21,7 +21,7 @@ import static com.alphawallet.ethereum.EthereumNetworkBase.RAMESTTA_MAINNET_ID;
 public class CustomViewSettings
 {
     public static final long primaryChain = RAMESTTA_MAINNET_ID;
-    private static final String primaryChainName = "Ramestta Mainnet";
+    private static final String primaryChainName = "Ramestta Network";
 
     //You can use the settings in this file to customise the wallet appearance
 

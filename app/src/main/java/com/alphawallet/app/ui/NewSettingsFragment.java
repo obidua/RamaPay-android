@@ -92,6 +92,7 @@ public class NewSettingsFragment extends BaseFragment
     private ActivityResultLauncher<Intent> advancedSettingsHandler;
     private ActivityResultLauncher<Intent> updateLocale;
     private ActivityResultLauncher<Intent> updateCurrency;
+    private ActivityResultLauncher<Intent> supportSettingsHandler;
 
     @Nullable
     @Override
@@ -176,6 +177,23 @@ public class NewSettingsFragment extends BaseFragment
                 result ->
                 {
                     updateCurrency(result.getData());
+                });
+        supportSettingsHandler = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                result ->
+                {
+                    Intent data = result.getData();
+                    if (data != null && result.getResultCode() == RESULT_OK)
+                    {
+                        String url = data.getStringExtra(C.DAPP_URL_LOAD);
+                        if (url != null)
+                        {
+                            // Open URL in wallet browser
+                            Intent intent = new Intent(getActivity(), HomeActivity.class);
+                            intent.putExtra(C.DAPP_URL_LOAD, url);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                            startActivity(intent);
+                        }
+                    }
                 });
     }
 
@@ -643,7 +661,7 @@ public class NewSettingsFragment extends BaseFragment
     private void onSupportSettingClicked()
     {
         Intent intent = new Intent(getActivity(), SupportSettingsActivity.class);
-        startActivity(intent);
+        supportSettingsHandler.launch(intent);
     }
 
     private void onWalletConnectSettingClicked()

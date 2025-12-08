@@ -457,6 +457,7 @@ public class DappBrowserFragment extends BaseFragment implements OnSignTransacti
     {
         refresh = baseView.findViewById(R.id.refresh);
         final MenuItem reload = toolbar.getMenu().findItem(R.id.action_reload);
+        final MenuItem newTab = toolbar.getMenu().findItem(R.id.action_new_tab);
         final MenuItem share = toolbar.getMenu().findItem(R.id.action_share);
         final MenuItem scan = toolbar.getMenu().findItem(R.id.action_scan);
         final MenuItem add = toolbar.getMenu().findItem(R.id.action_add_to_my_dapps);
@@ -468,6 +469,10 @@ public class DappBrowserFragment extends BaseFragment implements OnSignTransacti
 
         if (reload != null) reload.setOnMenuItemClickListener(menuItem -> {
             reloadPage();
+            return true;
+        });
+        if (newTab != null) newTab.setOnMenuItemClickListener(menuItem -> {
+            openNewTab();
             return true;
         });
         if (share != null) share.setOnMenuItemClickListener(menuItem -> {
@@ -1560,6 +1565,25 @@ public class DappBrowserFragment extends BaseFragment implements OnSignTransacti
 
             viewModel.track(Analytics.Action.RELOAD_BROWSER);
         }
+    }
+
+    private void openNewTab()
+    {
+        // Clear the current page and load the default homepage in a new "tab"
+        web3.clearHistory();
+        web3.resetView();
+        
+        String homepage = getDefaultDappUrl();
+        if (homepage != null)
+        {
+            web3.loadUrl(homepage);
+            setUrlText(homepage);
+        }
+        
+        // Focus on the URL bar so user can enter a new URL
+        addressBar.leaveEditMode();
+        
+        viewModel.track(Analytics.Action.RELOAD_BROWSER);
     }
 
     private void resetDappBrowser()

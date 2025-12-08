@@ -82,6 +82,7 @@ public class BackupKeyActivity extends BaseActivity implements
     private FunctionButtonBar functionButtonBar;
 
     private boolean hasNoLock = false;
+    private boolean isExplicitUpgrade = false; // True when user explicitly clicks upgrade from settings
 
     private int screenWidth;
 
@@ -141,6 +142,7 @@ public class BackupKeyActivity extends BaseActivity implements
                 break;
             case UPGRADE_KEY_SECURITY:
                 //first open authentication
+                isExplicitUpgrade = true;
                 setupUpgradeKey(false);
                 break;
         }
@@ -254,20 +256,58 @@ public class BackupKeyActivity extends BaseActivity implements
                     break;
                 case NO_SCREENLOCK:
                     hasNoLock = true;
-                    DisplayKeyFailureDialog(getString(R.string.enable_screenlock));
+                    if (isExplicitUpgrade)
+                    {
+                        // User explicitly requested upgrade - show error and instructions
+                        showEnableScreenLockDialog();
+                    }
+                    else
+                    {
+                        // Automatic upgrade after wallet creation - skip upgrade and continue
+                        finishBackupSuccess(false);
+                    }
                     break;
                 case ALREADY_LOCKED:
                     finishBackupSuccess(false); // already upgraded to top level
                     break;
                 case ERROR:
                     hasNoLock = true;
-                    DisplayKeyFailureDialog(getString(R.string.unable_to_upgrade_key, upgrade.message));
+                    if (isExplicitUpgrade)
+                    {
+                        DisplayKeyFailureDialog(getString(R.string.unable_to_upgrade_key, upgrade.message));
+                    }
+                    else
+                    {
+                        // During wallet creation, skip upgrade on error
+                        finishBackupSuccess(false);
+                    }
                     break;
                 case SUCCESSFULLY_UPGRADED:
                     createdKey(wallet.address);
                     break;
             }
         });
+    }
+    
+    private void showEnableScreenLockDialog()
+    {
+        AWalletAlertDialog dialog = new AWalletAlertDialog(this);
+        dialog.setTitle(R.string.key_error);
+        dialog.setIcon(AWalletAlertDialog.ERROR);
+        dialog.setMessage(getString(R.string.enable_screenlock));
+        dialog.setButtonText(R.string.action_continue);
+        dialog.setSecondaryButtonText(R.string.action_close);
+        dialog.setButtonListener(v -> {
+            // User will enable screen lock manually, then try again
+            dialog.dismiss();
+            finish();
+        });
+        dialog.setSecondaryButtonListener(v -> {
+            dialog.dismiss();
+            finish();
+        });
+        dialog.setCancelable(true);
+        dialog.show();
     }
 
     private void upgradeKeySecurity()
@@ -515,8 +555,28 @@ public class BackupKeyActivity extends BaseActivity implements
         {
             case STRONGBOX_NO_AUTHENTICATION:
             case TEE_NO_AUTHENTICATION:
-                //improve key security
-                setupUpgradeKey(true);
+                //improve key security - but only if device has screen lock
+                // For first-time wallet creation, check if device is secured first
+                if (viewModel.deviceIsSecured())
+                {
+                    // During first-time wallet creation, automatically trigger upgrade without showing screen
+                    // to avoid the blue screen flash
+                    if (!isExplicitUpgrade)
+                    {
+                        // Silently start the upgrade process
+                        upgradeKeySecurity();
+                    }
+                    else
+                    {
+                        // From settings, show the upgrade screen
+                        setupUpgradeKey(true);
+                    }
+                }
+                else
+                {
+                    // Device not secured, skip upgrade and finish
+                    finishBackupSuccess(false);
+                }
                 break;
             default:
                 finishBackupSuccess(true);

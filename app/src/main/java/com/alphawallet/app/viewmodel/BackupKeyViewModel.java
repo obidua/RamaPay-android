@@ -177,6 +177,11 @@ public class BackupKeyViewModel extends BaseViewModel {
     {
         return keyService.hasKeystore(address);
     }
+    
+    public boolean deviceIsSecured()
+    {
+        return keyService.deviceIsSecured();
+    }
 
     public Single<Wallet> storeWallet(Wallet wallet)
     {

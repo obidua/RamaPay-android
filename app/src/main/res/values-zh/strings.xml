@@ -183,10 +183,10 @@
     <string name="filter_search_seats">连座数量</string>
     <string name="search_label_match">比赛</string>
     <string name="help_question1">以太币/以太坊是什么?</string>
-    <string name="help_question2">为什么AlphaWallet需要调用以太币?</string>
+    <string name="help_question2">为什么RamaPay需要调用以太币?</string>
     <string name="help_question3">怎样才能拿到法币?</string>
     <string name="help_question4">助记词是做什么的?</string>
-    <string name="help_question5">怎样把以太币转到AlphaWallet内?</string>
+    <string name="help_question5">怎样把以太币转到RamaPay内?</string>
     <string name="help_question6">什么是 TokenScript?</string>
     <string name="twenty_four_hours">24小时</string>
     <string name="appreciation">升值</string>
@@ -195,7 +195,7 @@
     <string name="ethereum_blockchain">基于以太坊智能合约</string>
     <string name="issuer">发行方:</string>
     <string name="root_title">设备安全性受损</string>
-    <string name="root_body">你的手机有root权限，但私钥仍受Android安全区域加密保护。 第三方键盘或剪贴板查看器是个攻击媒介，当您输入密钥时便可读取您的密钥。 AlphaWallet尽最大努力通过关闭键盘自动更正来减少这种情况。 如果您以root身份运行，建议您仅使用主流键盘应用程序，运行高质量的防病毒应用程序，并使用广受认可和好评的开源根管理器，例如Magisk或SuperSU。 最终，私钥安全还是您的责任。</string>
+    <string name="root_body">你的手机有root权限，但私钥仍受Android安全区域加密保护。 第三方键盘或剪贴板查看器是个攻击媒介，当您输入密钥时便可读取您的密钥。 RamaPay尽最大努力通过关闭键盘自动更正来减少这种情况。 如果您以root身份运行，建议您仅使用主流键盘应用程序，运行高质量的防病毒应用程序，并使用广受认可和好评的开源根管理器，例如Magisk或SuperSU。 最终，私钥安全还是您的责任。</string>
     <string name="contact_us">需要更多的帮助? 联系我们</string>
     <string name="confirm_sale_title">确认出售?</string>
     <string name="dialog_cancel_back">取消并退回</string>
@@ -254,7 +254,7 @@
     <string name="eth_00">0.00 以太币</string>
     <string name="toolbar_title_wallets">更换当前钱包</string>
     <string name="what_is_eth">以太坊是一个建立在区块链技术之上的开发平台，同时具有智能合约功能的操作系统。它是区块链产品和服务的基础技术。\n\nETH/Ether 是一个加密货币，其区块链由以太坊平台生成。 Ether 可以在在账户中互相转移和用来奖励给挖矿者。以太坊提供了一个“图灵完备”的虚拟机，称为以太坊虚拟机(Ethereum Virtual Machine)，简称EVM，用于国际网络中执行交易代码, \"Gas\", 是一种特别的单位用于Ethereum（以太币）里，它用来衡量一个行为或者一系列行为有多少“工作量”。 </string>
-    <string name="why_alphawallet_eth">目前，以太坊是最好区块链技术和开发智能合约应用程序和。AlphaWallet 开发于太坊区块链技术基础上，目前还在不断创新。</string>
+    <string name="why_alphawallet_eth">目前，以太坊是最好区块链技术和开发智能合约应用程序和。RamaPay 开发于太坊区块链技术基础上，目前还在不断创新。</string>
     <string name="how_i_get_money">您可以将以太币转换为法定货币，并通过任何加密货币市场转移到您的银行账户。</string>
     <string name="how_i_transfer_into_wallet">您可以提供钱包地址给发件人，通过您的钱包地址把ETH转移到您的钱包。</string>
     <string name="ticket_import_valid">门票有效</string>
@@ -310,15 +310,15 @@
     <string name="ticket_not_valid">无效的代币</string>
     <string name="ticket_not_valid_body">在当前网络上此地址没有有效智能合约： 合约可能已经被终止，或者它可能位于不同的网络上。 可以尝试将网络改为“Ropsten（测试网络）”。</string>
     <string name="new_version_title">有可用更新</string>
-    <string name="new_version">前往 AlphaWallet 网站即可获得版本更新资讯。</string>
+    <string name="new_version">前往 RamaPay 网站即可获得版本更新资讯。</string>
     <string name="confirm_update">下载并安装</string>
     <string name="dialog_later">稍后</string>
-    <string name="alphawallet_update">AlphaWallet 更新</string>
+    <string name="alphawallet_update">RamaPay 更新</string>
     <string name="install_error">无法更新应用</string>
     <string name="require_write_permission">未授予存储写入权限。</string>
     <string name="dialog_not_again">跳过直至下一版本</string>
     <string name="enable_xml_override_dir">启用 XML 覆盖</string>
-    <string name="explain_xml_override">启用 XML 覆盖将会在您的手机存储中创建一个本地目录 \'AlphaWallet\'， TokenScript 配置文件 (XML) 将被存入此目录，该目录将会覆盖默认或者网络 Token 配置。</string>
+    <string name="explain_xml_override">启用 XML 覆盖将会在您的手机存储中创建一个本地目录 \'RamaPay\'， TokenScript 配置文件 (XML) 将被存入此目录，该目录将会覆盖默认或者网络 Token 配置。</string>
     <string name="ask_user_about_xml_override">是否启用 TokenScript 配置覆盖目录？</string>
     <string name="label_contract">合约地址</string>
     <string name="toolbar_header_browser">DApp 浏览器</string>
@@ -412,7 +412,7 @@
     <string name="title_enabled_networks">启用网络 (%s)</string>
     <string name="collectibles">收藏品</string>
     <string name="token_function">代币功能</string>
-    <string name="channel_description">Alphawallet 通知渠道</string>
+    <string name="channel_description">RamaPay 通知渠道</string>
     <string name="error_camera_permission_denied">相机使用权限遭拒。</string>
     <string name="confirm_tokenscript_transaction">确认 TokenScript 交易</string>
     <string name="tokenscript_send_native">发送%1$s %2$s至%3$s (%4$s)</string>
@@ -452,7 +452,7 @@
     <string name="set_keystore_password">设置密钥库密码</string>
     <string name="keystore_loss_warning">注意：您必须记住密码。我们不会将您的密码存储在其他地方。密钥库会始终加密，否则无论是谁，一旦拥有该密钥库均可得到其中的资金。</string>
     <string name="save_keystore">保存密钥库</string>
-    <string name="do_not_share">请勿将备份文件分享给他人。AlphaWallet 团队成员绝不会向您索要备份。</string>
+    <string name="do_not_share">请勿将备份文件分享给他人。RamaPay 团队成员绝不会向您索要备份。</string>
     <string name="enter_seed_phrase">输入助记词</string>
     <string name="seed_phrase_conversion_message">如果您的助记词不是英语，请自行使用工具（如：https://iancoleman.io/bip39/）将其转换为英语</string>
     <string name="bad_seed_phrase">恢复助记词无效。请检查并重试。</string>
@@ -491,7 +491,7 @@
     <string name="back_up_now">马上备份！</string>
     <string name="key_secure">不要让其它人看到</string>
     <string name="lock_key_upgrade">锁定助记词以提高安全性</string>
-    <string name="upgrade_key_security_detail">AlphaWallet 的安全性正在升级为最佳状态。使用生物识别技术加密您的助记词。</string>
+    <string name="upgrade_key_security_detail">RamaPay 的安全性正在升级为最佳状态。使用生物识别技术加密您的助记词。</string>
     <string name="action_upgrade_key">升级密钥安全性</string>
     <string name="backup_wallet_detail">我们强烈建议您备份钱包。</string>
     <string name="skip_upgrade">跳过升级</string>
@@ -503,7 +503,7 @@
     <string name="provide_authentication">提供身份验证以创建密钥</string>
     <string name="import_error">导入错误，请再次尝试重新导入。</string>
     <string name="watch_exists">钱包 %1$s 已存在</string>
-    <string name="welcome_to_alphawallet">欢迎使用 AlphaWallet</string>
+    <string name="welcome_to_alphawallet">欢迎使用 RamaPay</string>
     <string name="lock_seed_phrase">锁定助记词</string>
     <string name="no_key">未找到密钥</string>
     <string name="pending_transaction">交易待定……</string>
@@ -576,7 +576,7 @@
     <string name="your_wallets">您的钱包</string>
     <string name="action_copy">复制</string>
     <string name="title_version_support_warning">重要更新</string>
-    <string name="message_version_support_warning">从版本 3.0 开始，AlphaWallet 将不再支持在 Android 6.0 及以下设备上运行。</string>
+    <string name="message_version_support_warning">从版本 3.0 开始，RamaPay 将不再支持在 Android 6.0 及以下设备上运行。</string>
     <string name="hide_notification">隐藏通知</string>
     <string name="card_view_not_found_error">未找到%1$s</string>
     <string name="tokenscript_management">TokenScript 管理</string>
@@ -587,12 +587,12 @@
     <string name="fast">快</string>
     <string name="label_estimated_transaction_time">估计交易时间</string>
     <string name="minutes_0">0 分钟</string>
-    <string name="created_aw_directory">已创建的 AlphaWallet 目录</string>
-    <string name="created_aw_directory_detail">已创建 AlphaWallet 目录。将TokenScript放入此目录中以使用您的TokenScript。欲知如何为您的代币轻松创建一个安全有用的接口，请参见 tokenscript.org 了解更多细节。</string>
+    <string name="created_aw_directory">已创建的 RamaPay 目录</string>
+    <string name="created_aw_directory_detail">已创建 RamaPay 目录。将TokenScript放入此目录中以使用您的TokenScript。欲知如何为您的代币轻松创建一个安全有用的接口，请参见 tokenscript.org 了解更多细节。</string>
     <string name="title_no_need_to_watch">已经查看</string>
     <string name="error_while_signing_transaction">签署交易时发生错误。请重新导入该钱包的密钥。</string>
     <string name="error_not_whitelisted">页面未列入白名单</string>
-    <string name="explain_not_whitelisted">TokenScript 尝试重定向到未列入白名单的页面 %1$s。如果您是该站点的所有者，请向 AlphaWallet 存储库提交拉取请求，以便将页面添加至白名单。</string>
+    <string name="explain_not_whitelisted">TokenScript 尝试重定向到未列入白名单的页面 %1$s。如果您是该站点的所有者，请向 RamaPay 存储库提交拉取请求，以便将页面添加至白名单。</string>
     <string name="token_spec">%1$s (%2$s)</string>
     <string name="check_function_availability">功能可用性</string>
     <string name="invalid_parameters">调用 TokenScript 交易时参数无效。请检查输入。</string>
@@ -679,7 +679,7 @@
     <string name="gas_max">最大手续费</string>
     <string name="priority_fee">优先级费用</string>
     <string name="base_fee">基础费用</string>
-    <string name="gas_message">费用基于当前以太坊区块链网络负载。它们不由 AlphaWallet 决定。AlphaWallet 使用 %1$s 实时预言机，并每 15 秒更新燃料价格。</string>
+    <string name="gas_message">费用基于当前以太坊区块链网络负载。它们不由 RamaPay 决定。RamaPay 使用 %1$s 实时预言机，并每 15 秒更新燃料价格。</string>
     <string name="set_your_speed">自己设定</string>
     <string name="nonce_optional">Nonce (可选的)</string>
     <string name="calc_gas_limit">正在计算燃料限制</string>
@@ -700,7 +700,7 @@
     <string name="deposit">存款</string>
     <string name="body_low_gas">燃料价格被设置低于"慢速"。</string>
     <string name="low_gas_setting">手续费可能过低</string>
-    <string name="body_high_gas">你设定的燃料费非常高。请确保这不是一个错误。AlphaWallet使用 gasnow.org 实时预言机，每15秒更新燃料价格。</string>
+    <string name="body_high_gas">你设定的燃料费非常高。请确保这不是一个错误。RamaPay使用 gasnow.org 实时预言机，每15秒更新燃料价格。</string>
     <string name="high_gas_setting">手续费过高警告！</string>
     <string name="speed_too_low">过低</string>
     <string name="speed_high_gas">高价</string>
@@ -716,7 +716,7 @@
     <string name="disconnect">断开连接</string>
     <string name="keep_connect">保持连接</string>
     <string name="beware_of_scammers">当心诈骗者！\n不要分享助记词。</string>
-    <string name="alphawallet_never_ask">AlphaWallet 永远不会询问您的助记词（我们只回复私信，从不先私信）。</string>
+    <string name="alphawallet_never_ask">RamaPay 永远不会询问您的助记词（我们只回复私信，从不先私信）。</string>
     <string name="your_seed_phrase">您的助记词（请勿与任何人分享）</string>
     <string name="hide_seed_text">好的，隐藏助记词</string>
     <string name="ens_not_match_wallet">ENS名称与钱包地址不匹配</string>
@@ -736,7 +736,7 @@
     <string name="alerts_will_appear_here">通知将会出现在这里</string>
     <string name="token_text">代币</string>
     <string name="buy_eth">购买以太币</string>
-    <string name="reload_token_data_desc">重置所有缓存的代币数据(如记录的余额等)。AlphaWallet 将重新加载您钱包的当前状态。不会影响密钥或资产。</string>
+    <string name="reload_token_data_desc">重置所有缓存的代币数据(如记录的余额等)。RamaPay 将重新加载您钱包的当前状态。不会影响密钥或资产。</string>
     <string name="text_speedup_note">请注意，加速此交易不能保证原始交易会被加速。如果您的尝试成功，您将被收取上述矿工费用。</string>
     <string name="text_cancel_note">请注意，此交易不能保证您的原始交易会被取消。如果您的尝试成功，您将被收取上述矿工费用。</string>
     <string name="text_resend_gas_note">为了加速此交易，燃料价格必须至少比原始燃料价格高 10%。</string>
@@ -863,7 +863,7 @@
     <string name="no_key_found">未找到密钥</string>
     <string name="unable_store_key">无法存储密钥：%1$s</string>
     <string name="title_ens_lookup_warning">ENS 查询警告</string>
-    <string name="message_ens_node_not_sync">AlphaWallet检测到以太坊时间戳与您设备的当前时间不一致，或者区块链连接可能未同步，请检查您手机的时间是否正确，或者忽略此警告。</string>
+    <string name="message_ens_node_not_sync">RamaPay检测到以太坊时间戳与您设备的当前时间不一致，或者区块链连接可能未同步，请检查您手机的时间是否正确，或者忽略此警告。</string>
     <string name="decrease">减少</string>
     <string name="increase">增加</string>
     <string name="message_transaction_timeout">交易已超时。您可以在活动页面查看状态。</string>
@@ -946,7 +946,7 @@
     <string name="message_wc_wallet_different_from_active_wallet">钱包不同于活动钱包。</string>
     <string name="settings_title_analytics">分析</string>
     <string name="settings_title_crash_reporting">崩溃报告</string>
-    <string name="message_share_anonymous_data">与我们分享您的匿名数据，帮助我们改进 AlphaWallet。 这不包括任何财务信息。</string>
+    <string name="message_share_anonymous_data">与我们分享您的匿名数据，帮助我们改进 RamaPay。 这不包括任何财务信息。</string>
     <string name="share_anonymous_data">共享匿名数据？</string>
     <string name="enable_required_chains">启用所需的链？</string>
     <string name="enable_required_chains_message">选定的代币位于当前未选择的链上，启用未选择的链？</string>
@@ -978,9 +978,9 @@
     <string name="notification_message_incoming_token">钱包 %1s 已收到 %2s。 点击此处查看交易详情。</string>
     <string name="btn_ok_request_post_notifications_permission">我想收到通知</string>
     <string name="btn_skip">暂时跳过</string>
-    <string name="body_request_post_notifications_permission">当 AlphaWallet 在后台运行时，它可以向您发送各种事件的通知，例如您的钱包何时收到代币。</string>
+    <string name="body_request_post_notifications_permission">当 RamaPay 在后台运行时，它可以向您发送各种事件的通知，例如您的钱包何时收到代币。</string>
     <string name="title_request_post_notifications_permission">得到通知</string>
-    <string name="message_deny_request_post_notifications_permission">当 AlphaWallet 处于后台时，您将不会收到通知。 您可以通过转到“设置”>“通知”来更改此设置</string>
+    <string name="message_deny_request_post_notifications_permission">当 RamaPay 处于后台时，您将不会收到通知。 您可以通过转到“设置”>“通知”来更改此设置</string>
     <string name="minted">已铸造</string>
     <string name="valid_from">有效起始日期</string>
     <string name="valid_until">有效期至日期</string>

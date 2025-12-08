@@ -1,6 +1,8 @@
 package com.alphawallet.app.ui;
 
 import static com.alphawallet.app.C.IMPORT_REQUEST_CODE;
+import static com.alphawallet.app.C.Key.WALLET;
+import static com.alphawallet.app.entity.BackupState.ENTER_BACKUP_STATE_HD;
 
 import android.app.Activity;
 import android.content.Context;
@@ -11,11 +13,14 @@ import android.os.Looper;
 import android.view.View;
 import android.widget.ImageView;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.alphawallet.app.R;
 import com.alphawallet.app.analytics.Analytics;
 import com.alphawallet.app.entity.AnalyticsProperties;
+import com.alphawallet.app.entity.BackupOperationType;
 import com.alphawallet.app.entity.CreateWalletCallbackInterface;
 import com.alphawallet.app.entity.CustomViewSettings;
 import com.alphawallet.app.entity.Operation;
@@ -37,6 +42,8 @@ public class SplashActivity extends BaseActivity implements CreateWalletCallback
 {
     private SplashViewModel viewModel;
     private String errorMessage;
+    private String pendingWalletAddress;
+    private KeyService.AuthenticationLevel pendingAuthLevel;
     private final Runnable displayError = new Runnable()
     {
         @Override
@@ -52,6 +59,27 @@ public class SplashActivity extends BaseActivity implements CreateWalletCallback
         }
     };
     private Handler handler = new Handler(Looper.getMainLooper());
+
+    private final ActivityResultLauncher<Intent> handleBackupWallet = registerForActivityResult(
+        new ActivityResultContracts.StartActivityForResult(),
+        result -> {
+            if (result.getResultCode() == RESULT_OK && pendingWalletAddress != null)
+            {
+                // Backup successful, now store the wallet and proceed to home
+                viewModel.StoreHDKey(pendingWalletAddress, pendingAuthLevel);
+                pendingWalletAddress = null;
+                pendingAuthLevel = null;
+            }
+            else
+            {
+                // Backup was cancelled or failed, show error
+                errorMessage = getString(R.string.backup_required_create_wallet);
+                if (handler != null) handler.post(displayError);
+                // Allow user to try again
+                viewModel.fetchWallets();
+            }
+        }
+    );
 
     @Override
     protected void attachBaseContext(Context base)
@@ -156,7 +184,21 @@ public class SplashActivity extends BaseActivity implements CreateWalletCallback
     @Override
     public void HDKeyCreated(String address, Context ctx, KeyService.AuthenticationLevel level)
     {
-        viewModel.StoreHDKey(address, level);
+        // Store wallet details temporarily and launch backup flow
+        pendingWalletAddress = address;
+        pendingAuthLevel = level;
+        
+        // Create temporary wallet for backup
+        Wallet tempWallet = new Wallet(address);
+        tempWallet.type = com.alphawallet.app.entity.WalletType.HDKEY;
+        tempWallet.authLevel = level;
+        
+        // Launch backup activity for seed phrase verification
+        Intent intent = new Intent(this, BackupKeyActivity.class);
+        intent.putExtra(WALLET, tempWallet);
+        intent.putExtra("STATE", ENTER_BACKUP_STATE_HD);
+        intent.setFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+        handleBackupWallet.launch(intent);
     }
 
     @Override

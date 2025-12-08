@@ -29,6 +29,7 @@ public class SupportSettingsActivity extends BaseActivity
     private SettingsItemView twitter;
     private SettingsItemView reddit;
     private SettingsItemView facebook;
+    private SettingsItemView instagram;
     private SettingsItemView blog;
     private SettingsItemView faq;
     private SettingsItemView github;
@@ -82,23 +83,23 @@ public class SupportSettingsActivity extends BaseActivity
                 .withListener(this::onTwitterClicked)
                 .build();
 
-        /*reddit = new SettingsItemView.Builder(this)
-                .withIcon(R.drawable.ic_logo_reddit)
-                .withTitle(R.string.reddit)
-                .withListener(this::onRedditClicked)
-                .build();
-
         facebook = new SettingsItemView.Builder(this)
                 .withIcon(R.drawable.ic_logo_facebook)
                 .withTitle(R.string.facebook)
                 .withListener(this::onFacebookClicked)
                 .build();
 
+        instagram = new SettingsItemView.Builder(this)
+                .withIcon(R.drawable.ic_logo_instagram)
+                .withTitle(R.string.instagram)
+                .withListener(this::onInstagramClicked)
+                .build();
+
         blog = new SettingsItemView.Builder(this)
                 .withIcon(R.drawable.ic_settings_blog)
                 .withTitle(R.string.title_blog)
                 .withListener(this::onBlogClicked)
-                .build();*/
+                .build();
 
         github = new SettingsItemView.Builder(this)
                 .withIcon(R.drawable.ic_logo_github)
@@ -132,38 +133,36 @@ public class SupportSettingsActivity extends BaseActivity
             supportSettingsLayout.addView(twitter);
         }
 
+        if (MediaLinks.AWALLET_FACEBOOK_URL != null)
+        {
+            supportSettingsLayout.addView(facebook);
+        }
+
+        if (MediaLinks.AWALLET_INSTAGRAM_URL != null)
+        {
+            supportSettingsLayout.addView(instagram);
+        }
+
         if (MediaLinks.AWALLET_GITHUB != null)
         {
             supportSettingsLayout.addView(github);
         }
 
-        /*if (MediaLinks.AWALLET_REDDIT_URL != null) {
-            supportSettingsLayout.addView(reddit);
-        }
-
-        if (MediaLinks.AWALLET_FACEBOOK_URL != null) {
-            supportSettingsLayout.addView(facebook);
-        }
-
-        if (MediaLinks.AWALLET_BLOG_URL != null) {
+        if (MediaLinks.AWALLET_BLOG_URL != null)
+        {
             supportSettingsLayout.addView(blog);
-        }*/
+        }
+
         supportSettingsLayout.addView(faq);
     }
 
     private void onGitHubClicked()
     {
-        try
-        {
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setData(Uri.parse(MediaLinks.AWALLET_GITHUB));
-            viewModel.track(Analytics.Action.SUPPORT_GITHUB);
-            startActivity(intent);
-        }
-        catch (Exception e)
-        {
-            Timber.e(e);
-        }
+        Intent intent = new Intent();
+        intent.putExtra(C.DAPP_URL_LOAD, MediaLinks.AWALLET_GITHUB);
+        viewModel.track(Analytics.Action.SUPPORT_GITHUB);
+        setResult(RESULT_OK, intent);
+        finish();
     }
 
     private void onDiscordClicked()
@@ -225,26 +224,11 @@ public class SupportSettingsActivity extends BaseActivity
 
     private void onTwitterClicked()
     {
-        Intent intent;
-        try
-        {
-            getPackageManager().getPackageInfo(C.TWITTER_PACKAGE_NAME, 0);
-            intent = new Intent(Intent.ACTION_VIEW, Uri.parse(MediaLinks.AWALLET_TWITTER_URL));
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        }
-        catch (Exception e)
-        {
-            intent = new Intent(Intent.ACTION_VIEW, Uri.parse(MediaLinks.AWALLET_TWITTER_URL));
-        }
-        try
-        {
-            viewModel.track(Analytics.Action.SUPPORT_TWITTER);
-            startActivity(intent);
-        }
-        catch (Exception e)
-        {
-            Timber.e(e);
-        }
+        Intent intent = new Intent();
+        intent.putExtra(C.DAPP_URL_LOAD, MediaLinks.AWALLET_TWITTER_URL);
+        viewModel.track(Analytics.Action.SUPPORT_TWITTER);
+        setResult(RESULT_OK, intent);
+        finish();
     }
 
     private void onRedditClicked()
@@ -269,46 +253,35 @@ public class SupportSettingsActivity extends BaseActivity
 
     private void onFacebookClicked()
     {
-        Intent intent;
-        try
-        {
-            getPackageManager().getPackageInfo(C.FACEBOOK_PACKAGE_NAME, 0);
-            intent = new Intent(Intent.ACTION_VIEW, Uri.parse(MediaLinks.AWALLET_FACEBOOK_URL));
-            //intent = new Intent(Intent.ACTION_VIEW, Uri.parse(MediaLinks.AWALLET_FACEBOOK_ID));
-        }
-        catch (Exception e)
-        {
-            intent = new Intent(Intent.ACTION_VIEW, Uri.parse(MediaLinks.AWALLET_FACEBOOK_URL));
-        }
-        try
-        {
-            startActivity(intent);
-        }
-        catch (Exception e)
-        {
-            Timber.e(e);
-        }
+        Intent intent = new Intent();
+        intent.putExtra(C.DAPP_URL_LOAD, MediaLinks.AWALLET_FACEBOOK_URL);
+        setResult(RESULT_OK, intent);
+        finish();
+    }
+
+    private void onInstagramClicked()
+    {
+        Intent intent = new Intent();
+        intent.putExtra(C.DAPP_URL_LOAD, MediaLinks.AWALLET_INSTAGRAM_URL);
+        setResult(RESULT_OK, intent);
+        finish();
     }
 
     private void onBlogClicked()
     {
-
+        Intent intent = new Intent();
+        intent.putExtra(C.DAPP_URL_LOAD, MediaLinks.AWALLET_BLOG_URL);
+        setResult(RESULT_OK, intent);
+        finish();
     }
 
     private void onFaqClicked()
     {
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(Uri.parse(MediaLinks.AWALLET_FAQ_URL));
-
-        try
-        {
-            viewModel.track(Analytics.Action.SUPPORT_FAQ);
-            startActivity(intent);
-        }
-        catch (Exception e)
-        {
-            Timber.e(e);
-        }
+        Intent intent = new Intent();
+        intent.putExtra(C.DAPP_URL_LOAD, MediaLinks.AWALLET_FAQ_URL);
+        viewModel.track(Analytics.Action.SUPPORT_FAQ);
+        setResult(RESULT_OK, intent);
+        finish();
     }
 
     private boolean isAppAvailable(String packageName)

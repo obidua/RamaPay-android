@@ -1388,11 +1388,16 @@ public class KeyService implements AuthenticationCallback, PinAuthenticationCall
         return false;
     }
 
-    private boolean deviceIsLocked()
+    public boolean deviceIsSecured()
     {
         KeyguardManager keyguardManager = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
         if (keyguardManager == null) return false;
         else return keyguardManager.isDeviceSecure();
+    }
+    
+    private boolean deviceIsLocked()
+    {
+        return deviceIsSecured();
     }
 
     private void vibrate()

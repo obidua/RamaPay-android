@@ -94,6 +94,7 @@ public class SplashViewModel extends BaseViewModel
             Wallet wallet = new Wallet(address);
             wallet.type = WalletType.HDKEY;
             wallet.authLevel = authLevel;
+            wallet.lastBackupTime = System.currentTimeMillis(); // Set backup time since user just completed backup
             fetchWalletsInteract.storeWallet(wallet)
                 .map(w -> {
                     preferenceRepository.setCurrentWalletAddress(w.address);

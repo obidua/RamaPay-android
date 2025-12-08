@@ -641,7 +641,7 @@ public abstract class EthereumNetworkBase implements EthereumNetworkRepositoryTy
                     "https://sepolia-testnet-explorer.mintchain.io/tx/", MINT_SEPOLIA_TESTNET_ID,
                     "https://sepolia-testnet-explorer.mintchain.io/api/v2/")); //https://sepolia-testnet-explorer.mintchain.io/api/v2/addresses/0x76626Fc07d050d59c9fc1Ac5b853a9952B5E9Afe/transactions?filter=to%20%7C%20from
             
-            put(RAMESTTA_MAINNET_ID, new NetworkInfo("Ramestta Mainnet", "RAMA",
+            put(RAMESTTA_MAINNET_ID, new NetworkInfo("Ramestta Network", "RAMA",
                     CHAIN_CONFIG_RPC.get(RAMESTTA_MAINNET_ID),
                     "https://ramascan.com/tx/", RAMESTTA_MAINNET_ID,
                     "https://ramascan.com/api?"));

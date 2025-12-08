@@ -68,6 +68,7 @@ import com.alphawallet.app.util.LocaleUtils;
 import com.alphawallet.app.viewmodel.WalletViewModel;
 import com.alphawallet.app.walletconnect.AWWalletConnectClient;
 import com.alphawallet.app.widget.BuyEthOptionsView;
+import com.alphawallet.app.widget.BuyRamaOptionsView;
 import com.alphawallet.app.widget.LargeTitleView;
 import com.alphawallet.app.widget.NotificationView;
 import com.alphawallet.app.widget.ProgressView;
@@ -538,25 +539,39 @@ public class WalletFragment extends BaseFragment implements
     @Override
     public void onBuyToken()
     {
-        final BottomSheetDialog buyEthDialog = new BottomSheetDialog(getActivity());
-        BuyEthOptionsView buyEthOptionsView = new BuyEthOptionsView(getActivity());
-        buyEthOptionsView.setOnBuyWithRampListener(v -> {
-            Intent intent = viewModel.getBuyIntent(getCurrentWallet().address);
-            ((HomeActivity) getActivity()).onActivityResult(C.TOKEN_SEND_ACTIVITY, RESULT_OK, intent);
-            viewModel.track(Analytics.Action.BUY_WITH_RAMP);
-            buyEthDialog.dismiss();
+        final BottomSheetDialog buyRamaDialog = new BottomSheetDialog(getActivity());
+        BuyRamaOptionsView buyRamaOptionsView = new BuyRamaOptionsView(getActivity());
+        
+        buyRamaOptionsView.setOnBuyFromBitMartListener(v -> {
+            openInWalletBrowser("https://coinmarketcap.com/exchanges/bitmart/");
+            buyRamaDialog.dismiss();
         });
-        buyEthOptionsView.setOnBuyWithCoinbasePayListener(v -> {
-            viewModel.showBuyEthOptions(getActivity());
+        
+        buyRamaOptionsView.setOnBuyFromKoinparkListener(v -> {
+            openInWalletBrowser("https://www.koinpark.com/trade/RAMA-INR?code=3a2iG6rQ&&type=referral");
+            buyRamaDialog.dismiss();
         });
-        buyEthOptionsView.setDismissInterface(() -> {
-            if (buyEthDialog != null && buyEthDialog.isShowing())
+        
+        buyRamaOptionsView.setOnBuyFromRamaSwapListener(v -> {
+            openInWalletBrowser("https://ramaswap.com");
+            buyRamaDialog.dismiss();
+        });
+        
+        buyRamaOptionsView.setDismissInterface(() -> {
+            if (buyRamaDialog != null && buyRamaDialog.isShowing())
             {
-                buyEthDialog.dismiss();
+                buyRamaDialog.dismiss();
             }
         });
-        buyEthDialog.setContentView(buyEthOptionsView);
-        buyEthDialog.show();
+        buyRamaDialog.setContentView(buyRamaOptionsView);
+        buyRamaDialog.show();
+    }
+    
+    private void openInWalletBrowser(String url)
+    {
+        Intent intent = new Intent();
+        intent.putExtra(C.DAPP_URL_LOAD, url);
+        ((HomeActivity) getActivity()).onActivityResult(C.TOKEN_SEND_ACTIVITY, RESULT_OK, intent);
     }
 
     @Override

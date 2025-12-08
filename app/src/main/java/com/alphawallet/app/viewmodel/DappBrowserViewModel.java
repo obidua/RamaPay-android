@@ -485,6 +485,6 @@ public class DappBrowserViewModel extends BaseViewModel implements TransactionSe
 
     public boolean getDeveloperOverrideState(Context context)
     {
-        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(DEVELOPER_OVERRIDE, false);
+        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(DEVELOPER_OVERRIDE, true);
     }
 }
