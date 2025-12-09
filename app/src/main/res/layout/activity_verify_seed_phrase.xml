@@ -27,14 +27,92 @@
             android:text="@string/verify_seed_phrase"
             android:textAlignment="center" />
 
+        <TextView
+            android:id="@+id/text_detail"
+            style="@style/Aw.Typography"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/text_title"
+            android:layout_marginStart="@dimen/base_24"
+            android:layout_marginTop="@dimen/standard_16"
+            android:layout_marginEnd="@dimen/base_24"
+            android:gravity="center_horizontal"
+            android:textAlignment="center"
+            android:visibility="gone"
+            tools:text="Select word #3, #5, #9, and #12 in order"
+            tools:visibility="visible" />
+
+        <LinearLayout
+            android:id="@+id/word_inputs_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/text_detail"
+            android:layout_marginStart="@dimen/standard_16"
+            android:layout_marginTop="@dimen/base_24"
+            android:layout_marginEnd="@dimen/standard_16"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:weightSum="4">
+
+            <TextView
+                android:id="@+id/word_input_1"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:layout_margin="4dp"
+                android:background="@drawable/background_input_box"
+                android:gravity="center"
+                android:textSize="14sp"
+                android:padding="8dp"
+                tools:text="word1" />
+
+            <TextView
+                android:id="@+id/word_input_2"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:layout_margin="4dp"
+                android:background="@drawable/background_input_box"
+                android:gravity="center"
+                android:textSize="14sp"
+                android:padding="8dp"
+                tools:text="word2" />
+
+            <TextView
+                android:id="@+id/word_input_3"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:layout_margin="4dp"
+                android:background="@drawable/background_input_box"
+                android:gravity="center"
+                android:textSize="14sp"
+                android:padding="8dp"
+                tools:text="word3" />
+
+            <TextView
+                android:id="@+id/word_input_4"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:layout_margin="4dp"
+                android:background="@drawable/background_input_box"
+                android:gravity="center"
+                android:textSize="14sp"
+                android:padding="8dp"
+                tools:text="word4" />
+
+        </LinearLayout>
+
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/text_title"
+            android:layout_below="@id/word_inputs_container"
             android:layout_marginStart="@dimen/standard_16"
-            android:layout_marginTop="@dimen/double_base_48"
+            android:layout_marginTop="@dimen/base_24"
             android:layout_marginEnd="@dimen/standard_16"
+            android:visibility="gone"
             app:cardBackgroundColor="@color/transparent"
             app:cardElevation="0dp"
             app:strokeColor="?android:textColorSecondary"
@@ -47,6 +125,7 @@
                 android:layout_gravity="center_horizontal"
                 android:minHeight="110dp"
                 android:padding="@dimen/standard_16"
+                android:visibility="gone"
                 tools:text="Verify" />
 
         </com.google.android.material.card.MaterialCardView>

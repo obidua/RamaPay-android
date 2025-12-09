@@ -85,6 +85,11 @@ public class BackupKeyActivity extends BaseActivity implements
     private boolean isExplicitUpgrade = false; // True when user explicitly clicks upgrade from settings
 
     private int screenWidth;
+    
+    // For random word verification (only 4 words)
+    private int[] randomWordPositions = new int[4]; // Stores positions like 3, 5, 9, 12
+    private List<String> selectedWords = new ArrayList<>(); // Stores user's selected words in order
+    private TextView[] wordInputs = new TextView[4]; // The 4 input boxes
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState)
@@ -480,12 +485,14 @@ public class BackupKeyActivity extends BaseActivity implements
 
     private void ResetInputBox()
     {
-        // Removed - currently not needed
-        // verifyTextContainer.setStrokeColor(ContextCompat.getColor(this, R.color.text_secondary));
-        // verifyTextBox.setTextColor(getColor(R.color.text_secondary));
-        verifyTextBox.setText(R.string.empty);
+        // Clear all 4 word input boxes
+        for (TextView wordInput : wordInputs)
+        {
+            if (wordInput != null) wordInput.setText("");
+        }
+        
         TextView invalid = findViewById(R.id.text_invalid);
-        invalid.setVisibility(View.GONE);
+        if (invalid != null) invalid.setVisibility(View.GONE);
     }
 
     private void JSONBackup()
@@ -504,29 +511,32 @@ public class BackupKeyActivity extends BaseActivity implements
 
     private void TestSeedPhrase()
     {
-        String currentText = verifyTextBox.getText().toString();
-        String[] currentTest = currentText.split(" ");
-
-        if (currentTest.length != mnemonicArray.length)
+        // Verify only the 4 selected words match their positions
+        if (selectedWords.size() != 4)
         {
-            //fail. This should never happen
             seedIncorrect();
             return;
         }
-        else
+        
+        // Check each selected word matches the expected word at that position
+        for (int i = 0; i < 4; i++)
         {
-            for (int i = 0; i < mnemonicArray.length; i++)
+            int position = randomWordPositions[i];
+            String expectedWord = mnemonicArray[position];
+            String selectedWord = selectedWords.get(i);
+            
+            if (!expectedWord.equals(selectedWord))
             {
-                if (!mnemonicArray[i].equals(currentTest[i]))
-                {
-                    seedIncorrect();
-                    return;
-                }
+                seedIncorrect();
+                return;
             }
         }
 
         layoutWordHolder.setVisibility(View.GONE);
-        verifyTextBox.setVisibility(View.GONE);
+        
+        // Hide the word input boxes
+        LinearLayout wordInputsContainer = findViewById(R.id.word_inputs_container);
+        if (wordInputsContainer != null) wordInputsContainer.setVisibility(View.GONE);
 
         //terminate and display tick
         backupKeySuccess(BackupOperationType.BACKUP_HD_KEY);
@@ -541,6 +551,7 @@ public class BackupKeyActivity extends BaseActivity implements
         // TextView invalid = findViewById(R.id.text_invalid);
         // invalid.setVisibility(View.VISIBLE);
         Toast.makeText(this, R.string.invalid_phrase, Toast.LENGTH_LONG).show();
+        selectedWords.clear();
         ResetInputBox();
         VerifySeedPhrase();
     }
@@ -613,20 +624,71 @@ public class BackupKeyActivity extends BaseActivity implements
     {
         setContentView(R.layout.activity_verify_seed_phrase);
         initViews();
+        
+        // Initialize the 4 word input TextViews
+        wordInputs[0] = findViewById(R.id.word_input_1);
+        wordInputs[1] = findViewById(R.id.word_input_2);
+        wordInputs[2] = findViewById(R.id.word_input_3);
+        wordInputs[3] = findViewById(R.id.word_input_4);
+        
         functionButtonBar.setPrimaryButtonText(R.string.action_continue);
         functionButtonBar.setPrimaryButtonClickListener(v -> TestSeedPhrase());
         functionButtonBar.setPrimaryButtonEnabled(false);
         state = BackupState.VERIFY_SEED_PHRASE;
         title.setText(R.string.verify_seed_phrase);
         TextView invalid = findViewById(R.id.text_invalid);
-        invalid.setVisibility(View.INVISIBLE);
+        if (invalid != null) invalid.setVisibility(View.INVISIBLE);
         layoutWordHolder.setVisibility(View.VISIBLE);
         layoutWordHolder.removeAllViews();
-
-        if (mnemonicArray != null)
+        
+        // Generate 4 random positions for verification
+        if (mnemonicArray != null && mnemonicArray.length > 0)
         {
+            generateRandomWordPositions();
+            selectedWords.clear();
+            
+            // Clear all word inputs
+            for (TextView wordInput : wordInputs)
+            {
+                if (wordInput != null) wordInput.setText("");
+            }
+            
+            // Update the instruction text to show which word numbers to select
+            TextView detail = findViewById(R.id.text_detail);
+            if (detail != null)
+            {
+                String instruction = String.format("Select word #%d, #%d, #%d, and #%d in order",
+                    randomWordPositions[0] + 1,
+                    randomWordPositions[1] + 1,
+                    randomWordPositions[2] + 1,
+                    randomWordPositions[3] + 1);
+                detail.setText(instruction);
+                detail.setVisibility(View.VISIBLE);
+            }
+
             jumbleList();
         }
+    }
+    
+    private void generateRandomWordPositions()
+    {
+        // Generate 4 unique random positions (0-11 for 12 words)
+        List<Integer> positions = new ArrayList<>();
+        for (int i = 0; i < mnemonicArray.length; i++)
+        {
+            positions.add(i);
+        }
+        
+        // Shuffle and pick first 4
+        for (int i = 0; i < 4; i++)
+        {
+            int randomIndex = (int) (Math.random() * positions.size());
+            randomWordPositions[i] = positions.get(randomIndex);
+            positions.remove(randomIndex);
+        }
+        
+        // Sort the positions so they appear in order (easier for user)
+        java.util.Arrays.sort(randomWordPositions);
     }
 
     private void jumbleList()
@@ -648,15 +710,27 @@ public class BackupKeyActivity extends BaseActivity implements
 
     private void onWordClick(TextView tv)
     {
+        // Only allow selecting 4 words
+        if (selectedWords.size() >= 4)
+        {
+            return;
+        }
+        
         tv.setSelected(true);
         tv.setOnClickListener(null);
-        String currentText = verifyTextBox.getText().toString();
-        if (currentText.length() > 0) currentText += " ";
-        currentText += tv.getText().toString();
-        verifyTextBox.setText(currentText);
+        
+        String selectedWord = tv.getText().toString();
+        selectedWords.add(selectedWord);
+        
+        // Update the corresponding input box
+        int index = selectedWords.size() - 1;
+        if (index < 4 && wordInputs[index] != null)
+        {
+            wordInputs[index].setText(selectedWord);
+        }
 
-        String[] currentTest = currentText.split(" ");
-        if (currentTest.length == mnemonicArray.length)
+        // Enable continue button when 4 words are selected
+        if (selectedWords.size() == 4)
         {
             functionButtonBar.setPrimaryButtonEnabled(true);
         }
@@ -764,9 +838,9 @@ public class BackupKeyActivity extends BaseActivity implements
                     addSeedWordsToScreen();
                     break;
                 case VERIFY_SEED_PHRASE:
-                    VerifySeedPhrase();
+                    // Mnemonic already set, just display jumbled list for selection
                     mnemonicArray = mnemonic.split(" ");
-                    addSeedWordsToScreen();
+                    jumbleList();
                     break;
                 case SEED_PHRASE_INVALID:
                 case UNDEFINED:
@@ -783,9 +857,12 @@ public class BackupKeyActivity extends BaseActivity implements
         if (mnemonicArray == null) return;
         layoutWordHolder.setFlexDirection(FlexDirection.ROW);
 
+        int position = 1;
         for (String word : mnemonicArray)
         {
-            layoutWordHolder.addView(generateSeedWordTextView(word));
+            String numberedWord = position + ". " + word;
+            layoutWordHolder.addView(generateSeedWordTextView(numberedWord));
+            position++;
         }
     }
 

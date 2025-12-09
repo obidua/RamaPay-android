@@ -19,7 +19,7 @@ public class BalanceUtils
     private static final BigDecimal displayThresholdEth = Convert.fromWei(Convert.toWei(BigDecimal.valueOf(0.01), Convert.Unit.GWEI), Convert.Unit.ETHER); //Convert. toWei(BigDecimal.valueOf(0.01), Convert.Unit.ETHER);
     private static final BigDecimal oneGwei = BigDecimal.ONE.divide(Convert.Unit.GWEI.getWeiFactor(), 18, RoundingMode.DOWN); // BigDecimal.valueOf(0.000000001);
     public static final String MACRO_PATTERN = "###,###,###,###,##0";
-    public static final String CURRENCY_PATTERN = MACRO_PATTERN + ".00";
+    public static final String CURRENCY_PATTERN = MACRO_PATTERN + ".0000"; // Changed from .00 to .0000 for better precision
     private static final double ONE_BILLION = 1000000000.0;
     private static String getDigitalPattern(int precision)
     {

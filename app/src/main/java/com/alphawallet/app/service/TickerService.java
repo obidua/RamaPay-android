@@ -747,6 +747,7 @@ public class TickerService
         put(LINEA_ID, "linea");
         put(BASE_MAINNET_ID, "base");
         put(MANTLE_MAINNET_ID, "mantle");
+        put(1370L, "ramestta"); // Ramestta Mainnet
     }};
 
     // For now, don't use Dexguru unless we obtain API key
@@ -789,6 +790,7 @@ public class TickerService
         put(LINEA_ID, "ethereum");
         put(BASE_MAINNET_ID, "base");
         put(MANTLE_MAINNET_ID, "mantle");
+        put(1370L, "ramestta"); // Ramestta native token
     }};
 
     public static boolean validateCoinGeckoAPI(Token token)
