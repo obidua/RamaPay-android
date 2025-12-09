@@ -22,6 +22,7 @@
     <string name="no_repeat">No, repeat</string>
     <string name="transfer">Transfer %s</string>
     <string name="action_buy">Buy %s</string>
+    <string name="wallet_action_buy">Buy</string>
     <string name="empty" translatable="false" />
     <string name="try_again">Try again</string>
     <string name="already_have_account">Already have a wallet?</string>
@@ -78,6 +79,7 @@
     <string name="action_open_etherscan">View in Block Explorer</string>
     <string name="action_coinbase" translatable="false">Coinbase</string>
     <string name="action_localeth" translatable="false">LocalEthereum</string>
+    <string name="coming_soon">Coming soon</string>
     <string name="action_changelly">Changelly (Buy with Credit card)</string>
     <!-- Subject -->
     <string name="subject_transaction_detail">Transaction detail</string>

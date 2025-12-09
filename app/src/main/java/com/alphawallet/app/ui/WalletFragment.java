@@ -23,6 +23,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -77,6 +78,7 @@ import com.alphawallet.app.widget.UserAvatar;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
+import com.alphawallet.app.widget.TokenIcon;
 
 import org.web3j.crypto.Keys;
 
@@ -120,6 +122,7 @@ public class WalletFragment extends BaseFragment implements
     private ActivityResultLauncher<Intent> tokenManagementLauncher;
     private boolean completed = false;
     private boolean hasWCSession = false;
+    private TokenCardMeta[] currentMetas = new TokenCardMeta[0];
 
     @Inject
     AWWalletConnectClient awWalletConnectClient;
@@ -293,6 +296,21 @@ public class WalletFragment extends BaseFragment implements
         largeTitleView = view.findViewById(R.id.large_title_view);
 
         ((ProgressView) view.findViewById(R.id.progress_view)).hide();
+
+        setupQuickActions(view);
+    }
+
+    private void setupQuickActions(@NonNull View view)
+    {
+        View buyAction = view.findViewById(R.id.action_buy);
+        View swapAction = view.findViewById(R.id.action_swap);
+        View sendAction = view.findViewById(R.id.action_send);
+        View receiveAction = view.findViewById(R.id.action_receive);
+
+        buyAction.setOnClickListener(v -> onBuyToken());
+        swapAction.setOnClickListener(v -> showSwapPlaceholder());
+        sendAction.setOnClickListener(v -> showSendTokenPicker());
+        receiveAction.setOnClickListener(v -> viewModel.showMyAddress(requireActivity()));
     }
 
     private void onDefaultWallet(Wallet wallet)
@@ -566,6 +584,63 @@ public class WalletFragment extends BaseFragment implements
         buyRamaDialog.setContentView(buyRamaOptionsView);
         buyRamaDialog.show();
     }
+
+    private void showSwapPlaceholder()
+    {
+        if (!isAdded())
+        {
+            return;
+        }
+
+        BottomSheetDialog dialog = new BottomSheetDialog(requireContext());
+        View contentView = getLayoutInflater().inflate(R.layout.dialog_swap_placeholder, null);
+        dialog.setContentView(contentView);
+        dialog.show();
+    }
+
+    private void showSendTokenPicker()
+    {
+        if (!isAdded())
+        {
+            return;
+        }
+
+        List<Token> tokens = getActiveTokens();
+        BottomSheetDialog dialog = new BottomSheetDialog(requireContext());
+        View contentView = getLayoutInflater().inflate(R.layout.dialog_send_token_picker, null);
+        RecyclerView tokenList = contentView.findViewById(R.id.token_picker_list);
+        View emptyState = contentView.findViewById(R.id.token_picker_empty);
+
+        tokenList.setLayoutManager(new LinearLayoutManager(getContext()));
+        tokenList.setAdapter(new SendTokenAdapter(tokens, token -> {
+            dialog.dismiss();
+            viewModel.showTokenDetail(getActivity(), token);
+        }));
+
+        emptyState.setVisibility(tokens.isEmpty() ? View.VISIBLE : View.GONE);
+        dialog.setContentView(contentView);
+        dialog.show();
+    }
+
+    private List<Token> getActiveTokens()
+    {
+        List<Token> tokens = new ArrayList<>();
+        if (viewModel == null || viewModel.getTokensService() == null || currentMetas == null)
+        {
+            return tokens;
+        }
+
+        for (TokenCardMeta meta : currentMetas)
+        {
+            Token token = viewModel.getTokensService().getToken(meta.getChain(), meta.getAddress());
+            if (token != null && token.tokenInfo != null && token.tokenInfo.isEnabled)
+            {
+                tokens.add(token);
+            }
+        }
+
+        return tokens;
+    }
     
     private void openInWalletBrowser(String url)
     {
@@ -613,6 +688,7 @@ public class WalletFragment extends BaseFragment implements
 
     private void onTokens(TokenCardMeta[] tokens)
     {
+        currentMetas = tokens != null ? tokens : new TokenCardMeta[0];
         if (tokens != null)
         {
             adapter.setTokens(tokens);
@@ -997,6 +1073,69 @@ public class WalletFragment extends BaseFragment implements
         if (clipboard != null)
         {
             clipboard.setPrimaryClip(clip);
+        }
+    }
+
+    private static class SendTokenAdapter extends RecyclerView.Adapter<SendTokenAdapter.ViewHolder>
+    {
+        interface OnTokenSelectedListener
+        {
+            void onTokenSelected(Token token);
+        }
+
+        private final List<Token> tokens;
+        private final OnTokenSelectedListener listener;
+
+        SendTokenAdapter(List<Token> tokens, OnTokenSelectedListener listener)
+        {
+            this.tokens = tokens;
+            this.listener = listener;
+        }
+
+        @NonNull
+        @Override
+        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType)
+        {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_send_token_quick_action, parent, false);
+            return new ViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull ViewHolder holder, int position)
+        {
+            holder.bind(tokens.get(position), listener);
+        }
+
+        @Override
+        public int getItemCount()
+        {
+            return tokens.size();
+        }
+
+        static class ViewHolder extends RecyclerView.ViewHolder
+        {
+            private final TokenIcon tokenIcon;
+            private final TextView tokenName;
+            private final TextView tokenSymbol;
+            private final TextView tokenBalance;
+
+            ViewHolder(@NonNull View itemView)
+            {
+                super(itemView);
+                tokenIcon = itemView.findViewById(R.id.token_icon);
+                tokenName = itemView.findViewById(R.id.token_name);
+                tokenSymbol = itemView.findViewById(R.id.token_symbol);
+                tokenBalance = itemView.findViewById(R.id.token_balance);
+            }
+
+            void bind(Token token, OnTokenSelectedListener listener)
+            {
+                tokenIcon.bindData(token);
+                tokenName.setText(token.getFullName());
+                tokenSymbol.setText(token.tokenInfo != null ? token.tokenInfo.symbol : "");
+                tokenBalance.setText(token.getStringBalanceForUI(4));
+                itemView.setOnClickListener(v -> listener.onTokenSelected(token));
+            }
         }
     }
 }

@@ -27,6 +27,14 @@
             android:layout_height="wrap_content"
             app:layout_scrollFlags="scroll|snap" />
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_scrollFlags="scroll|snap">
+
+            <include layout="@layout/layout_wallet_quick_actions" />
+        </LinearLayout>
+
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tab_layout"
             style="@style/Aw.Component.TabLayout.Scrollable"
@@ -73,4 +81,3 @@
         tools:visibility="gone" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
-

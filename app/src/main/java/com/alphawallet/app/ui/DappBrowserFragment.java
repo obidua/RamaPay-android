@@ -42,6 +42,7 @@ import android.webkit.WebHistoryItem;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -60,11 +61,14 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.alphawallet.app.C;
 import com.alphawallet.app.R;
 import com.alphawallet.app.analytics.Analytics;
 import com.alphawallet.app.entity.AnalyticsProperties;
+import com.alphawallet.app.entity.BrowserTab;
 import com.alphawallet.app.entity.CryptoFunctions;
 import com.alphawallet.app.entity.CustomViewSettings;
 import com.alphawallet.app.entity.DApp;
@@ -85,8 +89,10 @@ import com.alphawallet.app.repository.TokenRepository;
 import com.alphawallet.app.repository.TokensRealmSource;
 import com.alphawallet.app.repository.entity.RealmToken;
 import com.alphawallet.app.service.GasService;
+import com.alphawallet.app.service.TabManager;
 import com.alphawallet.app.ui.QRScanning.QRScannerActivity;
 import com.alphawallet.app.ui.widget.OnDappHomeNavClickListener;
+import com.alphawallet.app.ui.widget.adapter.TabsAdapter;
 import com.alphawallet.app.ui.widget.entity.ActionSheetCallback;
 import com.alphawallet.app.ui.widget.entity.DappBrowserSwipeInterface;
 import com.alphawallet.app.ui.widget.entity.DappBrowserSwipeLayout;
@@ -201,6 +207,7 @@ public class DappBrowserFragment extends BaseFragment implements OnSignTransacti
     private ProgressBar progressBar;
     private Wallet wallet;
     private NetworkInfo activeNetwork;
+    private TabManager tabManager;
     private AWalletAlertDialog chainSwapDialog;
     private AWalletAlertDialog resultDialog;
     private AWalletAlertDialog errorDialog;
@@ -213,6 +220,7 @@ public class DappBrowserFragment extends BaseFragment implements OnSignTransacti
     private TextView balance;
     private TextView symbol;
     private AddressBar addressBar;
+    private TextView tabCounterBadge;
 
     // Handle resizing the browser view when the soft keyboard pops up and goes.
     // The issue this fixes is where you need to enter data at the bottom of the webpage,
@@ -331,6 +339,14 @@ public class DappBrowserFragment extends BaseFragment implements OnSignTransacti
         View view = inflater.inflate(webViewID, container, false);
         initViewModel();
         initView(view);
+        
+        // Initialize tab manager
+        tabManager = TabManager.getInstance();
+        // Create initial tab if none exists
+        if (tabManager.getTabCount() == 0) {
+            tabManager.createNewTab(getDefaultDappUrl());
+        }
+        updateTabCounter();
 
         addressBar.setup(viewModel.getDappsMasterList(getContext()), new AddressBarListener()
         {
@@ -468,6 +484,9 @@ public class DappBrowserFragment extends BaseFragment implements OnSignTransacti
         final MenuItem clearCache = toolbar.getMenu().findItem(R.id.action_clear_cache);
         final MenuItem network = toolbar.getMenu().findItem(R.id.action_network);
         final MenuItem setAsHomePage = toolbar.getMenu().findItem(R.id.action_set_as_homepage);
+        
+        // Update tab counter
+        updateTabCounter();
 
         if (reload != null) reload.setOnMenuItemClickListener(menuItem -> {
             reloadPage();
@@ -587,6 +606,14 @@ public class DappBrowserFragment extends BaseFragment implements OnSignTransacti
 
         balance = view.findViewById(R.id.balance);
         symbol = view.findViewById(R.id.symbol);
+        tabCounterBadge = view.findViewById(R.id.tab_counter);
+        
+        // Set click listener for tab counter
+        View tabCounterContainer = view.findViewById(R.id.tab_counter_container);
+        if (tabCounterContainer != null) {
+            tabCounterContainer.setOnClickListener(v -> showTabsDialog());
+        }
+        
         web3.setWebLoadCallback(this);
 
         webFrame.setOnApplyWindowInsetsListener(resizeListener);
@@ -1530,6 +1557,13 @@ public class DappBrowserFragment extends BaseFragment implements OnSignTransacti
         setUrlText(Utils.formatUrl(urlText));
         web3.requestFocus();
         getParentFragmentManager().setFragmentResult(RESET_TOOLBAR, new Bundle());
+        
+        // Update tab manager with new URL
+        if (tabManager != null) {
+            tabManager.updateActiveTabUrl(Utils.formatUrl(urlText));
+            updateTabCounter();
+        }
+        
         return true;
     }
 
@@ -1575,11 +1609,14 @@ public class DappBrowserFragment extends BaseFragment implements OnSignTransacti
 
     private void openNewTab()
     {
-        // Clear the current page and load the default homepage in a new "tab"
+        // Create new tab in tab manager
+        String homepage = getDefaultDappUrl();
+        BrowserTab newTab = tabManager.createNewTab(homepage);
+        
+        // Clear the current page and load the new tab
         web3.clearHistory();
         web3.resetView();
         
-        String homepage = getDefaultDappUrl();
         if (homepage != null)
         {
             web3.loadUrl(homepage);
@@ -1596,28 +1633,126 @@ public class DappBrowserFragment extends BaseFragment implements OnSignTransacti
     {
         if (getContext() == null) return;
         
+        // Update current tab before showing dialog
+        BrowserTab activeTab = tabManager.getActiveTab();
+        if (activeTab != null && web3.getUrl() != null) {
+            activeTab.setUrl(web3.getUrl());
+            activeTab.setTitle(web3.getTitle() != null ? web3.getTitle() : web3.getUrl());
+        }
+        
+        // Create custom dialog
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setTitle("Browser Tabs");
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_tabs_manager, null);
+        builder.setView(dialogView);
         
-        String currentUrl = web3.getUrl();
-        String message = "Current Tab:\n" + (currentUrl != null ? currentUrl : "No page loaded");
+        AlertDialog dialog = builder.create();
         
-        // Check if there's navigation history
-        if (web3.canGoBack() || web3.canGoForward())
-        {
-            message += "\n\nYou can navigate using the back/forward buttons.";
+        // Setup UI elements
+        TextView tabsCount = dialogView.findViewById(R.id.tabs_count);
+        ImageView closeView = dialogView.findViewById(R.id.close_tabs_view);
+        RecyclerView tabsRecycler = dialogView.findViewById(R.id.tabs_recycler);
+        Button newTabButton = dialogView.findViewById(R.id.new_tab_button);
+        Button closeAllButton = dialogView.findViewById(R.id.close_all_tabs_button);
+        
+        // Update tab count
+        int count = tabManager.getTabCount();
+        tabsCount.setText("(" + count + ")");
+        
+        // Setup RecyclerView
+        tabsRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
+        final TabsAdapter[] adapterHolder = new TabsAdapter[1];
+        adapterHolder[0] = new TabsAdapter(new TabsAdapter.TabClickListener() {
+            @Override
+            public void onTabClick(BrowserTab tab) {
+                // Switch to this tab
+                tabManager.switchToTab(tab.getId());
+                loadUrl(tab.getUrl());
+                updateTabCounter();
+                dialog.dismiss();
+            }
+
+            @Override
+            public void onTabClose(BrowserTab tab) {
+                tabManager.closeTab(tab.getId());
+                
+                // Update UI
+                if (adapterHolder[0] != null) {
+                    adapterHolder[0].setTabs(tabManager.getAllTabs());
+                }
+                tabsCount.setText("(" + tabManager.getTabCount() + ")");
+                updateTabCounter();
+                
+                // If all tabs closed, close dialog and load default
+                if (tabManager.getTabCount() == 0) {
+                    dialog.dismiss();
+                    tabManager.createNewTab(getDefaultDappUrl());
+                    loadUrl(getDefaultDappUrl());
+                    updateTabCounter();
+                } else if (tab.isActive()) {
+                    // If closed active tab, load the new active tab
+                    BrowserTab newActiveTab = tabManager.getActiveTab();
+                    if (newActiveTab != null) {
+                        loadUrl(newActiveTab.getUrl());
+                    }
+                }
+            }
+        });
+        
+        adapterHolder[0].setTabs(tabManager.getAllTabs());
+        tabsRecycler.setAdapter(adapterHolder[0]);
+        
+        // Close button
+        closeView.setOnClickListener(v -> dialog.dismiss());
+        
+        // New tab button
+        newTabButton.setOnClickListener(v -> {
+            BrowserTab newTab = tabManager.createNewTab(getDefaultDappUrl());
+            if (adapterHolder[0] != null) {
+                adapterHolder[0].setTabs(tabManager.getAllTabs());
+            }
+            tabsCount.setText("(" + tabManager.getTabCount() + ")");
+            updateTabCounter();
+            loadUrl(newTab.getUrl());
+            dialog.dismiss();
+        });
+        
+        // Close all tabs button
+        closeAllButton.setOnClickListener(v -> {
+            new AlertDialog.Builder(getContext())
+                .setTitle("Close All Tabs?")
+                .setMessage("Are you sure you want to close all " + tabManager.getTabCount() + " tabs?")
+                .setPositiveButton("Close All", (d, which) -> {
+                    tabManager.closeAllTabs();
+                    dialog.dismiss();
+                    // Create new tab
+                    tabManager.createNewTab(getDefaultDappUrl());
+                    loadUrl(getDefaultDappUrl());
+                    updateTabCounter();
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+        });
+        
+        dialog.show();
+    }
+    
+    private void updateTabCounter()
+    {
+        if (toolbar != null && tabManager != null) {
+            int count = tabManager.getTabCount();
+            
+            // Update menu item
+            MenuItem viewTabs = toolbar.getMenu().findItem(R.id.action_view_tabs);
+            if (viewTabs != null) {
+                viewTabs.setTitle("Tabs (" + count + ")");
+            }
+            
+            // Update visual badge
+            if (tabCounterBadge != null) {
+                tabCounterBadge.setText(String.valueOf(count));
+                tabCounterBadge.setVisibility(count > 0 ? View.VISIBLE : View.GONE);
+            }
         }
-        
-        builder.setMessage(message);
-        builder.setPositiveButton("New Tab", (dialog, which) -> openNewTab());
-        builder.setNegativeButton("Close", (dialog, which) -> dialog.dismiss());
-        
-        if (currentUrl != null && !currentUrl.isEmpty())
-        {
-            builder.setNeutralButton("Reload", (dialog, which) -> reloadPage());
-        }
-        
-        builder.show();
     }
 
     private void resetDappBrowser()
