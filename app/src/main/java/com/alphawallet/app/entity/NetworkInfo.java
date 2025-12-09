@@ -16,6 +16,7 @@ public class NetworkInfo extends com.alphawallet.ethereum.NetworkInfo
 {
     private final String ETHERSCAN_API = ".etherscan.";
     private final String BLOCKSCOUT_API = "blockscout";
+    private final String RAMASCAN_API = "ramascan";
     private final String MATIC_API = "polygonscan";
     private final String OKX_API = "oklink";
     private final String ARBISCAN_API = "https://api.arbiscan";
@@ -71,9 +72,9 @@ public class NetworkInfo extends com.alphawallet.ethereum.NetworkInfo
         {
             return new TransferFetchType[]{TransferFetchType.ERC_20, TransferFetchType.ERC_721, TransferFetchType.ERC_1155};
         }
-        else if (etherscanAPI.contains(BLOCKSCOUT_API))
+        else if (etherscanAPI.contains(BLOCKSCOUT_API) || etherscanAPI.contains(RAMASCAN_API))
         {
-            return new TransferFetchType[]{TransferFetchType.ERC_20}; // assume it only supports tokenTx, eg Blockscout, Palm
+            return new TransferFetchType[]{TransferFetchType.ERC_20}; // Blockscout and Ramascan support tokenTx
         }
         else //play it safe, assume other API has ERC20
         {

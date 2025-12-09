@@ -9,6 +9,8 @@ import static com.alphawallet.ethereum.EthereumNetworkBase.OKX_ID;
 import static com.alphawallet.ethereum.EthereumNetworkBase.POLYGON_AMOY_ID;
 import static com.alphawallet.ethereum.EthereumNetworkBase.POLYGON_ID;
 import static com.alphawallet.ethereum.EthereumNetworkBase.POLYGON_TEST_ID;
+import static com.alphawallet.ethereum.EthereumNetworkBase.RAMESTTA_MAINNET_ID;
+import static com.alphawallet.ethereum.EthereumNetworkBase.RAMESTTA_TESTNET_ID;
 
 import android.text.TextUtils;
 import android.util.Pair;
@@ -739,6 +741,11 @@ public class TransactionsNetworkClient implements TransactionsNetworkClientType
         else if (networkInfo.chainId == AURORA_MAINNET_ID || networkInfo.chainId == AURORA_TESTNET_ID)
         {
             return AURORASCAN_API_KEY;
+        }
+        else if (networkInfo.chainId == RAMESTTA_MAINNET_ID || networkInfo.chainId == RAMESTTA_TESTNET_ID)
+        {
+            // Ramascan uses Blockscout which doesn't require API keys
+            return "";
         }
         else
         {

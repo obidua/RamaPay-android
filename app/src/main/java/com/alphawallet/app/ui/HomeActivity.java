@@ -127,6 +127,7 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
     private volatile boolean tokenClicked = false;
     private String openLink = null;
     private String openToken = null;
+    private String pendingDappUrl = null;
     private AWalletAlertDialog wcProgressDialog;
     private final ActivityResultLauncher<String> requestPermissionLauncher =
         registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
@@ -310,6 +311,18 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
 
         // Get the intent that started this activity
         Intent intent = getIntent();
+        
+        // Handle URL from support settings
+        if (intent.hasExtra(C.DAPP_URL_LOAD))
+        {
+            String url = intent.getStringExtra(C.DAPP_URL_LOAD);
+            if (url != null)
+            {
+                // Will be handled after wallet is loaded in onWalletReady
+                pendingDappUrl = url;
+            }
+        }
+        
         Uri data = intent.getData();
         if (intent.hasExtra(C.FROM_HOME_ROUTER) && intent.getStringExtra(C.FROM_HOME_ROUTER).equals(C.FROM_HOME_ROUTER))
         {
@@ -478,6 +491,28 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
     public void onNewIntent(Intent startIntent)
     {
         super.onNewIntent(startIntent);
+        
+        // Handle URL from support settings
+        if (startIntent.hasExtra(C.DAPP_URL_LOAD))
+        {
+            String url = startIntent.getStringExtra(C.DAPP_URL_LOAD);
+            if (url != null)
+            {
+                DappBrowserFragment fragment = (DappBrowserFragment) getFragment(DAPP_BROWSER);
+                if (fragment != null && fragment.getActiveNetwork() != null)
+                {
+                    fragment.switchNetworkAndLoadUrl(fragment.getActiveNetwork().chainId, url);
+                }
+                else if (fragment != null)
+                {
+                    // Use default network if activeNetwork is null
+                    fragment.switchNetworkAndLoadUrl(MAINNET_ID, url);
+                }
+                showPage(DAPP_BROWSER);
+                return;
+            }
+        }
+        
         Uri data = startIntent.getData();
 
         if (data != null)
@@ -575,6 +610,12 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
     protected void onResume()
     {
         super.onResume();
+        // Ensure success overlay is hidden when resuming
+        if (successOverlay != null && successOverlay.getVisibility() == View.VISIBLE)
+        {
+            successOverlay.setVisibility(View.GONE);
+            successOverlay.setAlpha(1.0f);
+        }
         setWCConnect();
         viewModel.prepare();
         viewModel.getWalletName(this);
@@ -856,6 +897,21 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
             showPage(DAPP_BROWSER);
             getFragment(DAPP_BROWSER).switchNetworkAndLoadUrl(0, openLink);
             openLink = null;
+            viewModel.storeCurrentFragmentId(-1);
+        }
+        else if (!TextUtils.isEmpty(pendingDappUrl)) //delayed URL from support settings
+        {
+            showPage(DAPP_BROWSER);
+            DappBrowserFragment fragment = (DappBrowserFragment) getFragment(DAPP_BROWSER);
+            if (fragment != null && fragment.getActiveNetwork() != null)
+            {
+                fragment.switchNetworkAndLoadUrl(fragment.getActiveNetwork().chainId, pendingDappUrl);
+            }
+            else if (fragment != null)
+            {
+                fragment.switchNetworkAndLoadUrl(MAINNET_ID, pendingDappUrl);
+            }
+            pendingDappUrl = null;
             viewModel.storeCurrentFragmentId(-1);
         }
         else if (!TextUtils.isEmpty(openToken))

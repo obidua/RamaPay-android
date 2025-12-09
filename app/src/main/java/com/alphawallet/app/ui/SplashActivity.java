@@ -91,6 +91,10 @@ public class SplashActivity extends BaseActivity implements CreateWalletCallback
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        
+        // Set window background to white to prevent dark lines
+        getWindow().setBackgroundDrawableResource(android.R.color.white);
+        
         setContentView(R.layout.activity_splash);
 
         // Load animated GIF for splash screen

@@ -856,7 +856,7 @@ public class DappBrowserFragment extends BaseFragment implements OnSignTransacti
 
     private void setupWeb3(Wallet wallet)
     {
-        if (wallet == null) { return; }
+        if (wallet == null || activeNetwork == null) { return; }
         web3.setChainId(activeNetwork.chainId, false);
         web3.setWalletAddress(new Address(wallet.address));
 
@@ -1288,6 +1288,11 @@ public class DappBrowserFragment extends BaseFragment implements OnSignTransacti
     public WalletType getWalletType()
     {
         return wallet.type;
+    }
+
+    public NetworkInfo getActiveNetwork()
+    {
+        return activeNetwork;
     }
 
     @Override

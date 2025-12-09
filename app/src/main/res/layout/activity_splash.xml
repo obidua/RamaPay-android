@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?android:colorBackground">
+    android:background="@android:color/white">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -11,15 +11,44 @@
         android:layout_above="@id/layout_new_wallet"
         android:layout_alignParentTop="true"
         android:gravity="center"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:padding="32dp"
+        android:background="@android:color/white">
 
         <ImageView
             android:id="@+id/splash_image"
-            android:layout_width="300dp"
-            android:layout_height="300dp"
+            android:layout_width="320dp"
+            android:layout_height="320dp"
             android:scaleType="fitCenter"
-            android:contentDescription="@string/app_name"
-            android:gravity="center_horizontal" />
+            android:contentDescription="@string/app_name" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:text="Welcome to RamaPay"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:textColor="#6B2C91"
+            android:gravity="center" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="A Decentralized Wallet"
+            android:textSize="18sp"
+            android:textColor="#424242"
+            android:gravity="center" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Powered by Ramestta Network"
+            android:textSize="16sp"
+            android:textColor="#666666"
+            android:gravity="center" />
 
     </LinearLayout>
 
@@ -30,6 +59,7 @@
         android:layout_alignParentBottom="true"
         android:layout_margin="@dimen/standard_16"
         android:orientation="vertical"
+        android:background="@android:color/white"
         android:visibility="gone"
         tools:visibility="visible">
 

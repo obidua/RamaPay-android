@@ -644,12 +644,12 @@ public abstract class EthereumNetworkBase implements EthereumNetworkRepositoryTy
             put(RAMESTTA_MAINNET_ID, new NetworkInfo("Ramestta Network", "RAMA",
                     CHAIN_CONFIG_RPC.get(RAMESTTA_MAINNET_ID),
                     "https://ramascan.com/tx/", RAMESTTA_MAINNET_ID,
-                    "https://ramascan.com/api?"));
+                    "https://latest-backendapi.ramascan.com/api/v1/"));
 
             put(RAMESTTA_TESTNET_ID, new NetworkInfo("Ramestta Testnet", "RAMA",
                     CHAIN_CONFIG_RPC.get(RAMESTTA_TESTNET_ID),
                     "https://testnet.ramascan.com/tx/", RAMESTTA_TESTNET_ID,
-                    "https://testnet.ramascan.com/api?"));
+                    "https://latest-backendapi.ramascan.com/api/v1/"));
         }
     };
 
