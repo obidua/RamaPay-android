@@ -103,6 +103,27 @@ public class SplashActivity extends BaseActivity implements CreateWalletCallback
             .load(R.raw.ramapay_splash)
             .into(splashImage);
 
+        // Apply gradient to Ramestta Network text (Purple to Gold)
+        android.widget.TextView ramesttaText = findViewById(R.id.text_ramestta_network);
+        if (ramesttaText != null)
+        {
+            ramesttaText.post(() -> {
+                float width = ramesttaText.getPaint().measureText(ramesttaText.getText().toString());
+                android.graphics.LinearGradient gradient = new android.graphics.LinearGradient(
+                    0, 0, width, 0,
+                    new int[]{
+                        android.graphics.Color.parseColor("#6B2C91"), // Purple (80%)
+                        android.graphics.Color.parseColor("#8B4FA8"), // Mid Purple
+                        android.graphics.Color.parseColor("#D4AF37")  // Gold (20%)
+                    },
+                    new float[]{0.0f, 0.8f, 1.0f}, // 80% purple, 20% gold
+                    android.graphics.Shader.TileMode.CLAMP
+                );
+                ramesttaText.getPaint().setShader(gradient);
+                ramesttaText.invalidate();
+            });
+        }
+
         //detect previous launch
         viewModel = new ViewModelProvider(this)
             .get(SplashViewModel.class);

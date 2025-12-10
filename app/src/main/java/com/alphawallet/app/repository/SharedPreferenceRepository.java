@@ -78,7 +78,7 @@ public class SharedPreferenceRepository implements PreferenceRepositoryType {
         long selectedNetwork;
         try
         {
-            selectedNetwork = pref.getLong(DEFAULT_NETWORK_NAME_KEY, 0);
+            selectedNetwork = pref.getLong(DEFAULT_NETWORK_NAME_KEY, 1370L); // Default to Ramestta Mainnet
         }
         catch (ClassCastException e) //previously we used Integer or String
         {

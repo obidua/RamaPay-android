@@ -1,6 +1,7 @@
 package com.alphawallet.app.widget;
 
 import static com.alphawallet.app.entity.WalletPage.ACTIVITY;
+import static com.alphawallet.app.entity.WalletPage.CHAT;
 import static com.alphawallet.app.entity.WalletPage.DAPP_BROWSER;
 import static com.alphawallet.app.entity.WalletPage.SETTINGS;
 import static com.alphawallet.app.entity.WalletPage.WALLET;
@@ -24,6 +25,7 @@ import java.util.ArrayList;
 public class AWalletBottomNavigationView extends LinearLayout
 {
     private final TextView dappBrowserLabel;
+    private final TextView chatLabel;
     private final TextView walletLabel;
     private final TextView settingsBadge;
     private final TextView settingsLabel;
@@ -42,6 +44,7 @@ public class AWalletBottomNavigationView extends LinearLayout
         walletLabel = findViewById(R.id.nav_wallet_text);
         activityLabel = findViewById(R.id.nav_activity_text);
         dappBrowserLabel = findViewById(R.id.nav_browser_text);
+        chatLabel = findViewById(R.id.nav_chat_text);
         settingsTab = findViewById(R.id.settings_tab);
         settingsLabel = findViewById(R.id.nav_settings_text);
         settingsBadge = findViewById(R.id.settings_badge);
@@ -49,6 +52,7 @@ public class AWalletBottomNavigationView extends LinearLayout
         walletLabel.setOnClickListener(v -> selectItem(WALLET));
         activityLabel.setOnClickListener(v -> selectItem(ACTIVITY));
         dappBrowserLabel.setOnClickListener(v -> selectItem(DAPP_BROWSER));
+        chatLabel.setOnClickListener(v -> selectItem(CHAT));
         settingsTab.setOnClickListener(v -> selectItem(SETTINGS));
 
         regularTypeface = ResourcesCompat.getFont(getContext(), R.font.font_regular);
@@ -95,6 +99,10 @@ public class AWalletBottomNavigationView extends LinearLayout
                 activityLabel.setSelected(true);
                 activityLabel.setTypeface(semiboldTypeface);
                 break;
+            case CHAT:
+                chatLabel.setSelected(true);
+                chatLabel.setTypeface(semiboldTypeface);
+                break;
         }
     }
 
@@ -102,6 +110,8 @@ public class AWalletBottomNavigationView extends LinearLayout
     {
         dappBrowserLabel.setSelected(false);
         dappBrowserLabel.setTypeface(regularTypeface);
+        chatLabel.setSelected(false);
+        chatLabel.setTypeface(regularTypeface);
         walletLabel.setSelected(false);
         walletLabel.setTypeface(regularTypeface);
         settingsLabel.setSelected(false);

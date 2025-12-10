@@ -45,10 +45,26 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Powered by Ramestta Network"
+            android:text="Powered by "
             android:textSize="16sp"
             android:textColor="#666666"
             android:gravity="center" />
+
+        <TextView
+            android:id="@+id/text_ramestta_network"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Ramestta Network\nA Layer 3 Blockchain for Scalability"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#D4AF37"
+            android:gravity="center"
+            android:lineSpacingExtra="4dp"
+            android:shadowColor="#40000000"
+            android:shadowDx="1"
+            android:shadowDy="1"
+            android:shadowRadius="2" />
 
     </LinearLayout>
 
@@ -67,25 +83,38 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/button_create"
-            style="@style/Aw.Component.Button.Primary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/standard_16"
-            android:text="@string/create_a_new_wallet" />
+            android:text="@string/create_a_new_wallet"
+            android:background="@drawable/button_primary_with_border"
+            android:textColor="?colorSurface"
+            android:fontFamily="@font/font_semibold"
+            android:textSize="@dimen/sp20"
+            android:textAllCaps="false"
+            android:paddingLeft="@dimen/tiny_8"
+            android:paddingRight="@dimen/tiny_8"
+            app:cornerRadius="99dp"
+            xmlns:app="http://schemas.android.com/apk/res-auto" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/button_import"
-            style="@style/Aw.Component.Button.Secondary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/i_already_have_a_wallet"
-            android:background="@drawable/button_golden_gradient"
-            android:textColor="#000000"
+            android:background="@drawable/button_purple_gold_gradient"
+            android:textColor="#8B6914"
             android:textStyle="bold"
+            android:fontFamily="@font/font_semibold"
+            android:textSize="@dimen/sp20"
+            android:textAllCaps="false"
+            android:paddingLeft="@dimen/tiny_8"
+            android:paddingRight="@dimen/tiny_8"
             app:icon="@mipmap/ic_launcher"
             app:iconGravity="start"
             app:iconPadding="8dp"
             app:iconTint="@null"
+            app:cornerRadius="99dp"
             xmlns:app="http://schemas.android.com/apk/res-auto" />
 
 

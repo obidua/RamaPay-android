@@ -561,7 +561,7 @@ public class WalletFragment extends BaseFragment implements
         BuyRamaOptionsView buyRamaOptionsView = new BuyRamaOptionsView(getActivity());
         
         buyRamaOptionsView.setOnBuyFromBitMartListener(v -> {
-            openInWalletBrowser("https://coinmarketcap.com/exchanges/bitmart/");
+            openInWalletBrowser("https://www.bitmart.com/trade/RAMA_USDT?type=spot");
             buyRamaDialog.dismiss();
         });
         

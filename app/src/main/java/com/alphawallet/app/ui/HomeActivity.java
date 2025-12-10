@@ -1318,6 +1318,8 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
                     {
                         return new DappBrowserFragment();
                     }
+                case CHAT:
+                    return new ChatFragment();
                 case SETTINGS:
                     return new NewSettingsFragment();
             }

@@ -62,7 +62,7 @@ public class App extends Application
         TimberInit.configTimber();
 
         int defaultTheme = PreferenceManager.getDefaultSharedPreferences(this)
-                .getInt("theme", C.THEME_AUTO);
+                .getInt("theme", C.THEME_DARK);
 
         if (defaultTheme == C.THEME_LIGHT)
         {

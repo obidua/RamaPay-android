@@ -52,6 +52,18 @@
             app:drawableTint="@color/selector_bottom_navigation"
             app:drawableTopCompat="@drawable/ic_tab_browser" />
 
+        <TextView
+            android:id="@+id/nav_chat_text"
+            style="@style/Aw.Typography.Small"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/chat_label"
+            android:textColor="@color/selector_bottom_navigation"
+            app:drawableTint="@color/selector_bottom_navigation"
+            app:drawableTopCompat="@drawable/ic_tab_chat" />
+
         <RelativeLayout
             android:id="@+id/settings_tab"
             android:layout_width="0dp"

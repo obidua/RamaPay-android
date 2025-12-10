@@ -92,7 +92,7 @@ public class BaseFragment extends Fragment implements Toolbar.OnMenuItemClickLis
                 
                 // Add copy functionality
                 View copyIcon = toolbar.findViewById(R.id.toolbar_copy_icon);
-                if (copyIcon != null)
+                if (copyIcon != null && copyIcon instanceof android.widget.ImageView)
                 {
                     copyIcon.setOnClickListener(v -> {
                         String addressToCopy = fullAddress != null ? fullAddress : subtitle;
@@ -102,7 +102,14 @@ public class BaseFragment extends Fragment implements Toolbar.OnMenuItemClickLis
                         if (clipboard != null)
                         {
                             clipboard.setPrimaryClip(clip);
+                            // Change icon to checkmark for visual feedback
+                            ((android.widget.ImageView) copyIcon).setImageResource(R.drawable.ic_correct);
                             android.widget.Toast.makeText(requireContext(), R.string.copied_to_clipboard, android.widget.Toast.LENGTH_SHORT).show();
+                            
+                            // Reset icon back to copy after 2 seconds
+                            copyIcon.postDelayed(() -> {
+                                ((android.widget.ImageView) copyIcon).setImageResource(R.drawable.ic_content_copy);
+                            }, 2000);
                         }
                     });
                 }
