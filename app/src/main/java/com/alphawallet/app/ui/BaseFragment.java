@@ -25,11 +25,16 @@ public class BaseFragment extends Fragment implements Toolbar.OnMenuItemClickLis
 {
     private Toolbar toolbar;
     private TextView toolbarTitle;
+    private TextView toolbarSubtitle;
+    private View toolbarSubtitleLayout;
+    private String fullAddress;
 
     private void initToolbar(View view)
     {
         toolbar = view.findViewById(R.id.toolbar);
         toolbarTitle = toolbar.findViewById(R.id.toolbar_title);
+        toolbarSubtitle = toolbar.findViewById(R.id.toolbar_subtitle);
+        toolbarSubtitleLayout = toolbar.findViewById(R.id.toolbar_subtitle_layout);
 
         toolbar.setOnClickListener(this::onToolbarClicked);
     }
@@ -73,6 +78,47 @@ public class BaseFragment extends Fragment implements Toolbar.OnMenuItemClickLis
         {
             toolbarTitle.setText(title);
         }
+    }
+
+    protected void setToolbarSubtitle(String subtitle)
+    {
+        if (toolbarSubtitle != null && toolbarSubtitleLayout != null)
+        {
+            if (subtitle != null && !subtitle.isEmpty())
+            {
+                toolbarSubtitle.setText(subtitle);
+                toolbarSubtitleLayout.setVisibility(View.VISIBLE);
+                this.fullAddress = subtitle;
+                
+                // Add copy functionality
+                View copyIcon = toolbar.findViewById(R.id.toolbar_copy_icon);
+                if (copyIcon != null)
+                {
+                    copyIcon.setOnClickListener(v -> {
+                        String addressToCopy = fullAddress != null ? fullAddress : subtitle;
+                        android.content.ClipboardManager clipboard = 
+                            (android.content.ClipboardManager) requireContext().getSystemService(android.content.Context.CLIPBOARD_SERVICE);
+                        android.content.ClipData clip = android.content.ClipData.newPlainText("address", addressToCopy);
+                        if (clipboard != null)
+                        {
+                            clipboard.setPrimaryClip(clip);
+                            android.widget.Toast.makeText(requireContext(), R.string.copied_to_clipboard, android.widget.Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            }
+            else
+            {
+                toolbarSubtitleLayout.setVisibility(View.GONE);
+                this.fullAddress = null;
+            }
+        }
+    }
+    
+    public void setToolbarSubtitleWithFullAddress(String displayAddress, String fullAddress)
+    {
+        this.fullAddress = fullAddress;
+        setToolbarSubtitle(displayAddress);
     }
 
     protected void setToolbarMenuItemClickListener(Toolbar.OnMenuItemClickListener listener)

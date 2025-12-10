@@ -147,6 +147,12 @@ android {
             }
         }
     }
+
+    applicationVariants.all { variant ->
+        variant.outputs.all {
+            outputFileName = "RamaPay.apk"
+        }
+    }
     packagingOptions {
         jniLibs {
             excludes += ['solidity/*']

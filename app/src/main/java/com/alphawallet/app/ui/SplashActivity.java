@@ -97,10 +97,9 @@ public class SplashActivity extends BaseActivity implements CreateWalletCallback
         
         setContentView(R.layout.activity_splash);
 
-        // Load animated GIF for splash screen
+        // Load splash screen image
         ImageView splashImage = findViewById(R.id.splash_image);
         Glide.with(this)
-            .asGif()
             .load(R.raw.ramapay_splash)
             .into(splashImage);
 

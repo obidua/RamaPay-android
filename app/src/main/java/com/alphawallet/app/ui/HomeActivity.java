@@ -598,6 +598,18 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
         }
 
         getFragment(WALLET).setToolbarTitle(walletTitle);
+        
+        // Set wallet address as subtitle if wallet name is set
+        Wallet wallet = viewModel.defaultWallet().getValue();
+        if (wallet != null && name != null && !name.isEmpty())
+        {
+            String formattedAddress = Utils.formatAddress(wallet.address);
+            getFragment(WALLET).setToolbarSubtitleWithFullAddress(formattedAddress, wallet.address);
+        }
+        else
+        {
+            getFragment(WALLET).setToolbarSubtitle("");
+        }
     }
 
     private void onError(ErrorEnvelope errorEnvelope)

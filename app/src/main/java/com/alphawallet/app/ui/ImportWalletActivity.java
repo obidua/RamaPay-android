@@ -77,6 +77,7 @@ public class ImportWalletActivity extends BaseActivity implements OnImportSeedLi
     ImportWalletViewModel viewModel;
     private AWalletAlertDialog dialog;
     private ImportType currentPage;
+    private ViewPager2 viewPager;
     ActivityResultLauncher<Intent> getQRCode = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
             result -> handleScanQR(result.getResultCode(), result.getData()));
 
@@ -109,7 +110,7 @@ public class ImportWalletActivity extends BaseActivity implements OnImportSeedLi
         pages.add(ImportType.PRIVATE_KEY_FORM_INDEX.ordinal(), new Pair<>(getString(R.string.tab_private_key), ImportPrivateKeyFragment.create()));
         pages.add(ImportType.WATCH_FORM_INDEX.ordinal(), new Pair<>(getString(R.string.watch_wallet), SetWatchWalletFragment.create()));
 
-        ViewPager2 viewPager = findViewById(R.id.viewPager);
+        viewPager = findViewById(R.id.viewPager);
         viewPager.setAdapter(new TabPagerAdapter(this, pages));
         viewPager.setOffscreenPageLimit(pages.size());
 
@@ -564,9 +565,21 @@ public class ImportWalletActivity extends BaseActivity implements OnImportSeedLi
         dialog = new AWalletAlertDialog(this);
         dialog.setIcon(AWalletAlertDialog.ERROR);
         dialog.setTitle(R.string.error_import);
-        dialog.setMessage(error);
-        dialog.setButtonText(R.string.dialog_ok);
-        dialog.setButtonListener(v -> dialog.dismiss());
+        
+        // Enhanced error message with helpful tips
+        String enhancedError = error;
+        if (!error.contains("\n")) {
+            enhancedError = error + "\n\n" + getString(R.string.import_error_tips);
+        }
+        
+        dialog.setMessage(enhancedError);
+        dialog.setButtonText(R.string.action_try_again);
+        dialog.setButtonListener(v -> {
+            dialog.dismiss();
+            // Reset to first tab to try again
+            if (viewPager != null) viewPager.setCurrentItem(0);
+        });
+        dialog.setCancelable(true);
         dialog.show();
     }
 

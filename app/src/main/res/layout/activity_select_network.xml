@@ -18,7 +18,8 @@
         android:id="@+id/network_scroller"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/separator">
+        android:layout_below="@id/separator"
+        android:layout_above="@id/button_finish">
 
         <LinearLayout
             android:id="@+id/layout_list"
@@ -55,5 +56,19 @@
         </LinearLayout>
 
     </androidx.core.widget.NestedScrollView>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/button_finish"
+        style="@style/Aw.Component.Button.Primary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/button_golden_gradient"
+        android:textColor="#000000"
+        android:textStyle="bold"
+        android:text="@string/action_finish" />
 
 </RelativeLayout>

@@ -40,6 +40,19 @@ public class NetworkToggleActivity extends NetworkBaseActivity
                 .get(NetworkToggleViewModel.class);
         initTestNetDialog(this);
         setupFilterList();
+        setupFinishButton();
+    }
+
+    private void setupFinishButton()
+    {
+        findViewById(R.id.button_finish).setOnClickListener(v -> {
+            handleSetNetworks();
+            // Navigate to home screen
+            Intent intent = new Intent(this, HomeActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            finish();
+        });
     }
 
     @Override

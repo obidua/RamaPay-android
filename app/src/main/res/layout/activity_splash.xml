@@ -57,10 +57,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_margin="@dimen/standard_16"
+        android:layout_marginStart="@dimen/standard_16"
+        android:layout_marginEnd="@dimen/standard_16"
+        android:layout_marginBottom="64dp"
         android:orientation="vertical"
         android:background="@android:color/white"
-        android:visibility="gone"
+        android:visibility="visible"
         tools:visibility="visible">
 
         <com.google.android.material.button.MaterialButton
@@ -76,7 +78,15 @@
             style="@style/Aw.Component.Button.Secondary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/i_already_have_a_wallet" />
+            android:text="@string/i_already_have_a_wallet"
+            android:background="@drawable/button_golden_gradient"
+            android:textColor="#000000"
+            android:textStyle="bold"
+            app:icon="@mipmap/ic_launcher"
+            app:iconGravity="start"
+            app:iconPadding="8dp"
+            app:iconTint="@null"
+            xmlns:app="http://schemas.android.com/apk/res-auto" />
 
 
         <com.google.android.material.button.MaterialButton

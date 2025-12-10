@@ -492,7 +492,7 @@ public class KeyService implements AuthenticationCallback, PinAuthenticationCall
             String matchingAddr = findMatchingAddrInKeyStore(currentWallet.address);
             if (!keyStore.containsAlias(matchingAddr))
             {
-                throw new KeyServiceException("Key not found in keystore. Re-import key.");
+                throw new KeyServiceException("Wallet key not found in secure storage.\n\nYour wallet data may have been lost due to device security changes or app reinstallation.\n\nPlease re-import your wallet using your recovery phrase.");
             }
 
             //create a stream to the encrypted bytes

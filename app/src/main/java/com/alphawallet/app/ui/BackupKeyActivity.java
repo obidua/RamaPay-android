@@ -800,13 +800,29 @@ public class BackupKeyActivity extends BaseActivity implements
         alertDialog = new AWalletAlertDialog(this);
         alertDialog.setIcon(AWalletAlertDialog.ERROR);
         alertDialog.setTitle(R.string.key_error);
-        alertDialog.setMessage(message);
-        alertDialog.setButtonText(R.string.action_continue);
+        
+        // Add helpful context to the error message
+        String enhancedMessage = message;
+        if (message != null && (message.contains("not found") || message.contains("Re-import")))
+        {
+            enhancedMessage = message + "\n\n" + getString(R.string.suggest_reimport_wallet);
+        }
+        
+        alertDialog.setMessage(enhancedMessage);
+        alertDialog.setButtonText(R.string.dialog_ok);
+        alertDialog.setSecondaryButtonText(R.string.action_my_wallets);
         alertDialog.setCanceledOnTouchOutside(true);
         alertDialog.setButtonListener(v ->
         {
             cancelAuthentication();
             alertDialog.dismiss();
+        });
+        alertDialog.setSecondaryButtonListener(v ->
+        {
+            cancelAuthentication();
+            alertDialog.dismiss();
+            // Navigate to wallet management screen
+            finish();
         });
         alertDialog.setOnCancelListener(v ->
         {
@@ -1119,6 +1135,7 @@ public class BackupKeyActivity extends BaseActivity implements
 
     private void secureWindow()
     {
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
+        // Screenshots enabled for user convenience
+        // getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
     }
 }

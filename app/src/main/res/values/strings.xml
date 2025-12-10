@@ -15,7 +15,7 @@
     <string name="barcode_error_format">Invalid barcode format: %s</string>
     <string name="title_delete_account">Are you sure you want to delete wallet?</string>
 
-    <string name="error_import">Error importing keystore</string>
+    <string name="error_import">Wallet Import Error</string>
     <string name="error_deleting_account">Error deleting wallet</string>
     <string name="do_manage_make_backup">Did you manage to make a backup?</string>
     <string name="yes_continue">Yes, continue</string>
@@ -236,6 +236,11 @@
     <string name="dialog_marketplace_success">Your tickets have been put up for sale in the Marketplace</string>
     <string name="dialog_process_error">Trade not processed</string>
     <string name="dialog_ok">OK</string>
+    <string name="suggest_reimport_wallet">Please try re-importing your wallet using your seed phrase or keystore backup.</string>
+    <string name="action_my_wallets">My Wallets</string>
+    <string name="action_try_again">Try Again</string>
+    <string name="action_finish">Finish</string>
+    <string name="import_error_tips">Tips:\n• Ensure you have entered all 12 words correctly\n• Check for typos or extra spaces\n• Words should be in lowercase\n• Make sure you\'re using the correct recovery phrase</string>
     <string name="wallet_label">Wallet</string>
     <string name="tx_label">Transactions</string>
     <string name="browser_label">Browser</string>
@@ -513,7 +518,7 @@
     <string name="title_change_wallet">Change Wallet</string>
     <string name="legacy_wallets">Legacy Wallets</string>
     <string name="postponed_backup_warning">Backup postponed.</string>
-    <string name="key_error">Key Error</string>
+    <string name="key_error">Wallet Key Error</string>
     <string name="password_6_characters_or_more">Password 6 characters or more</string>
     <string name="create_a_new_wallet">Create a new Wallet</string>
     <string name="watch">Watch</string>
@@ -542,7 +547,7 @@
     <string name="reimport_wallet_detail">Wallet %1$s already exists, do you wish to re-import the wallet?</string>
     <string name="reimport_wallet_title">Re-Import Wallet?</string>
     <string name="provide_authentication">Provide authentication to create key</string>
-    <string name="import_error">Import Error, Try re-import again.</string>
+    <string name="import_error">Unable to import wallet. Please check your seed phrase, keystore, or private key and try again.</string>
     <string name="watch_exists">Wallet %1$s already imported with key</string>
     <string name="welcome_to_alphawallet">Welcome to RamaPay</string>
     <string name="lock_seed_phrase">Lock Seed Phrase</string>
@@ -938,7 +943,7 @@
     <string name="enable_screenlock">Unable to upgrade key: Enable screenlock on phone</string>
     <string name="unable_to_upgrade_key">Unable to upgrade key: %1$s</string>
     <string name="no_key_found">No Key found</string>
-    <string name="unable_store_key">Unable to store key: %1$s</string>
+    <string name="unable_store_key">Unable to store wallet key: %1$s\n\nPlease try again or re-import your wallet using your seed phrase or keystore file.</string>
     <string name="title_ens_lookup_warning">ENS Lookup Warning</string>
     <string name="message_ens_node_not_sync">AlphaWallet has detected a discrepancy between ethereum\'s timestamp and your device\'s current time, or possibly the blockchain connection is not synchronized, please check your phone\'s time is correct, or ignore this warning.</string>
     <string name="decrease">Decrease</string>
