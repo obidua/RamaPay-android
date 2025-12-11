@@ -5,6 +5,7 @@ import static com.alphawallet.app.C.ADDED_TOKEN;
 import static com.alphawallet.app.C.RESET_WALLET;
 import static com.alphawallet.app.C.SHOW_BACKUP;
 import static com.alphawallet.app.entity.WalletPage.ACTIVITY;
+import static com.alphawallet.app.entity.WalletPage.CHAT;
 import static com.alphawallet.app.entity.WalletPage.DAPP_BROWSER;
 import static com.alphawallet.app.entity.WalletPage.SETTINGS;
 import static com.alphawallet.app.entity.WalletPage.WALLET;
@@ -703,6 +704,11 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
                 showPage(ACTIVITY);
                 return true;
             }
+            case CHAT:
+            {
+                showPage(CHAT);
+                return true;
+            }
         }
         return false;
     }
@@ -772,6 +778,12 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
                 showToolbar();
                 setTitle(getString(R.string.activity_label));
                 selectNavigationItem(ACTIVITY);
+                break;
+
+            case CHAT:
+                showToolbar();
+                setTitle(getString(R.string.chat_label));
+                selectNavigationItem(CHAT);
                 break;
         }
 

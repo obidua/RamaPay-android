@@ -66,8 +66,8 @@
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
-        android:background="@drawable/button_golden_gradient"
-        android:textColor="#000000"
+        android:background="@drawable/button_finish_background"
+        android:textColor="@color/finish_button_text_color"
         android:textStyle="bold"
         android:text="@string/action_finish" />
 

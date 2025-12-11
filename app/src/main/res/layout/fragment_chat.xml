@@ -1,14 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:background="?android:colorBackground">
 
-    <include layout="@layout/layout_simple_toolbar_with_avatar" />
-
-    <com.alphawallet.app.web3.Web3View
-        android:id="@+id/chat_webview"
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="@dimen/horizontal_toolbar_progress_height"
+        android:indeterminate="false" />
 
-</LinearLayout>
+    <FrameLayout
+        android:id="@+id/frame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/progressBar"
+        android:focusable="true"
+        android:focusableInTouchMode="true">
+
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/swipe_refresh"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <com.alphawallet.app.web3.Web3View
+                android:id="@+id/web3view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    </FrameLayout>
+
+</RelativeLayout>

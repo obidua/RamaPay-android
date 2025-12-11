@@ -83,38 +83,30 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/button_create"
+            style="@style/Aw.Component.Button.Secondary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/standard_16"
             android:text="@string/create_a_new_wallet"
-            android:background="@drawable/button_primary_with_border"
-            android:textColor="?colorSurface"
-            android:fontFamily="@font/font_semibold"
-            android:textSize="@dimen/sp20"
-            android:textAllCaps="false"
-            android:paddingLeft="@dimen/tiny_8"
-            android:paddingRight="@dimen/tiny_8"
-            app:cornerRadius="99dp"
+            android:textColor="#000000"
+            app:strokeColor="#000000"
+            app:strokeWidth="2dp"
             xmlns:app="http://schemas.android.com/apk/res-auto" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/button_import"
+            style="@style/Aw.Component.Button.Secondary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/i_already_have_a_wallet"
-            android:background="@drawable/button_purple_gold_gradient"
             android:textColor="#8B6914"
             android:textStyle="bold"
-            android:fontFamily="@font/font_semibold"
-            android:textSize="@dimen/sp20"
-            android:textAllCaps="false"
-            android:paddingLeft="@dimen/tiny_8"
-            android:paddingRight="@dimen/tiny_8"
             app:icon="@mipmap/ic_launcher"
             app:iconGravity="start"
             app:iconPadding="8dp"
             app:iconTint="@null"
-            app:cornerRadius="99dp"
+            app:strokeColor="#000000"
+            app:strokeWidth="2dp"
             xmlns:app="http://schemas.android.com/apk/res-auto" />
 
 
