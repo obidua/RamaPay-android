@@ -17,6 +17,8 @@ public class AddWalletView extends FrameLayout implements View.OnClickListener {
     private OnWatchWalletClickListener onWatchWalletClickListener;
     private OnCloseActionListener onCloseActionListener;
     private OnHardwareCardActionListener onHardwareCardClickListener;
+    private OnAddAccountClickListener onAddAccountClickListener;
+    private TextView addAccountAction;
 
     public AddWalletView(Context context) {
         this(context, R.layout.layout_dialog_add_account);
@@ -30,6 +32,8 @@ public class AddWalletView extends FrameLayout implements View.OnClickListener {
 
     private void init(@LayoutRes int layoutId) {
         LayoutInflater.from(getContext()).inflate(layoutId, this, true);
+        addAccountAction = findViewById(R.id.add_account_action);
+        addAccountAction.setOnClickListener(this);
         findViewById(R.id.new_account_action).setOnClickListener(this);
         findViewById(R.id.import_account_action).setOnClickListener(this);
         findViewById(R.id.watch_account_action).setOnClickListener(this);
@@ -44,6 +48,13 @@ public class AddWalletView extends FrameLayout implements View.OnClickListener {
             if (onCloseActionListener != null)
             {
                 onCloseActionListener.onClose(view);
+            }
+        }
+        else if (view.getId() == R.id.add_account_action)
+        {
+            if (onAddAccountClickListener != null)
+            {
+                onAddAccountClickListener.onAddAccount(view);
             }
         }
         else if (view.getId() == R.id.new_account_action)
@@ -93,8 +104,24 @@ public class AddWalletView extends FrameLayout implements View.OnClickListener {
         this.onHardwareCardClickListener = onHardwareCardClickListener;
     }
 
+    public void setOnAddAccountClickListener(OnAddAccountClickListener listener)
+    {
+        this.onAddAccountClickListener = listener;
+    }
+
     public void setOnCloseActionListener(OnCloseActionListener onCloseActionListener) {
         this.onCloseActionListener = onCloseActionListener;
+    }
+
+    /**
+     * Show the Add Account option if the user has an HD wallet
+     */
+    public void setHasHDWallet(boolean hasHDWallet)
+    {
+        if (addAccountAction != null)
+        {
+            addAccountAction.setVisibility(hasHDWallet ? View.VISIBLE : View.GONE);
+        }
     }
 
     public interface OnNewWalletClickListener {
@@ -116,6 +143,11 @@ public class AddWalletView extends FrameLayout implements View.OnClickListener {
     public interface OnHardwareCardActionListener
     {
         void detectCard(View view);
+    }
+
+    public interface OnAddAccountClickListener
+    {
+        void onAddAccount(View view);
     }
 
     public void setHardwareActive(boolean isStub)

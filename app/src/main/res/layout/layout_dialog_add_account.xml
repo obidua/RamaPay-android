@@ -9,6 +9,12 @@
             android:layout_gravity="center_horizontal" />
 
     <TextView
+            android:id="@+id/add_account_action"
+            style="@style/Aw.Component.ActionItem"
+            android:text="@string/action_add_account"
+            android:visibility="gone" />
+
+    <TextView
             android:id="@+id/new_account_action"
             style="@style/Aw.Component.ActionItem"
             android:text="@string/action_create_new_account" />

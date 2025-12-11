@@ -151,6 +151,8 @@ public class WalletDataRealmSource {
             wallet.walletCreationTime = keyType.getDateAdded();
             wallet.lastBackupTime = keyType.getLastBackup();
             wallet.authLevel = keyType.getAuthLevel();
+            wallet.hdKeyIndex = keyType.getHdKeyIndex();
+            wallet.parentAddress = keyType.getParentAddress();
         }
 
         return wallet;
@@ -492,6 +494,8 @@ public class WalletDataRealmSource {
         realmKey.setLastBackup(wallet.lastBackupTime);
         realmKey.setAuthLevel(wallet.authLevel);
         realmKey.setKeyModulus("");
+        realmKey.setHdKeyIndex(wallet.hdKeyIndex);
+        realmKey.setParentAddress(wallet.parentAddress);
         r.insertOrUpdate(realmKey);
     }
 

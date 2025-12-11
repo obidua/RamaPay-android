@@ -1,5 +1,8 @@
 package com.alphawallet.app.ui;
 
+import static com.alphawallet.app.C.Key.WALLET;
+import static com.alphawallet.app.entity.BackupState.ENTER_BACKUP_STATE_HD;
+
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
@@ -24,12 +27,15 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.alphawallet.app.C;
 import com.alphawallet.app.R;
+import com.alphawallet.app.entity.BackupState;
 import com.alphawallet.app.entity.CreateWalletCallbackInterface;
+import com.alphawallet.app.ui.BackupKeyActivity;
 import com.alphawallet.app.entity.CustomViewSettings;
 import com.alphawallet.app.entity.ErrorEnvelope;
 import com.alphawallet.app.entity.Operation;
 import com.alphawallet.app.entity.SyncCallback;
 import com.alphawallet.app.entity.Wallet;
+import com.alphawallet.app.entity.WalletType;
 import com.alphawallet.app.entity.tokens.Token;
 import com.alphawallet.app.repository.EthereumNetworkRepository;
 import com.alphawallet.app.repository.PreferenceRepositoryType;
@@ -64,6 +70,7 @@ public class WalletsActivity extends BaseActivity implements
         AddWalletView.OnWatchWalletClickListener,
         AddWalletView.OnCloseActionListener,
         AddWalletView.OnHardwareCardActionListener,
+        AddWalletView.OnAddAccountClickListener,
         CreateWalletCallbackInterface,
         HardwareCallback,
         SyncCallback
@@ -97,6 +104,13 @@ public class WalletsActivity extends BaseActivity implements
     };
 
     private final HardwareDevice hardwareCard = new HardwareDevice(this);
+    private boolean isDerivingAccount = false;
+    private String parentWalletAddress = null;
+    private int derivedAccountIndex = 0;
+    private boolean isCreatingNewHDWallet = false;
+    private String pendingWalletAddress = null;
+    private KeyService.AuthenticationLevel pendingAuthLevel = null;
+    private ActivityResultLauncher<Intent> handleBackupWallet;
 
     @Inject
     PreferenceRepositoryType preferenceRepository;
@@ -341,6 +355,8 @@ public class WalletsActivity extends BaseActivity implements
     public void onNewWallet(View view)
     {
         hideDialog();
+        Toast.makeText(this, "Creating new wallet...", Toast.LENGTH_SHORT).show();
+        systemView.showProgress(true);
         viewModel.newWallet(this, this);
     }
 
@@ -364,6 +380,27 @@ public class WalletsActivity extends BaseActivity implements
         hideDialog();
     }
 
+    @Override
+    public void onAddAccount(View view)
+    {
+        hideDialog();
+        // Show loading indicator
+        systemView.showProgress(true);
+        
+        // Set up for derived account
+        Wallet[] currentWallets = viewModel.wallets().getValue();
+        Wallet primaryHDWallet = viewModel.findPrimaryHDWallet(currentWallets);
+        if (primaryHDWallet != null)
+        {
+            isDerivingAccount = true;
+            parentWalletAddress = primaryHDWallet.address;
+            derivedAccountIndex = viewModel.countHDAccounts(currentWallets);
+        }
+        
+        // Add a new account derived from the HD wallet
+        viewModel.addHDAccount(this, this);
+    }
+
     private void onAddWallet()
     {
         AddWalletView addWalletView = new AddWalletView(this);
@@ -371,7 +408,13 @@ public class WalletsActivity extends BaseActivity implements
         addWalletView.setOnImportWalletClickListener(this);
         addWalletView.setOnWatchWalletClickListener(this);
         addWalletView.setOnHardwareCardClickListener(this);
+        addWalletView.setOnAddAccountClickListener(this);
         addWalletView.setHardwareActive(hardwareCard.isStub());
+        
+        // Show "Add Account" option if user has an HD wallet
+        Wallet[] currentWallets = viewModel.wallets().getValue();
+        addWalletView.setHasHDWallet(viewModel.hasHDWallet(currentWallets));
+        
         dialog = new BottomSheetDialog(this);
         dialog.setContentView(addWalletView);
         dialog.setCancelable(true);
@@ -468,6 +511,26 @@ public class WalletsActivity extends BaseActivity implements
                 result -> {
                     viewModel.showHome(this);
                 });
+
+        handleBackupWallet = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK)
+                    {
+                        // Backup completed successfully, now store the wallet
+                        if (pendingWalletAddress != null && pendingAuthLevel != null)
+                        {
+                            viewModel.storeHDWallet(pendingWalletAddress, pendingAuthLevel);
+                        }
+                    }
+                    else
+                    {
+                        // Backup was cancelled or failed - don't save the wallet
+                        Toast.makeText(this, R.string.backup_cancelled, Toast.LENGTH_SHORT).show();
+                    }
+                    pendingWalletAddress = null;
+                    pendingAuthLevel = null;
+                    isCreatingNewHDWallet = false;
+                });
     }
 
     private void onError(ErrorEnvelope errorEnvelope)
@@ -499,13 +562,45 @@ public class WalletsActivity extends BaseActivity implements
     @Override
     public void HDKeyCreated(String address, Context ctx, KeyService.AuthenticationLevel level)
     {
-        if (address == null) onCreateWalletError(new ErrorEnvelope(""));
-        else viewModel.storeHDWallet(address, level);
+        systemView.showProgress(false);
+        if (address == null) 
+        {
+            isDerivingAccount = false;
+            isCreatingNewHDWallet = false;
+            onCreateWalletError(new ErrorEnvelope(""));
+        }
+        else if (isDerivingAccount)
+        {
+            // This is a derived account from an existing HD wallet
+            viewModel.storeDerivedHDAccount(address, level, parentWalletAddress, derivedAccountIndex);
+            isDerivingAccount = false;
+            parentWalletAddress = null;
+            derivedAccountIndex = 0;
+            Toast.makeText(this, R.string.account_added_success, Toast.LENGTH_SHORT).show();
+        }
+        else
+        {
+            // This is a new HD wallet - launch backup flow
+            pendingWalletAddress = address;
+            pendingAuthLevel = level;
+            isCreatingNewHDWallet = true;
+
+            // Create temporary wallet for backup
+            Wallet tempWallet = new Wallet(address);
+            tempWallet.type = WalletType.HDKEY;
+            
+            Intent intent = new Intent(this, BackupKeyActivity.class);
+            intent.putExtra(WALLET, tempWallet);
+            intent.putExtra("STATE", ENTER_BACKUP_STATE_HD);
+            handleBackupWallet.launch(intent);
+        }
     }
 
     @Override
     public void keyFailure(String message)
     {
+        systemView.showProgress(false);
+        isDerivingAccount = false;
         onCreateWalletError(new ErrorEnvelope(message));
     }
 

@@ -770,6 +770,71 @@ public class KeyService implements AuthenticationCallback, PinAuthenticationCall
         return storeEncryptedBytes(newWallet.mnemonic().getBytes(), keyRequiresAuthentication, currentWallet.address);
     }
 
+    /**
+     * Derive a new HD account from an existing wallet's seed phrase
+     * Uses BIP44 path: m/44'/60'/0'/0/{index}
+     * 
+     * @param parentWallet The parent HD wallet containing the seed phrase
+     * @param accountIndex The account index to derive (0, 1, 2, etc.)
+     * @param callback Callback to return the derived wallet address
+     */
+    public void deriveNewHDAccount(Wallet parentWallet, int accountIndex, CreateWalletCallbackInterface callback)
+    {
+        callbackInterface = callback;
+        try
+        {
+            currentWallet = parentWallet;
+            String mnemonic = unpackMnemonic();
+            HDWallet hdWallet = new HDWallet(mnemonic, "");
+            
+            // Derive key at the specified index using BIP44 path
+            // m/44'/60'/0'/0/{index}
+            String derivationPath = "m/44'/60'/0'/0/" + accountIndex;
+            PrivateKey pk = hdWallet.getKey(CoinType.ETHEREUM, derivationPath);
+            String newAddress = CoinType.ETHEREUM.deriveAddress(pk);
+            
+            Timber.tag(TAG).d("Derived HD account at index %d: %s", accountIndex, newAddress);
+            
+            if (callback != null)
+            {
+                callback.HDKeyCreated(newAddress, context, authLevel);
+            }
+        }
+        catch (KeyServiceException | UserNotAuthenticatedException e)
+        {
+            Timber.tag(TAG).e(e, "Failed to derive HD account");
+            if (callback != null)
+            {
+                callback.keyFailure(e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * Get the private key at a specific HD derivation index
+     * @param wallet The parent HD wallet
+     * @param accountIndex The account index
+     * @return The private key bytes, or null if failed
+     */
+    public byte[] getPrivateKeyAtIndex(Wallet wallet, int accountIndex)
+    {
+        try
+        {
+            currentWallet = wallet;
+            String mnemonic = unpackMnemonic();
+            HDWallet hdWallet = new HDWallet(mnemonic, "");
+            
+            String derivationPath = "m/44'/60'/0'/0/" + accountIndex;
+            PrivateKey pk = hdWallet.getKey(CoinType.ETHEREUM, derivationPath);
+            return pk.data();
+        }
+        catch (KeyServiceException | UserNotAuthenticatedException e)
+        {
+            Timber.tag(TAG).e(e, "Failed to get private key at index %d", accountIndex);
+            return null;
+        }
+    }
+
     private synchronized boolean storeEncryptedBytes(byte[] data, boolean createAuthLocked, String fileName)
     {
         KeyStore keyStore = null;

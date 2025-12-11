@@ -75,6 +75,7 @@ public class NewSettingsFragment extends BaseFragment
     private SettingsItemView advancedSetting;
     private SettingsItemView darkModeSetting;
     private SettingsItemView supportSetting;
+    private SettingsItemView aboutRamaPaySetting;
     private SettingsItemView walletConnectSetting;
     private SettingsItemView showSeedPhrase;
     private SettingsItemView showPrivateKey;
@@ -376,6 +377,13 @@ public class NewSettingsFragment extends BaseFragment
                         .withTitle(R.string.title_support)
                         .withListener(this::onSupportSettingClicked)
                         .build();
+
+        aboutRamaPaySetting =
+                new SettingsItemView.Builder(getContext())
+                        .withIcon(R.drawable.ic_settings_about)
+                        .withTitle(R.string.title_about_ramapay)
+                        .withListener(this::onAboutRamaPayClicked)
+                        .build();
     }
 
     private void addSettingsToLayout()
@@ -418,6 +426,7 @@ public class NewSettingsFragment extends BaseFragment
         systemSettingsLayout.addView(advancedSetting, systemIndex++);
 
         supportSettingsLayout.addView(supportSetting, supportIndex++);
+        supportSettingsLayout.addView(aboutRamaPaySetting, supportIndex++);
     }
 
     private void setInitialSettingsData(View view)
@@ -513,8 +522,20 @@ public class NewSettingsFragment extends BaseFragment
             case KEYSTORE:
                 break;
             case HDKEY:
-                showSeedPhrase.setVisibility(View.VISIBLE);
-                showPrivateKey.setVisibility(View.VISIBLE);
+                // For derived HD accounts, only show private key (no seed phrase)
+                if (wallet.isDerivedHDAccount())
+                {
+                    showSeedPhrase.setVisibility(View.GONE);
+                    showPrivateKey.setVisibility(View.VISIBLE);
+                    // Derived accounts don't need separate backup - they're backed up via master
+                    backUpWalletSetting.setVisibility(View.GONE);
+                }
+                else
+                {
+                    // Master HD wallet - show both seed phrase and private key
+                    showSeedPhrase.setVisibility(View.VISIBLE);
+                    showPrivateKey.setVisibility(View.VISIBLE);
+                }
                 break;
             case WATCH:
                 backUpWalletSetting.setVisibility(View.GONE);
@@ -560,7 +581,18 @@ public class NewSettingsFragment extends BaseFragment
 
     private void backupWarning(String s)
     {
-        if (s.equals(viewModel.defaultWallet().getValue().address))
+        Wallet defaultWallet = viewModel.defaultWallet().getValue();
+        // Skip backup warning for derived HD accounts - they're backed up via master
+        if (defaultWallet != null && defaultWallet.isDerivedHDAccount())
+        {
+            if (layoutBackup != null)
+            {
+                layoutBackup.setVisibility(View.GONE);
+            }
+            return;
+        }
+        
+        if (s.equals(defaultWallet.address))
         {
             addBackupNotice(GenericWalletInteract.BackupLevel.WALLET_HAS_HIGH_VALUE);
         }
@@ -579,6 +611,13 @@ public class NewSettingsFragment extends BaseFragment
 
     void addBackupNotice(GenericWalletInteract.BackupLevel walletValue)
     {
+        // Don't show backup notice for derived HD accounts - they're backed up via master wallet
+        if (wallet != null && wallet.isDerivedHDAccount())
+        {
+            layoutBackup.setVisibility(View.GONE);
+            return;
+        }
+        
         layoutBackup.setVisibility(View.VISIBLE);
         if (wallet != null)
         {
@@ -685,6 +724,12 @@ public class NewSettingsFragment extends BaseFragment
     {
         Intent intent = new Intent(getActivity(), SupportSettingsActivity.class);
         supportSettingsHandler.launch(intent);
+    }
+
+    private void onAboutRamaPayClicked()
+    {
+        Intent intent = new Intent(getActivity(), AboutRamaPayActivity.class);
+        startActivity(intent);
     }
 
     private void onWalletConnectSettingClicked()

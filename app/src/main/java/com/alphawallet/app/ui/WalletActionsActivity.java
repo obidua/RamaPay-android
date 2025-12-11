@@ -280,6 +280,15 @@ public class WalletActionsActivity extends BaseActivity implements Runnable, Vie
         {
             findViewById(R.id.layout_backup_method).setVisibility(View.GONE);
         }
+        else if (wallet.isDerivedHDAccount())
+        {
+            // For derived HD accounts, hide seed phrase option - only show private key
+            backUpSetting.setVisibility(View.GONE);
+            findViewById(R.id.backup_text).setVisibility(View.GONE);
+            // Show indicator that this is a derived account
+            TextView privateKeyText = findViewById(R.id.private_key_text);
+            privateKeyText.setText(getString(R.string.derived_account_private_key_detail, wallet.getHDAccountLabel()));
+        }
 
         setupWalletNames();
     }

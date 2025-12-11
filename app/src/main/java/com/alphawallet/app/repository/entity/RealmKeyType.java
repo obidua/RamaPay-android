@@ -14,6 +14,8 @@ public class RealmKeyType extends RealmObject
     private long lastBackup;
     private long dateAdded;
     private String modulus; //Added for future possibility that we use HD key modulus, so DB doesn't need to be re-initialised
+    private int hdKeyIndex = 0; // HD wallet account index (m/44'/60'/0'/0/index)
+    private String parentAddress; // Parent HD wallet address (for derived accounts)
 
     public String getAddress()
     {
@@ -56,5 +58,25 @@ public class RealmKeyType extends RealmObject
     public void setKeyModulus(String modulus)
     {
         this.modulus = modulus;
+    }
+
+    public int getHdKeyIndex()
+    {
+        return hdKeyIndex;
+    }
+
+    public void setHdKeyIndex(int hdKeyIndex)
+    {
+        this.hdKeyIndex = hdKeyIndex;
+    }
+
+    public String getParentAddress()
+    {
+        return parentAddress;
+    }
+
+    public void setParentAddress(String parentAddress)
+    {
+        this.parentAddress = parentAddress;
     }
 }

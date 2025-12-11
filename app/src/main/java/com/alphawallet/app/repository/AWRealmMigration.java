@@ -502,6 +502,24 @@ public class AWRealmMigration implements RealmMigration
 
             oldVersion = 54;
         }
+
+        // Version 55: Add HD wallet account tracking fields
+        if (oldVersion == 54)
+        {
+            RealmObjectSchema realmKeyType = schema.get("RealmKeyType");
+            if (realmKeyType != null)
+            {
+                if (!realmKeyType.hasField("hdKeyIndex"))
+                {
+                    realmKeyType.addField("hdKeyIndex", int.class);
+                }
+                if (!realmKeyType.hasField("parentAddress"))
+                {
+                    realmKeyType.addField("parentAddress", String.class);
+                }
+            }
+            oldVersion = 55;
+        }
     }
 
     @Override

@@ -141,15 +141,35 @@ public class WalletSummaryHolder extends BinderViewHolder<Wallet> implements Vie
 
     private void setWalletName(String walletName, String ensName)
     {
+        // Build display name with HD account label if applicable
+        String displayName = walletName;
+        
+        // For HD wallets, show account label
+        if (wallet.isHDWallet())
+        {
+            String hdLabel = wallet.getHDAccountLabel();
+            if (wallet.isDerivedHDAccount())
+            {
+                // Derived account: show "Account 2 • wallet name" or just "Account 2"
+                displayName = TextUtils.isEmpty(walletName) ? hdLabel : hdLabel + " • " + walletName;
+            }
+            else
+            {
+                // Master HD wallet: show "Account 1 (Master) • wallet name" or just "Account 1 (Master)"
+                String masterLabel = hdLabel + " (" + getContext().getString(R.string.master_hd_wallet) + ")";
+                displayName = TextUtils.isEmpty(walletName) ? masterLabel : masterLabel + " • " + walletName;
+            }
+        }
+        
         if (!TextUtils.isEmpty(ensName) && (TextUtils.isEmpty(walletName) || Utils.isDefaultName(walletName, getContext())))
         {
             walletNameText.setText(ensName);
             walletAddressSeparator.setVisibility(View.VISIBLE);
             walletNameText.setVisibility(View.VISIBLE);
         }
-        else if (!TextUtils.isEmpty(walletName))
+        else if (!TextUtils.isEmpty(displayName))
         {
-            walletNameText.setText(walletName);
+            walletNameText.setText(displayName);
             walletAddressSeparator.setVisibility(View.VISIBLE);
             walletNameText.setVisibility(View.VISIBLE);
         }

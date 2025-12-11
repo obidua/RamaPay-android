@@ -638,4 +638,94 @@ public class WalletsViewModel extends BaseViewModel implements ServiceSyncCallba
     {
         preferenceRepository.logIn(address);
     }
+
+    /**
+     * Find the primary HD wallet (the one with the seed phrase stored)
+     * This is the first HD wallet that was created
+     */
+    public Wallet findPrimaryHDWallet(Wallet[] walletArray)
+    {
+        if (walletArray == null) return null;
+        
+        for (Wallet wallet : walletArray)
+        {
+            // Primary HD wallet has type HDKEY and no parent address
+            if (wallet.type == WalletType.HDKEY && 
+                (wallet.parentAddress == null || wallet.parentAddress.isEmpty()))
+            {
+                return wallet;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Count the number of HD accounts derived from the primary wallet
+     */
+    public int countHDAccounts(Wallet[] walletArray)
+    {
+        if (walletArray == null) return 0;
+        
+        int count = 0;
+        for (Wallet wallet : walletArray)
+        {
+            if (wallet.type == WalletType.HDKEY)
+            {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /**
+     * Check if there's an HD wallet available for deriving new accounts
+     */
+    public boolean hasHDWallet(Wallet[] walletArray)
+    {
+        return findPrimaryHDWallet(walletArray) != null;
+    }
+
+    /**
+     * Add a new account derived from the HD wallet
+     * @param activity The calling activity
+     * @param callback Callback for the result
+     */
+    public void addHDAccount(Activity activity, CreateWalletCallbackInterface callback)
+    {
+        Wallet[] currentWallets = wallets.getValue();
+        Wallet primaryHDWallet = findPrimaryHDWallet(currentWallets);
+        
+        if (primaryHDWallet == null)
+        {
+            callback.keyFailure("No HD wallet found");
+            return;
+        }
+        
+        int nextIndex = countHDAccounts(currentWallets);
+        keyService.deriveNewHDAccount(primaryHDWallet, nextIndex, callback);
+    }
+
+    /**
+     * Store a derived HD account
+     * @param address The derived account address
+     * @param authLevel The authentication level
+     * @param parentAddress The parent HD wallet address
+     * @param hdKeyIndex The derivation index
+     */
+    public void storeDerivedHDAccount(String address, KeyService.AuthenticationLevel authLevel, 
+                                       String parentAddress, int hdKeyIndex)
+    {
+        if (!address.equals(ZERO_ADDRESS))
+        {
+            Wallet wallet = new Wallet(address);
+            wallet.type = WalletType.HDKEY;
+            wallet.authLevel = authLevel;
+            wallet.parentAddress = parentAddress;
+            wallet.hdKeyIndex = hdKeyIndex;
+            fetchWalletsInteract.storeWallet(wallet)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(account -> setNewWallet(wallet), this::onCreateWalletError).isDisposed();
+        }
+    }
 }

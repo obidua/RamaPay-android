@@ -281,6 +281,10 @@
                 android:label="Support Settings" />
 
         <activity
+                android:name=".ui.AboutRamaPayActivity"
+                android:label="@string/title_about_ramapay" />
+
+        <activity
                 android:name=".ui.AdvancedSettingsActivity"
                 android:label="Advanced Settings" />
 

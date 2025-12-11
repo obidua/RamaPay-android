@@ -27,6 +27,13 @@
     <string name="try_again">Try again</string>
     <string name="already_have_account">Already have a wallet?</string>
     <string name="action_create_new_account">Create a New Wallet</string>
+    <string name="action_add_account">Add Account</string>
+    <string name="add_account_description">Add a new account to your existing wallet. Same seed phrase, new address.</string>
+    <string name="account_added_success">New account added successfully!</string>
+    <string name="derived_account_private_key_detail">This is %1$s, derived from your master wallet. You can export its unique private key. To see the seed phrase, go to the master wallet settings.</string>
+    <string name="hd_account_label">Account %1$d</string>
+    <string name="derived_from_master">Derived from master wallet</string>
+    <string name="master_hd_wallet">Master Wallet</string>
     <string name="unknown_error">An error has occurred.</string>
     <string name="no_tokens">No tokens found.</string>
 
@@ -544,6 +551,7 @@
     <string name="backup_required_create_wallet">You must complete the backup process to create your wallet. Please write down and verify your seed phrase.</string>
     <string name="backup_cancelled_title">Wallet Creation Incomplete</string>
     <string name="backup_cancelled_message">Your wallet hasn\'t been created yet. To secure your funds, please complete the seed phrase backup process.\n\nWould you like to try again?</string>
+    <string name="backup_cancelled">Backup cancelled. Wallet was not saved.</string>
     <string name="cancel_creation">Cancel</string>
     <string name="action_close">Close</string>
     <string name="back_up_this_wallet">Back up this Wallet</string>
@@ -624,6 +632,7 @@
     <string name="title_biometrics">Passcode / Touch ID</string>
     <string name="title_advanced">Advanced</string>
     <string name="title_support">Support</string>
+    <string name="title_about_ramapay">About RamaPay</string>
     <string name="title_blog">Blog</string>
     <string name="title_faq">FAQ</string>
     <string name="title_console">Console</string>
@@ -1105,4 +1114,23 @@
     <string name="developer_override_warning">Warning: You are about to switch off standard protection. This prevents you from getting scammed. Only use the developer mode if you are testing your dapp, or if you are 100\% sure that the site is safe. Remember: if someone is telling you to switch this setting on, you are almost certainly about to lose your crypto funds.</string>
     <string name="warning">Warning</string>
     <string name="i_accept">I accept the risk</string>
+
+    <!-- About RamaPay Section -->
+    <string name="about_what_is_ramapay_title">🚀 What is RamaPay?</string>
+    <string name="about_what_is_ramapay_content">RamaPay is a secure, non-custodial cryptocurrency wallet built for the Ramestta Network ecosystem. It allows you to:\n\n• Store, send, and receive RAMA tokens and other cryptocurrencies\n• Access decentralized applications (DApps) through the built-in browser\n• Manage multiple wallets and accounts\n• Connect to WalletConnect compatible apps\n• Chat with AI assistance for blockchain questions\n\nRamaPay gives you complete control over your digital assets. Your keys, your crypto!</string>
+
+    <string name="about_hd_wallet_title">🔐 HD Wallets Explained</string>
+    <string name="about_hd_wallet_content">RamaPay uses Hierarchical Deterministic (HD) Wallet technology (BIP-44 standard), similar to MetaMask and other popular wallets.\n\n<b>How it works:</b>\n• One seed phrase (12 or 24 words) generates unlimited accounts\n• Each account has its own unique private key and address\n• All accounts are mathematically derived from your seed phrase\n• Derivation path: m/44\'/60\'/0\'/0/index\n\n<b>Benefits:</b>\n• Backup once: One seed phrase backs up ALL your accounts\n• Add accounts: Create new accounts without a new seed phrase\n• Organized: Separate accounts for different purposes\n• Recovery: Restore all accounts on any compatible wallet</string>
+
+    <string name="about_create_wallet_title">📱 Creating &amp; Importing Wallets</string>
+    <string name="about_create_wallet_content"><b>Creating a New Wallet:</b>\n1. Tap \"Create a New Wallet\" on the welcome screen\n2. A unique 12-word seed phrase is generated\n3. Write down the seed phrase on paper (NEVER digitally!)\n4. Verify your seed phrase by selecting words in order\n5. Your wallet is ready to use!\n\n<b>Adding More Accounts (from existing wallet):</b>\n1. Go to Wallets screen (tap wallet icon)\n2. Tap the + button\n3. Select \"Add Account\"\n4. A new account is derived from your existing seed phrase\n\n<b>Importing a Wallet:</b>\n• <b>Seed Phrase:</b> Enter your 12/24 word recovery phrase\n• <b>Private Key:</b> Paste your 64-character private key\n• <b>Keystore:</b> Upload JSON keystore file with password\n• <b>Watch-only:</b> Enter address to monitor (cannot send)</string>
+
+    <string name="about_seed_private_key_title">🔑 Seed Phrase vs Private Key</string>
+    <string name="about_seed_private_key_content"><b>Seed Phrase (Recovery Phrase):</b>\n• 12 or 24 random words\n• Master key to ALL accounts in HD wallet\n• Can regenerate unlimited private keys\n• Industry standard (BIP-39)\n• NEVER share with anyone!\n\n<b>Private Key:</b>\n• 64 hexadecimal characters (256 bits)\n• Controls ONE specific account/address\n• Cannot generate other accounts\n• Used for single account import/export\n• NEVER share with anyone!\n\n<b>Which to backup?</b>\n• HD Wallet: Backup seed phrase only\n• Imported private key wallet: Backup that specific private key</string>
+
+    <string name="about_features_title">✨ Key Features</string>
+    <string name="about_features_content">• <b>Multi-Chain Support:</b> Ramestta, Ethereum, Polygon, BSC, and 50+ networks\n• <b>DApp Browser:</b> Access DeFi, NFTs, and web3 apps directly\n• <b>WalletConnect:</b> Connect to desktop DApps via QR code\n• <b>Token Management:</b> Auto-detect or manually add custom tokens\n• <b>Transaction History:</b> View all your on-chain activity\n• <b>AI Chat Assistant:</b> Get help with blockchain questions\n• <b>Show Private Key:</b> Export individual account private keys\n• <b>Show Seed Phrase:</b> View your recovery phrase anytime\n• <b>Dark Mode:</b> Easy on the eyes for night usage\n• <b>Multi-Language:</b> Available in multiple languages</string>
+
+    <string name="about_security_title">⚠️ Security Tips</string>
+    <string name="about_security_content">🚨 <b>NEVER share your seed phrase or private key with anyone!</b>\n\n• RamaPay team will NEVER ask for your seed phrase\n• Write seed phrase on paper, not digitally\n• Use strong device security (PIN/biometrics)\n• Verify website URLs in DApp browser\n• Be cautious of phishing attempts\n• Only download RamaPay from official sources\n• Consider hardware wallet for large holdings\n\n<b>If someone has your seed phrase, they have access to ALL your funds!</b></string>
 </resources>
