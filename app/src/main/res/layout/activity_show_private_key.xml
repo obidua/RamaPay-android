@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include layout="@layout/layout_simple_toolbar" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/layoutButtons"
+        android:layout_below="@id/toolbar">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/standard_16">
+
+            <TextView
+                android:id="@+id/text_title"
+                style="@style/Aw.Typography.Headline"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:text="@string/private_key_title"
+                android:textAlignment="center" />
+
+            <TextView
+                android:id="@+id/text_warning"
+                style="@style/Aw.Typography.Sub"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/standard_16"
+                android:background="@drawable/background_warning"
+                android:drawableStart="@drawable/ic_red_warning"
+                android:drawablePadding="@dimen/mini_4"
+                android:gravity="center_vertical"
+                android:padding="@dimen/standard_16"
+                android:text="@string/private_key_warning"
+                android:textColor="?colorError" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/double_base_48"
+                app:cardBackgroundColor="?attr/colorSurface"
+                app:cardCornerRadius="@dimen/mini_4"
+                app:cardElevation="2dp"
+                app:strokeColor="?attr/colorPrimary"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/standard_16">
+
+                    <TextView
+                        android:id="@+id/text_private_key"
+                        style="@style/Aw.Typography.Sub"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:breakStrategy="simple"
+                        android:fontFamily="monospace"
+                        android:gravity="center"
+                        android:lineSpacingExtra="4dp"
+                        android:textIsSelectable="true"
+                        android:textSize="14sp" />
+
+                    <ImageView
+                        android:id="@+id/btn_copy_private_key"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="@dimen/standard_16"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/copy_private_key"
+                        android:padding="@dimen/mini_4"
+                        android:src="@drawable/ic_copy"
+                        app:tint="?colorPrimary" />
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:id="@+id/text_wallet_address"
+                style="@style/Aw.Typography.Sub"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/standard_16"
+                android:gravity="center"
+                android:textColor="?attr/colorSecondary" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <com.alphawallet.app.widget.FunctionButtonBar
+        android:id="@+id/layoutButtons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true" />
+
+</RelativeLayout>

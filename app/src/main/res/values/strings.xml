@@ -236,6 +236,7 @@
     <string name="dialog_marketplace_success">Your tickets have been put up for sale in the Marketplace</string>
     <string name="dialog_process_error">Trade not processed</string>
     <string name="dialog_ok">OK</string>
+    <string name="wallet_key_not_found">Wallet key not found in secure storage.\n\nYour wallet data may have been lost due to device security changes or app reinstallation.\n\nPlease re-import your wallet using your recovery phrase.</string>
     <string name="suggest_reimport_wallet">Please try re-importing your wallet using your seed phrase or keystore backup.</string>
     <string name="action_my_wallets">My Wallets</string>
     <string name="action_try_again">Try Again</string>
@@ -520,9 +521,18 @@
     <string name="legacy_wallets">Legacy Wallets</string>
     <string name="postponed_backup_warning">Backup postponed.</string>
     <string name="key_error">Wallet Key Error</string>
+    <string name="key_store_failed">Failed to securely store your wallet key. Please try again or restart the app.</string>
+    <string name="key_not_found_reimport">Wallet key not found in secure storage. Please re-import your wallet using your seed phrase.</string>
+    <string name="show_private_key">Show Private Key</string>
+    <string name="export_private_key_detail">Export your private key for this wallet. Keep it secure!</string>
+    <string name="private_key_title">Your Private Key</string>
+    <string name="private_key_warning">Never share your private key with anyone. Anyone with your private key can access your funds.</string>
+    <string name="copy_private_key">Copy Private Key</string>
+    <string name="private_key_copied">Private key copied to clipboard</string>
     <string name="password_6_characters_or_more">Password 6 characters or more</string>
     <string name="create_a_new_wallet">Create a new Wallet</string>
     <string name="watch">Watch</string>
+    <string name="creating_wallet">Creating Wallet…</string>
     <string name="already_have_a_wallet">I already have a wallet:</string>
     <string name="watch_wallet">Watch-only Wallets</string>
     <string name="suggestion_address">Enter Ethereum Address</string>
@@ -532,6 +542,9 @@
     <string name="title_back_up_your_wallet">Back up your Wallet</string>
     <string name="nudge_user_to_backup_wallet">Your funds will be at risk if you do not back up before using your wallet.</string>
     <string name="backup_required_create_wallet">You must complete the backup process to create your wallet. Please write down and verify your seed phrase.</string>
+    <string name="backup_cancelled_title">Wallet Creation Incomplete</string>
+    <string name="backup_cancelled_message">Your wallet hasn\'t been created yet. To secure your funds, please complete the seed phrase backup process.\n\nWould you like to try again?</string>
+    <string name="cancel_creation">Cancel</string>
     <string name="action_close">Close</string>
     <string name="back_up_this_wallet">Back up this Wallet</string>
     <string name="not_locked">Not Locked</string>

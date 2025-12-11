@@ -60,6 +60,7 @@ public class WalletActionsActivity extends BaseActivity implements Runnable, Vie
     private ImageView walletSelectedIcon;
     private SettingsItemView deleteWalletSetting;
     private SettingsItemView backUpSetting;
+    private SettingsItemView showPrivateKeySetting;
     private InputAddress inputAddress;
     private InputView inputName;
     private LinearLayout successOverlay;
@@ -256,12 +257,24 @@ public class WalletActionsActivity extends BaseActivity implements Runnable, Vie
         deleteWalletSetting.setListener(this::onDeleteWalletSettingClicked);
 
         backUpSetting.setListener(this::onBackUpSettingClicked);
+        
+        showPrivateKeySetting = findViewById(R.id.setting_show_private_key);
+        if (showPrivateKeySetting != null)
+        {
+            showPrivateKeySetting.setListener(this::onShowPrivateKeyClicked);
+        }
 
         if (wallet.type == WalletType.KEYSTORE)
         {
             backUpSetting.setTitle(getString(R.string.export_keystore_json));
             TextView backupDetail = findViewById(R.id.backup_text);
             backupDetail.setText(R.string.export_keystore_detail);
+            // Hide show private key for keystore wallets (they don't have seed phrase)
+            if (showPrivateKeySetting != null)
+            {
+                showPrivateKeySetting.setVisibility(View.GONE);
+                findViewById(R.id.private_key_text).setVisibility(View.GONE);
+            }
         }
         else if (wallet.type == WalletType.WATCH || wallet.type == WalletType.HARDWARE)
         {
@@ -312,6 +325,10 @@ public class WalletActionsActivity extends BaseActivity implements Runnable, Vie
     private void onBackUpSettingClicked() {
         doBackUp();
     }
+    
+    private void onShowPrivateKeyClicked() {
+        showPrivateKey(wallet);
+    }
 
     private void saveWalletName()
     {
@@ -336,6 +353,14 @@ public class WalletActionsActivity extends BaseActivity implements Runnable, Vie
         Intent intent = new Intent(this, BackupKeyActivity.class);
         intent.putExtra(WALLET, wallet);
         intent.putExtra("TYPE", BackupOperationType.SHOW_SEED_PHRASE);
+        intent.setFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+        handleBackupWallet.launch(intent);
+    }
+    
+    private void showPrivateKey(Wallet wallet) {
+        Intent intent = new Intent(this, BackupKeyActivity.class);
+        intent.putExtra(WALLET, wallet);
+        intent.putExtra("TYPE", BackupOperationType.EXPORT_PRIVATE_KEY);
         intent.setFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
         handleBackupWallet.launch(intent);
     }

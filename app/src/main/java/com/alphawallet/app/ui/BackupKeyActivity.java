@@ -3,6 +3,8 @@ package com.alphawallet.app.ui;
 import static com.alphawallet.app.C.Key.WALLET;
 
 import android.annotation.SuppressLint;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -45,6 +47,12 @@ import com.alphawallet.app.widget.SignTransactionDialog;
 import com.google.android.flexbox.FlexDirection;
 import com.google.android.flexbox.FlexboxLayout;
 import com.google.android.material.card.MaterialCardView;
+
+import org.web3j.utils.Numeric;
+
+import wallet.core.jni.CoinType;
+import wallet.core.jni.HDWallet;
+import wallet.core.jni.PrivateKey;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -155,6 +163,13 @@ public class BackupKeyActivity extends BaseActivity implements
 
     private void showSeedPhrase()
     {
+        // First check if the key exists in the keystore
+        if (!viewModel.hasKey(wallet.address))
+        {
+            DisplayKeyFailureDialog(getString(R.string.key_not_found_reimport));
+            return;
+        }
+        
         setupTestSeed();
         ((TextView) findViewById(R.id.text_title)).setText(R.string.your_seed_phrase);
         DisplaySeed();
@@ -188,8 +203,8 @@ public class BackupKeyActivity extends BaseActivity implements
                 DisplaySeed();
                 break;
             case EXPORT_PRIVATE_KEY:
-                DisplayKeyFailureDialog("Export Private key not yet implemented");
-                //TODO: Not yet implemented
+                state = BackupState.SHOW_PRIVATE_KEY;
+                setupShowPrivateKey();
                 break;
             case UPGRADE_KEY:
                 setupUpgradeKey(false);
@@ -317,6 +332,14 @@ public class BackupKeyActivity extends BaseActivity implements
 
     private void upgradeKeySecurity()
     {
+        // Check if the key exists in secure storage before attempting to upgrade
+        if (wallet != null && (wallet.type == WalletType.HDKEY || wallet.type == WalletType.KEYSTORE) 
+            && !viewModel.hasKey(wallet.address))
+        {
+            DisplayKeyFailureDialog(getString(R.string.wallet_key_not_found));
+            return;
+        }
+        
         switch (wallet.type)
         {
             case KEYSTORE:
@@ -349,6 +372,67 @@ public class BackupKeyActivity extends BaseActivity implements
                     cancelAuthentication();
                     break;
             }
+        }
+    }
+
+    private void setupShowPrivateKey()
+    {
+        setContentView(R.layout.activity_show_private_key);
+        initViews();
+        
+        functionButtonBar.setPrimaryButtonText(R.string.copy_private_key);
+        functionButtonBar.setPrimaryButtonClickListener(v -> copyPrivateKeyToClipboard());
+        functionButtonBar.setPrimaryButtonEnabled(false);
+        
+        // Request authentication to get the mnemonic
+        viewModel.getAuthentication(wallet, this, this);
+    }
+    
+    private void displayPrivateKey(String mnemonic)
+    {
+        try
+        {
+            HDWallet hdWallet = new HDWallet(mnemonic, "");
+            PrivateKey pk = hdWallet.getKeyForCoin(CoinType.ETHEREUM);
+            String privateKeyHex = "0x" + Numeric.toHexStringNoPrefix(pk.data());
+            
+            TextView privateKeyText = findViewById(R.id.text_private_key);
+            TextView walletAddressText = findViewById(R.id.text_wallet_address);
+            ImageView copyButton = findViewById(R.id.btn_copy_private_key);
+            
+            if (privateKeyText != null)
+            {
+                privateKeyText.setText(privateKeyHex);
+            }
+            
+            if (walletAddressText != null)
+            {
+                walletAddressText.setText(wallet.address);
+            }
+            
+            if (copyButton != null)
+            {
+                copyButton.setOnClickListener(v -> copyPrivateKeyToClipboard());
+            }
+            
+            functionButtonBar.setPrimaryButtonEnabled(true);
+        }
+        catch (Exception e)
+        {
+            DisplayKeyFailureDialog("Failed to derive private key: " + e.getMessage());
+        }
+    }
+    
+    private void copyPrivateKeyToClipboard()
+    {
+        TextView privateKeyText = findViewById(R.id.text_private_key);
+        if (privateKeyText != null && privateKeyText.getText() != null)
+        {
+            String privateKey = privateKeyText.getText().toString();
+            ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+            ClipData clip = ClipData.newPlainText("Private Key", privateKey);
+            clipboard.setPrimaryClip(clip);
+            Toast.makeText(this, R.string.private_key_copied, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -400,6 +484,12 @@ public class BackupKeyActivity extends BaseActivity implements
 
             case SET_JSON_PASSWORD:
                 JSONBackup();
+                break;
+
+            case SHOW_PRIVATE_KEY:
+                // Clear private key from screen for security when pausing
+                TextView privateKeyText = findViewById(R.id.text_private_key);
+                if (privateKeyText != null) privateKeyText.setText("");
                 break;
 
             case ENTER_JSON_BACKUP:
@@ -748,6 +838,13 @@ public class BackupKeyActivity extends BaseActivity implements
 
     private void DisplaySeed()
     {
+        // Check if the key exists in secure storage before attempting to display
+        if (wallet != null && wallet.type == WalletType.HDKEY && !viewModel.hasKey(wallet.address))
+        {
+            DisplayKeyFailureDialog(getString(R.string.wallet_key_not_found));
+            return;
+        }
+        
         if (layoutWordHolder != null)
         {
             layoutWordHolder.setVisibility(View.VISIBLE);
@@ -858,6 +955,9 @@ public class BackupKeyActivity extends BaseActivity implements
                     mnemonicArray = mnemonic.split(" ");
                     jumbleList();
                     break;
+                case SHOW_PRIVATE_KEY:
+                    displayPrivateKey(mnemonic);
+                    break;
                 case SEED_PHRASE_INVALID:
                 case UNDEFINED:
                 case ENTER_BACKUP_STATE_HD:
@@ -908,6 +1008,9 @@ public class BackupKeyActivity extends BaseActivity implements
                     break;
                 case SHOW_SEED_PHRASE_SINGLE:
                 case SHOW_SEED_PHRASE:
+                    viewModel.getSeedPhrase(wallet, this, this);
+                    break;
+                case SHOW_PRIVATE_KEY:
                     viewModel.getSeedPhrase(wallet, this, this);
                     break;
                 case UPGRADE_KEY_SECURITY:

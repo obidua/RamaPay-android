@@ -53,5 +53,7 @@
 	<color name="shark">#232325</color>
 	<color name="atlantis">#7cca42</color>
 	<color name="yellow">#FDD835</color>
+	<color name="dark_golden">#B8860B</color>
+	<color name="dark_golden_darker">#996515</color>
     <color name="base_logo">#0052FF</color>
 </resources>

@@ -3,7 +3,9 @@ package com.alphawallet.app.ui;
 import static org.web3j.protocol.core.methods.request.Transaction.createFunctionCallTransaction;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -84,6 +86,15 @@ public class ChatFragment extends BaseFragment implements
     private SwipeRefreshLayout swipeRefreshLayout;
     private boolean isWebViewSetup = false;
     private static final String MUMBLECHAT_URL = "https://mumblechat.com/conversations";
+    
+    // Save WebView state to prevent reloading on tab switch
+    private Bundle webViewState;
+    private boolean hasLoadedOnce = false;
+    
+    // Keys for persistent storage
+    private static final String PREF_NAME = "chat_prefs";
+    private static final String KEY_LAST_URL = "last_url";
+    private static final String KEY_HAS_LOADED = "has_loaded";
 
     private final ActivityResultLauncher<Intent> gasSettingsLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -254,6 +265,36 @@ public class ChatFragment extends BaseFragment implements
             {
                 return false;
             }
+            
+            @Override
+            public void onReceivedError(WebView view, int errorCode, String description, String failingUrl)
+            {
+                super.onReceivedError(view, errorCode, description, failingUrl);
+                Timber.e("WebView error: %d - %s for URL: %s", errorCode, description, failingUrl);
+                
+                // If the error is for our main URL, show a friendly error page with retry option
+                if (failingUrl != null && failingUrl.contains("mumblechat.com"))
+                {
+                    showErrorPage(view, description);
+                }
+            }
+            
+            @Override
+            public void onReceivedError(WebView view, WebResourceRequest request, android.webkit.WebResourceError error)
+            {
+                super.onReceivedError(view, request, error);
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M)
+                {
+                    String url = request.getUrl().toString();
+                    Timber.e("WebView error: %d - %s for URL: %s", error.getErrorCode(), error.getDescription(), url);
+                    
+                    // Only show error page for main frame requests to our chat URL
+                    if (request.isForMainFrame() && url.contains("mumblechat.com"))
+                    {
+                        showErrorPage(view, error.getDescription().toString());
+                    }
+                }
+            }
         });
 
         // Set up wallet connection listeners
@@ -265,8 +306,71 @@ public class ChatFragment extends BaseFragment implements
         web3.setOnWalletAddEthereumChainObjectListener(this);
         web3.setOnWalletActionListener(this);
 
-        // Load MumbleChat
-        web3.loadUrl(MUMBLECHAT_URL);
+        // Restore WebView state if available, otherwise load from saved URL or default
+        if (webViewState != null)
+        {
+            web3.restoreState(webViewState);
+            hasLoadedOnce = true;
+        }
+        else if (!hasLoadedOnce)
+        {
+            // Try to load saved URL from persistent storage
+            String savedUrl = getSavedUrl();
+            if (savedUrl != null && !savedUrl.isEmpty())
+            {
+                web3.loadUrl(savedUrl);
+            }
+            else
+            {
+                web3.loadUrl(MUMBLECHAT_URL);
+            }
+            hasLoadedOnce = true;
+        }
+    }
+    
+    private String getSavedUrl()
+    {
+        if (getContext() == null) return null;
+        SharedPreferences prefs = getContext().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        return prefs.getString(KEY_LAST_URL, null);
+    }
+    
+    private void saveCurrentUrl()
+    {
+        if (getContext() == null || web3 == null) return;
+        String currentUrl = web3.getUrl();
+        if (currentUrl != null && currentUrl.contains("mumblechat.com"))
+        {
+            SharedPreferences prefs = getContext().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+            prefs.edit().putString(KEY_LAST_URL, currentUrl).apply();
+        }
+    }
+    
+    private void showErrorPage(WebView view, String errorDescription)
+    {
+        String errorHtml = "<html><head>" +
+            "<meta name='viewport' content='width=device-width, initial-scale=1.0'>" +
+            "<style>" +
+            "body { font-family: sans-serif; background-color: #141414; color: #ffffff; " +
+            "display: flex; flex-direction: column; align-items: center; justify-content: center; " +
+            "height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; text-align: center; }" +
+            "h2 { color: #B8860B; margin-bottom: 10px; }" +
+            "p { color: #999999; margin-bottom: 20px; }" +
+            ".btn { background-color: #B8860B; color: #141414; border: none; padding: 15px 40px; " +
+            "border-radius: 25px; font-size: 16px; font-weight: bold; cursor: pointer; " +
+            "text-decoration: none; display: inline-block; margin: 10px; }" +
+            ".btn:hover { background-color: #996515; }" +
+            ".error-icon { font-size: 60px; margin-bottom: 20px; }" +
+            "</style></head><body>" +
+            "<div class='error-icon'>⚠️</div>" +
+            "<h2>Connection Error</h2>" +
+            "<p>Unable to connect to MumbleChat.<br/>Please check your internet connection and try again.</p>" +
+            "<p style='font-size: 12px; color: #666;'>" + errorDescription + "</p>" +
+            "<a class='btn' href='" + MUMBLECHAT_URL + "'>Retry</a>" +
+            "</body></html>";
+        
+        view.loadData(android.util.Base64.encodeToString(errorHtml.getBytes(), android.util.Base64.NO_PADDING), 
+            "text/html; charset=utf-8", "base64");
     }
 
     // ========== OnSignMessageListener ==========
@@ -546,15 +650,41 @@ public class ChatFragment extends BaseFragment implements
         if (web3 != null)
         {
             web3.onPause();
+            // Save WebView state when pausing
+            webViewState = new Bundle();
+            web3.saveState(webViewState);
+            // Save current URL to persistent storage
+            saveCurrentUrl();
         }
+    }
+    
+    @Override
+    public void onDestroyView()
+    {
+        // Save WebView state and URL before view is destroyed
+        if (web3 != null)
+        {
+            webViewState = new Bundle();
+            web3.saveState(webViewState);
+            saveCurrentUrl();
+        }
+        // Reset the setup flag so WebView can be reconfigured when view is recreated
+        isWebViewSetup = false;
+        super.onDestroyView();
     }
 
     @Override
     public void onDestroy()
     {
-        if (web3 != null)
+        // Save URL before destroying
+        saveCurrentUrl();
+        
+        // Only destroy WebView when fragment is actually being destroyed (not just view)
+        if (web3 != null && getActivity() != null && getActivity().isFinishing())
         {
             web3.destroy();
+            webViewState = null;
+            hasLoadedOnce = false;
         }
         super.onDestroy();
     }

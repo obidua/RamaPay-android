@@ -77,6 +77,7 @@ public class NewSettingsFragment extends BaseFragment
     private SettingsItemView supportSetting;
     private SettingsItemView walletConnectSetting;
     private SettingsItemView showSeedPhrase;
+    private SettingsItemView showPrivateKey;
     private SettingsItemView nameThisWallet;
     private LinearLayout layoutBackup;
     private Button backupButton;
@@ -302,6 +303,12 @@ public class NewSettingsFragment extends BaseFragment
                 .withListener(this::onShowSeedPhrase) //onShow
                 .build();
 
+        showPrivateKey = new SettingsItemView.Builder(getContext())
+                .withIcon(R.drawable.ic_settings_private_key)
+                .withTitle(R.string.show_private_key)
+                .withListener(this::onShowPrivateKey)
+                .build();
+
         nameThisWallet = new SettingsItemView.Builder(getContext())
                 .withIcon(R.drawable.ic_settings_name_this_wallet)
                 .withTitle(R.string.name_this_wallet)
@@ -386,6 +393,9 @@ public class NewSettingsFragment extends BaseFragment
 
         walletSettingsLayout.addView(showSeedPhrase, walletIndex++);
         showSeedPhrase.setVisibility(View.GONE);
+
+        walletSettingsLayout.addView(showPrivateKey, walletIndex++);
+        showPrivateKey.setVisibility(View.GONE);
 
         walletSettingsLayout.addView(nameThisWallet, walletIndex++);
 
@@ -504,6 +514,7 @@ public class NewSettingsFragment extends BaseFragment
                 break;
             case HDKEY:
                 showSeedPhrase.setVisibility(View.VISIBLE);
+                showPrivateKey.setVisibility(View.VISIBLE);
                 break;
             case WATCH:
                 backUpWalletSetting.setVisibility(View.GONE);
@@ -619,6 +630,18 @@ public class NewSettingsFragment extends BaseFragment
         if (wallet != null)
         {
             openShowSeedPhrase(wallet);
+        }
+    }
+
+    private void onShowPrivateKey()
+    {
+        Wallet wallet = viewModel.defaultWallet().getValue();
+        if (wallet != null && wallet.type == WalletType.HDKEY)
+        {
+            Intent intent = new Intent(getContext(), BackupKeyActivity.class);
+            intent.putExtra(C.Key.WALLET, wallet);
+            intent.putExtra("TYPE", BackupOperationType.EXPORT_PRIVATE_KEY);
+            startActivity(intent);
         }
     }
 

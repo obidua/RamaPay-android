@@ -33,6 +33,7 @@ import com.alphawallet.app.service.KeyService;
 import com.alphawallet.app.ui.QRScanning.DisplayUtils;
 import com.alphawallet.app.util.Utils;
 import com.alphawallet.app.viewmodel.BackupKeyViewModel;
+import com.alphawallet.app.viewmodel.ScammerWarningViewModel;
 import com.alphawallet.app.widget.AWalletAlertDialog;
 import com.alphawallet.app.widget.FunctionButtonBar;
 import com.alphawallet.app.widget.LayoutCallbackListener;
@@ -48,6 +49,7 @@ import javax.inject.Inject;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.annotation.Nullable;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.lifecycle.ViewModelProvider;
@@ -65,6 +67,8 @@ public class ScammerWarningActivity extends BaseActivity
 {
     private FunctionButtonBar functionButtonBar;
     private Wallet wallet;
+    private ScammerWarningViewModel viewModel;
+    private AWalletAlertDialog alertDialog;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState)
@@ -72,6 +76,8 @@ public class ScammerWarningActivity extends BaseActivity
         super.onCreate(savedInstanceState);
         lockOrientation();
         toolbar();
+        
+        viewModel = new ViewModelProvider(this).get(ScammerWarningViewModel.class);
         wallet = getIntent().getParcelableExtra(WALLET);
         setShowSeedPhraseSplash();
     }
@@ -101,10 +107,41 @@ public class ScammerWarningActivity extends BaseActivity
 
     private void openBackupKeyActivity()
     {
+        // Check if the key exists before attempting to show the seed phrase
+        if (wallet != null && wallet.type == WalletType.HDKEY && !viewModel.hasKey(wallet.address))
+        {
+            showKeyNotFoundError();
+            return;
+        }
+        
         Intent intent = new Intent(this, BackupKeyActivity.class);
         intent.putExtra(WALLET, wallet);
         intent.putExtra("STATE", SHOW_SEED_PHRASE_SINGLE);
         startActivity(intent);
+    }
+    
+    private void showKeyNotFoundError()
+    {
+        alertDialog = new AWalletAlertDialog(this);
+        alertDialog.setIcon(AWalletAlertDialog.ERROR);
+        alertDialog.setTitle(R.string.key_error);
+        alertDialog.setMessage(getString(R.string.wallet_key_not_found));
+        alertDialog.setButtonText(R.string.dialog_ok);
+        alertDialog.setSecondaryButtonText(R.string.action_my_wallets);
+        alertDialog.setCanceledOnTouchOutside(true);
+        alertDialog.setButtonListener(v -> {
+            alertDialog.dismiss();
+            finish();
+        });
+        alertDialog.setSecondaryButtonListener(v -> {
+            alertDialog.dismiss();
+            Intent intent = new Intent(this, WalletActionsActivity.class);
+            intent.putExtra(WALLET, wallet);
+            intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
+            finish();
+        });
+        alertDialog.show();
     }
 
     private void initViews()

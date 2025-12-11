@@ -44,6 +44,7 @@ public class SplashActivity extends BaseActivity implements CreateWalletCallback
     private String errorMessage;
     private String pendingWalletAddress;
     private KeyService.AuthenticationLevel pendingAuthLevel;
+    private View loadingLayout;
     private final Runnable displayError = new Runnable()
     {
         @Override
@@ -65,6 +66,8 @@ public class SplashActivity extends BaseActivity implements CreateWalletCallback
         result -> {
             if (result.getResultCode() == RESULT_OK && pendingWalletAddress != null)
             {
+                // Show loading indicator while wallet is being stored
+                showLoading(true);
                 // Backup successful, now store the wallet and proceed to home
                 viewModel.StoreHDKey(pendingWalletAddress, pendingAuthLevel);
                 pendingWalletAddress = null;
@@ -72,14 +75,19 @@ public class SplashActivity extends BaseActivity implements CreateWalletCallback
             }
             else
             {
-                // Backup was cancelled or failed, show error
-                errorMessage = getString(R.string.backup_required_create_wallet);
-                if (handler != null) handler.post(displayError);
-                // Allow user to try again
-                viewModel.fetchWallets();
+                // Backup was cancelled, show friendly confirmation dialog
+                showBackupCancelledDialog();
             }
         }
     );
+
+    private void showLoading(boolean show)
+    {
+        if (loadingLayout != null)
+        {
+            loadingLayout.setVisibility(show ? View.VISIBLE : View.GONE);
+        }
+    }
 
     @Override
     protected void attachBaseContext(Context base)
@@ -103,7 +111,7 @@ public class SplashActivity extends BaseActivity implements CreateWalletCallback
             .load(R.raw.ramapay_splash)
             .into(splashImage);
 
-        // Apply gradient to Ramestta Network text (Purple to Gold)
+        // Apply gradient to Ramestta Network text (Purple to Dark Gold)
         android.widget.TextView ramesttaText = findViewById(R.id.text_ramestta_network);
         if (ramesttaText != null)
         {
@@ -114,15 +122,18 @@ public class SplashActivity extends BaseActivity implements CreateWalletCallback
                     new int[]{
                         android.graphics.Color.parseColor("#6B2C91"), // Purple (80%)
                         android.graphics.Color.parseColor("#8B4FA8"), // Mid Purple
-                        android.graphics.Color.parseColor("#D4AF37")  // Gold (20%)
+                        android.graphics.Color.parseColor("#B8860B")  // Dark Gold (20%)
                     },
-                    new float[]{0.0f, 0.8f, 1.0f}, // 80% purple, 20% gold
+                    new float[]{0.0f, 0.8f, 1.0f}, // 80% purple, 20% dark gold
                     android.graphics.Shader.TileMode.CLAMP
                 );
                 ramesttaText.getPaint().setShader(gradient);
                 ramesttaText.invalidate();
             });
         }
+
+        // Initialize loading layout
+        loadingLayout = findViewById(R.id.layout_loading);
 
         //detect previous launch
         viewModel = new ViewModelProvider(this)
@@ -270,5 +281,34 @@ public class SplashActivity extends BaseActivity implements CreateWalletCallback
             dialog.setButtonListener(v -> dialog.dismiss());
             dialog.show();
         }
+    }
+    
+    private void showBackupCancelledDialog()
+    {
+        AWalletAlertDialog dialog = new AWalletAlertDialog(this);
+        dialog.setTitle(R.string.backup_cancelled_title);
+        dialog.setMessage(R.string.backup_cancelled_message);
+        dialog.setIcon(AWalletAlertDialog.WARNING);
+        dialog.setCanceledOnTouchOutside(false);
+        
+        // Try Again button - restart wallet creation
+        dialog.setButtonText(R.string.try_again);
+        dialog.setButtonListener(v -> {
+            dialog.dismiss();
+            // Start wallet creation again
+            viewModel.createNewWallet(getThisActivity(), this);
+        });
+        
+        // Cancel button - go back to welcome screen
+        dialog.setSecondaryButtonText(R.string.cancel_creation);
+        dialog.setSecondaryButtonListener(v -> {
+            dialog.dismiss();
+            pendingWalletAddress = null;
+            pendingAuthLevel = null;
+            // Refresh to show welcome screen
+            viewModel.fetchWallets();
+        });
+        
+        dialog.show();
     }
 }

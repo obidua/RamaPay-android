@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="brand">#FFD700</color>
+    <!-- Dark Golden color -->
+    <color name="brand">#B8860B</color>
     <color name="brand_inverse">@color/white</color>
     <color name="accent">@color/brand</color>
     <color name="error">@color/danger</color>

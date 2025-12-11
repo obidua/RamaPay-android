@@ -598,8 +598,79 @@ public class KeyService implements AuthenticationCallback, PinAuthenticationCall
     {
         HDWallet newWallet = new HDWallet(DEFAULT_KEY_STRENGTH, "");
         boolean success = storeHDKey(newWallet, false); //create non-authenticated key initially
+        
+        // Verify the key was stored properly by attempting to read it back
+        if (success)
+        {
+            success = verifyStoredKey(currentWallet.address, newWallet.mnemonic());
+        }
+        
         if (callbackInterface != null)
             callbackInterface.HDKeyCreated(success ? currentWallet.address : null, context, authLevel);
+    }
+    
+    /**
+     * Verify that a stored key can be read back correctly
+     * This ensures the key storage was successful and the key is recoverable
+     */
+    private boolean verifyStoredKey(String address, String expectedMnemonic)
+    {
+        try
+        {
+            // Check if files exist
+            String encryptedFilePath = getFilePath(context, address);
+            String ivFilePath = getFilePath(context, address + "iv");
+            
+            File encryptedFile = new File(encryptedFilePath);
+            File ivFile = new File(ivFilePath);
+            
+            if (!encryptedFile.exists() || !ivFile.exists())
+            {
+                Timber.tag(TAG).e("Key verification failed: files don't exist for address %s", address);
+                return false;
+            }
+            
+            // Verify KeyStore contains the key
+            if (!hasKeystore(address))
+            {
+                Timber.tag(TAG).e("Key verification failed: KeyStore doesn't contain key for address %s", address);
+                return false;
+            }
+            
+            // Try to decrypt and verify the mnemonic matches
+            Pair<KeyExceptionType, String> testResult = testCipher(address, CIPHER_ALGORITHM);
+            if (testResult.first == KeyExceptionType.SUCCESSFUL_DECODE)
+            {
+                // Verify the decrypted mnemonic matches what we stored
+                if (expectedMnemonic != null && expectedMnemonic.equals(testResult.second))
+                {
+                    Timber.tag(TAG).d("Key verification successful for address %s", address);
+                    return true;
+                }
+                else
+                {
+                    Timber.tag(TAG).e("Key verification failed: mnemonic mismatch for address %s", address);
+                    return false;
+                }
+            }
+            else if (testResult.first == KeyExceptionType.REQUIRES_AUTH)
+            {
+                // Key requires authentication to decrypt - this is expected for auth-locked keys
+                // At minimum we verified the key exists, so return true
+                Timber.tag(TAG).d("Key verification: auth required for address %s (key exists)", address);
+                return true;
+            }
+            else
+            {
+                Timber.tag(TAG).e("Key verification failed: cipher test returned %s for address %s", testResult.first, address);
+                return false;
+            }
+        }
+        catch (Exception e)
+        {
+            Timber.tag(TAG).e(e, "Key verification exception for address %s", address);
+            return false;
+        }
     }
 
     /**
@@ -615,7 +686,22 @@ public class KeyService implements AuthenticationCallback, PinAuthenticationCall
             String seedPhrase = unpackMnemonic();
             HDWallet newWallet = new HDWallet(seedPhrase, "");
             boolean success = storeHDKey(newWallet, requiresAuthentication);
+            
+            // Verify the key was stored properly
+            if (success)
+            {
+                success = verifyStoredKey(currentWallet.address, seedPhrase);
+            }
+            
             String reportAddress = success ? currentWallet.address : null;
+            
+            if (!success)
+            {
+                Timber.tag(TAG).e("Import HD key failed verification for address %s", currentWallet.address);
+                keyFailure(context.getString(R.string.key_store_failed));
+                return;
+            }
+            
             importCallback.walletValidated(reportAddress, KeyEncodingType.SEED_PHRASE_KEY, authLevel);
         }
         catch (UserNotAuthenticatedException | KeyServiceException e)

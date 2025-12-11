@@ -55,6 +55,24 @@
                         android:layout_margin="@dimen/standard_16"
                         android:text="@string/seed_phrase_loss_warning" />
 
+                <View style="@style/Aw.Component.Separator" />
+
+                <com.alphawallet.app.widget.SettingsItemView
+                        android:id="@+id/setting_show_private_key"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:settingIcon="-1"
+                        app:settingTitle="@string/show_private_key"
+                        app:settingType="default" />
+
+                <TextView
+                        android:id="@+id/private_key_text"
+                        style="@style/Aw.Typography.Sub"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="@dimen/standard_16"
+                        android:text="@string/export_private_key_detail" />
+
             </LinearLayout>
 
             <View style="@style/Aw.Component.Separator" />
