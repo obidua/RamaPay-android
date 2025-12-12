@@ -489,7 +489,15 @@ public class KeyService implements AuthenticationCallback, PinAuthenticationCall
         {
             KeyStore keyStore = KeyStore.getInstance(ANDROID_KEY_STORE);
             keyStore.load(null);
-            String matchingAddr = findMatchingAddrInKeyStore(currentWallet.address);
+            
+            // For derived HD accounts, use the parent wallet's address to find the mnemonic
+            String walletAddressToUse = currentWallet.address;
+            if (currentWallet.isDerivedHDAccount() && currentWallet.parentAddress != null && !currentWallet.parentAddress.isEmpty())
+            {
+                walletAddressToUse = currentWallet.parentAddress;
+            }
+            
+            String matchingAddr = findMatchingAddrInKeyStore(walletAddressToUse);
             if (!keyStore.containsAlias(matchingAddr))
             {
                 throw new KeyServiceException("Wallet key not found in secure storage.\n\nYour wallet data may have been lost due to device security changes or app reinstallation.\n\nPlease re-import your wallet using your recovery phrase.");
@@ -605,8 +613,21 @@ public class KeyService implements AuthenticationCallback, PinAuthenticationCall
             success = verifyStoredKey(currentWallet.address, newWallet.mnemonic());
         }
         
+        // Callback must be invoked on main thread for UI operations
+        final boolean finalSuccess = success;
+        final String walletAddress = success ? currentWallet.address : null;
         if (callbackInterface != null)
-            callbackInterface.HDKeyCreated(success ? currentWallet.address : null, context, authLevel);
+        {
+            if (activity != null)
+            {
+                activity.runOnUiThread(() -> 
+                    callbackInterface.HDKeyCreated(walletAddress, context, authLevel));
+            }
+            else
+            {
+                callbackInterface.HDKeyCreated(walletAddress, context, authLevel);
+            }
+        }
     }
     
     /**
@@ -795,9 +816,18 @@ public class KeyService implements AuthenticationCallback, PinAuthenticationCall
             
             Timber.tag(TAG).d("Derived HD account at index %d: %s", accountIndex, newAddress);
             
+            // Callback must be invoked on main thread for UI operations
             if (callback != null)
             {
-                callback.HDKeyCreated(newAddress, context, authLevel);
+                if (activity != null)
+                {
+                    activity.runOnUiThread(() -> 
+                        callback.HDKeyCreated(newAddress, context, authLevel));
+                }
+                else
+                {
+                    callback.HDKeyCreated(newAddress, context, authLevel);
+                }
             }
         }
         catch (KeyServiceException | UserNotAuthenticatedException e)
@@ -805,7 +835,15 @@ public class KeyService implements AuthenticationCallback, PinAuthenticationCall
             Timber.tag(TAG).e(e, "Failed to derive HD account");
             if (callback != null)
             {
-                callback.keyFailure(e.getMessage());
+                if (activity != null)
+                {
+                    activity.runOnUiThread(() -> 
+                        callback.keyFailure(e.getMessage()));
+                }
+                else
+                {
+                    callback.keyFailure(e.getMessage());
+                }
             }
         }
     }
@@ -1261,6 +1299,12 @@ public class KeyService implements AuthenticationCallback, PinAuthenticationCall
 
         boolean success = storeEncryptedBytes(newPassword, requireAuthentication, currentWallet.address);  //because we'll now only ever be importing keystore, always create with Auth if possible
 
+        // Verify the password was stored correctly by reading it back
+        if (success)
+        {
+            success = verifyStoredPassword(currentWallet.address, newPassword);
+        }
+
         if (!success)
         {
             AuthorisationFailMessage(context.getString(R.string.please_enable_security));
@@ -1276,6 +1320,72 @@ public class KeyService implements AuthenticationCallback, PinAuthenticationCall
                     importCallback.walletValidated(new String(newPassword), KeyEncodingType.RAW_HEX_KEY, authLevel);
                     break;
             }
+        }
+    }
+    
+    /**
+     * Verify that a stored password can be read back correctly
+     * This ensures the key storage was successful and the password is recoverable
+     * for Keystore and Private Key imports
+     */
+    private boolean verifyStoredPassword(String address, byte[] expectedPassword)
+    {
+        try
+        {
+            // Check if files exist
+            String encryptedFilePath = getFilePath(context, address);
+            String ivFilePath = getFilePath(context, address + "iv");
+            
+            File encryptedFile = new File(encryptedFilePath);
+            File ivFile = new File(ivFilePath);
+            
+            if (!encryptedFile.exists() || !ivFile.exists())
+            {
+                Timber.tag(TAG).e("Password verification failed: files don't exist for address %s", address);
+                return false;
+            }
+            
+            // Verify KeyStore contains the key
+            if (!hasKeystore(address))
+            {
+                Timber.tag(TAG).e("Password verification failed: KeyStore doesn't contain key for address %s", address);
+                return false;
+            }
+            
+            // Try to decrypt and verify the password matches
+            Pair<KeyExceptionType, String> testResult = testCipher(address, CIPHER_ALGORITHM);
+            if (testResult.first == KeyExceptionType.SUCCESSFUL_DECODE)
+            {
+                // Verify the decrypted password matches what we stored
+                String storedPassword = testResult.second;
+                String expectedPasswordStr = new String(expectedPassword);
+                if (expectedPasswordStr.equals(storedPassword))
+                {
+                    Timber.tag(TAG).d("Password verification successful for address %s", address);
+                    return true;
+                }
+                else
+                {
+                    Timber.tag(TAG).e("Password verification failed: password mismatch for address %s", address);
+                    return false;
+                }
+            }
+            else if (testResult.first == KeyExceptionType.REQUIRES_AUTH)
+            {
+                // Key requires authentication to decrypt - key exists, so return true
+                Timber.tag(TAG).d("Password verification: auth required for address %s (key exists)", address);
+                return true;
+            }
+            else
+            {
+                Timber.tag(TAG).e("Password verification failed: cipher test returned %s for address %s", testResult.first, address);
+                return false;
+            }
+        }
+        catch (Exception e)
+        {
+            Timber.tag(TAG).e(e, "Password verification exception for address %s", address);
+            return false;
         }
     }
 

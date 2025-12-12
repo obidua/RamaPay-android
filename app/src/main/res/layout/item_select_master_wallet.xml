@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/wallet_item_container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="16dp"
+    android:layout_marginBottom="8dp"
+    android:background="@drawable/background_wallet_select_item"
+    android:gravity="center_vertical">
+
+    <!-- Wallet Icon -->
+    <com.alphawallet.app.widget.UserAvatar
+        android:id="@+id/wallet_icon"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Wallet Details -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_marginStart="16dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/wallet_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="?android:textColorPrimary"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            tools:text="Wallet 1" />
+
+        <TextView
+            android:id="@+id/wallet_address"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="?android:textColorSecondary"
+            android:textSize="13sp"
+            android:fontFamily="monospace"
+            tools:text="0x2a9C56...Ade57e" />
+
+        <TextView
+            android:id="@+id/derived_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="@color/brand"
+            android:textSize="12sp"
+            tools:text="3 derived accounts" />
+
+    </LinearLayout>
+
+    <!-- Arrow indicator -->
+    <ImageView
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/ic_arrow_right"
+        app:tint="?colorControlNormal"
+        android:contentDescription="@null" />
+
+</LinearLayout>

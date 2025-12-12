@@ -13,28 +13,36 @@ import androidx.annotation.LayoutRes;
 
 import com.alphawallet.app.R;
 import com.alphawallet.app.entity.StandardFunctionInterface;
-import com.alphawallet.app.repository.KeyProviderFactory;
 import com.alphawallet.app.util.KeyboardUtils;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
-import com.mailchimp.sdk.api.model.Contact;
-import com.mailchimp.sdk.api.model.ContactStatus;
-import com.mailchimp.sdk.core.MailchimpSdkConfiguration;
-import com.mailchimp.sdk.main.Mailchimp;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import timber.log.Timber;
 
 
 
 public class EmailPromptView extends LinearLayout implements StandardFunctionInterface {
 
     private BottomSheetDialog parentDialog;
+    
+    // Formspree endpoint for email subscriptions
+    // Emails will be forwarded to ramesttablockchain@gmail.com
+    private static final String FORMSPREE_ENDPOINT = "https://formspree.io/f/mldqoqve";
+    private static final MediaType FORM_URLENCODED = MediaType.get("application/x-www-form-urlencoded");
 
     public void setParentDialog(BottomSheetDialog parentDialog) {
         this.parentDialog = parentDialog;
     }
-
-    public static native String getMailchimpKey();
 
     private InputView emailInput;
     private final View successOverlay;
@@ -81,23 +89,14 @@ public class EmailPromptView extends LinearLayout implements StandardFunctionInt
                 return ;
             }
 
-            String sdkKey = KeyProviderFactory.get().getMailchimpKey();
             try {
-
                 KeyboardUtils.hideKeyboard(this);
-
-                MailchimpSdkConfiguration configuration = new MailchimpSdkConfiguration.Builder(getContext(), sdkKey)
-                        .isAutoTaggingEnabled(true)
-                        .build();
-                Mailchimp mailchimpSdk = Mailchimp.initialize(configuration);
-
-                Contact contact = new Contact.Builder(email)
-                        .setContactStatus(ContactStatus.SUBSCRIBED)
-                        .build();
-
-                mailchimpSdk.createOrUpdateContact(contact);
-            } catch (IllegalArgumentException ignored) {
-
+                
+                // Send email subscription to webhook endpoint
+                sendEmailSubscription(email);
+                
+            } catch (Exception e) {
+                Timber.e(e, "Error sending email subscription");
             }
 
             parentDialog.dismiss();
@@ -105,5 +104,36 @@ public class EmailPromptView extends LinearLayout implements StandardFunctionInt
             if (successOverlay != null) successOverlay.setVisibility(View.VISIBLE);
             handler.postDelayed(onSuccessRunnable, 1000);
         }
+    }
+    
+    private void sendEmailSubscription(String email) {
+        OkHttpClient client = new OkHttpClient();
+        
+        // Create form data for Formspree
+        String formData = "email=" + email + "&message=New email subscription from RamaPay Android App";
+        
+        RequestBody body = RequestBody.create(formData, FORM_URLENCODED);
+        Request request = new Request.Builder()
+                .url(FORMSPREE_ENDPOINT)
+                .post(body)
+                .addHeader("Accept", "application/json")
+                .build();
+        
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Timber.e(e, "Failed to send email subscription");
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    Timber.d("Email subscription sent successfully for: %s", email);
+                } else {
+                    Timber.w("Email subscription failed with code: %d", response.code());
+                }
+                response.close();
+            }
+        });
     }
 }

@@ -82,13 +82,22 @@ public class BaseFragment extends Fragment implements Toolbar.OnMenuItemClickLis
 
     protected void setToolbarSubtitle(String subtitle)
     {
+        setToolbarSubtitle(subtitle, false);
+    }
+    
+    protected void setToolbarSubtitle(String subtitle, boolean preserveFullAddress)
+    {
         if (toolbarSubtitle != null && toolbarSubtitleLayout != null)
         {
             if (subtitle != null && !subtitle.isEmpty())
             {
                 toolbarSubtitle.setText(subtitle);
                 toolbarSubtitleLayout.setVisibility(View.VISIBLE);
-                this.fullAddress = subtitle;
+                // Only set fullAddress if not preserving (i.e., not called from setToolbarSubtitleWithFullAddress)
+                if (!preserveFullAddress)
+                {
+                    this.fullAddress = subtitle;
+                }
                 
                 // Add copy functionality
                 View copyIcon = toolbar.findViewById(R.id.toolbar_copy_icon);
@@ -125,7 +134,7 @@ public class BaseFragment extends Fragment implements Toolbar.OnMenuItemClickLis
     public void setToolbarSubtitleWithFullAddress(String displayAddress, String fullAddress)
     {
         this.fullAddress = fullAddress;
-        setToolbarSubtitle(displayAddress);
+        setToolbarSubtitle(displayAddress, true);
     }
 
     protected void setToolbarMenuItemClickListener(Toolbar.OnMenuItemClickListener listener)

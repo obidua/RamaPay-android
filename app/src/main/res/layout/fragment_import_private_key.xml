@@ -7,7 +7,7 @@
 
     <LinearLayout
         android:id="@+id/input_view_layout"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@id/button_holder_pk"
         android:layout_alignParentTop="true"
@@ -18,10 +18,25 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/cozy_20"
+            android:layout_marginStart="@dimen/standard_16"
+            android:layout_marginEnd="@dimen/standard_16"
             custom:imeOptions="actionDone"
             custom:label="@string/enter_private_key"
             custom:lines="2"
             custom:minHeightValue="90" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_paste_pk"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/standard_16"
+            android:text="@string/paste"
+            android:textColor="@color/brand"
+            app:icon="@drawable/ic_copy"
+            app:iconTint="@color/brand"
+            app:iconPadding="4dp"
+            xmlns:app="http://schemas.android.com/apk/res-auto" />
 
         <TextView
             android:id="@+id/text_privatekey_hint"

@@ -7,9 +7,18 @@ import com.alphawallet.app.C;
 import com.alphawallet.app.ui.HomeActivity;
 
 public class HomeRouter {
+    public static final String NEW_WALLET_CREATED = "NEW_WALLET_CREATED";
+    
     public void open(Context context, boolean isClearStack) {
+        open(context, isClearStack, false);
+    }
+    
+    public void open(Context context, boolean isClearStack, boolean newWalletCreated) {
         Intent intent = new Intent(context, HomeActivity.class);
         intent.putExtra(C.FROM_HOME_ROUTER, C.FROM_HOME_ROUTER); //HomeRouter should restart the app at the wallet
+        if (newWalletCreated) {
+            intent.putExtra(NEW_WALLET_CREATED, true);
+        }
         if (isClearStack) {
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         }

@@ -107,6 +107,28 @@ public class ActivityViewModel extends BaseViewModel
                         .subscribe(metas -> onMoreActivityMetas(metas, startTime), this::onError);
     }
 
+    /**
+     * Force refresh transactions from API - fetches latest 20 transactions
+     * This should be called on Activity page refresh to ensure fresh data
+     */
+    public void forceRefreshFromApi()
+    {
+        if (wallet.getValue() == null) return;
+        
+        String walletAddress = wallet.getValue().address;
+        
+        // Force fetch from Ramestta mainnet (chain ID 1370)
+        long ramesttaChainId = 1370L;
+        
+        fetchTransactions = transactionsService.forceRefreshLatestTransactions(ramesttaChainId, walletAddress)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(transactions -> {
+                    // After fetching from API and storing in Realm, refresh the UI
+                    prepare();
+                }, this::onError);
+    }
+
     private void onMoreActivityMetas(ActivityMeta[] activityMetas, long startTime)
     {
         if (activityMetas.length == 0)

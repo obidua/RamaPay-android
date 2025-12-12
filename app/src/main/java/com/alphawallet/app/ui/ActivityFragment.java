@@ -218,7 +218,8 @@ public class ActivityFragment extends BaseFragment implements View.OnClickListen
     {
         //clear tx list and reload
         adapter.clear();
-        viewModel.prepare();
+        // Force fetch latest transactions from API first, then prepare
+        viewModel.forceRefreshFromApi();
     }
 
     @Override

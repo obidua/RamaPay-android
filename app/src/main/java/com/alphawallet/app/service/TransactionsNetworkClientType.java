@@ -20,4 +20,15 @@ public interface TransactionsNetworkClientType
     Single<Map<String, List<TransferEvent>>> readTransfers(String currentAddress, NetworkInfo networkByChain, TokensService tokensService, TransferFetchType tfType);
 
     void checkRequiresAuxReset(String walletAddr);
+
+    /**
+     * Force fetch the latest transactions from the API and store them locally.
+     * This fetches both sent and received transactions with pagination.
+     * @param svs TokensService
+     * @param networkInfo Network to fetch from
+     * @param walletAddress The wallet address
+     * @param limit Number of transactions to fetch (default 20)
+     * @return Array of fetched transactions
+     */
+    Single<Transaction[]> fetchLatestTransactionsFromApi(TokensService svs, NetworkInfo networkInfo, String walletAddress, int limit);
 }

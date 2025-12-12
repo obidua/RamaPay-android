@@ -241,11 +241,83 @@ public class WalletsSummaryAdapter extends RecyclerView.Adapter<BinderViewHolder
             largeTitle.type = WalletType.LARGE_TITLE;
             this.wallets.add(largeTitle); //index 1
 
-            Wallet yourWallets = new Wallet(context.getString(R.string.your_wallets));
-            yourWallets.type = WalletType.TEXT_MARKER;
-            this.wallets.add(yourWallets);
-
-            //Add HD Wallets
+            // Group HD wallets by master wallet
+            // First, find all master wallets and create a map of parent -> derived accounts
+            java.util.List<Wallet> masterWallets = new ArrayList<>();
+            java.util.Map<String, java.util.List<Wallet>> derivedWalletsMap = new java.util.HashMap<>();
+            
+            for (Wallet w : wallets)
+            {
+                if (w.type == WalletType.HDKEY)
+                {
+                    if (w.isMasterHDWallet())
+                    {
+                        masterWallets.add(w);
+                        // Initialize empty list for derived accounts
+                        derivedWalletsMap.put(w.address.toLowerCase(), new ArrayList<>());
+                    }
+                }
+            }
+            
+            // Now assign derived wallets to their parent master wallets
+            for (Wallet w : wallets)
+            {
+                if (w.type == WalletType.HDKEY && w.isDerivedHDAccount())
+                {
+                    String parentAddr = w.parentAddress != null ? w.parentAddress.toLowerCase() : "";
+                    if (derivedWalletsMap.containsKey(parentAddr))
+                    {
+                        derivedWalletsMap.get(parentAddr).add(w);
+                    }
+                    else
+                    {
+                        // If parent not found, try to find master wallet by checking who has no parent
+                        // and add to that master's list (fallback for older data)
+                        if (!masterWallets.isEmpty())
+                        {
+                            String firstMasterAddr = masterWallets.get(0).address.toLowerCase();
+                            if (derivedWalletsMap.containsKey(firstMasterAddr))
+                            {
+                                derivedWalletsMap.get(firstMasterAddr).add(w);
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // Add each master wallet with its section header and derived accounts
+            int masterIndex = 1;
+            for (Wallet masterWallet : masterWallets)
+            {
+                // Add section header for this master wallet group
+                String sectionTitle = masterWallets.size() > 1 
+                    ? context.getString(R.string.your_wallets) + " " + masterIndex
+                    : context.getString(R.string.your_wallets);
+                Wallet sectionHeader = new Wallet(sectionTitle);
+                sectionHeader.type = WalletType.TEXT_MARKER;
+                this.wallets.add(sectionHeader);
+                
+                // Add master wallet
+                masterWallet.isSynced = false;
+                this.wallets.add(masterWallet);
+                
+                // Add derived wallets for this master
+                java.util.List<Wallet> derivedList = derivedWalletsMap.get(masterWallet.address.toLowerCase());
+                if (derivedList != null)
+                {
+                    // Sort by hdKeyIndex
+                    derivedList.sort((a, b) -> Integer.compare(a.hdKeyIndex, b.hdKeyIndex));
+                    for (Wallet derived : derivedList)
+                    {
+                        derived.isSynced = false;
+                        this.wallets.add(derived);
+                    }
+                }
+                
+                masterIndex++;
+            }
+            
+            // Check for other wallet types
             for (Wallet w : wallets)
             {
                 switch (w.type)
@@ -253,10 +325,6 @@ public class WalletsSummaryAdapter extends RecyclerView.Adapter<BinderViewHolder
                     case KEYSTORE_LEGACY:
                     case KEYSTORE:
                         hasLegacyWallet = true;
-                        w.isSynced = false;
-                        break;
-                    case HDKEY:
-                        this.wallets.add(w);
                         w.isSynced = false;
                         break;
                     case WATCH:

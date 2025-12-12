@@ -412,6 +412,19 @@ public class TransactionsService
         return transactionsClient.fetchMoreTransactions(tokensService, network, lastTxTime);
     }
 
+    /**
+     * Force fetch latest transactions from API and store in local database
+     * This is called on Activity refresh to ensure fresh data
+     */
+    public Single<Transaction[]> forceRefreshLatestTransactions(long chainId, String walletAddress)
+    {
+        NetworkInfo network = ethereumNetworkRepository.getNetworkByChain(chainId);
+        if (network == null) {
+            return Single.just(new Transaction[0]);
+        }
+        return transactionsClient.fetchLatestTransactionsFromApi(tokensService, network, walletAddress, 20);
+    }
+
     private List<Long> getPendingChains()
     {
         List<Long> pendingChains = new ArrayList<>();

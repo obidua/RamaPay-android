@@ -15,6 +15,8 @@ import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -52,7 +54,10 @@ import com.alphawallet.hardware.SignatureFromKey;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.snackbar.Snackbar;
 
+import com.alphawallet.app.util.Utils;
+
 import java.security.SignatureException;
+import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -355,6 +360,14 @@ public class WalletsActivity extends BaseActivity implements
     public void onNewWallet(View view)
     {
         hideDialog();
+        
+        // Check network connectivity first
+        if (!Utils.isNetworkAvailable(this))
+        {
+            Toast.makeText(this, R.string.no_internet_connection, Toast.LENGTH_LONG).show();
+            return;
+        }
+        
         Toast.makeText(this, "Creating new wallet...", Toast.LENGTH_SHORT).show();
         systemView.showProgress(true);
         viewModel.newWallet(this, this);
@@ -371,6 +384,14 @@ public class WalletsActivity extends BaseActivity implements
     public void onImportWallet(View view)
     {
         hideDialog();
+        
+        // Check network connectivity first
+        if (!Utils.isNetworkAvailable(this))
+        {
+            Toast.makeText(this, R.string.no_internet_connection, Toast.LENGTH_LONG).show();
+            return;
+        }
+        
         viewModel.importWallet(this);
     }
 
@@ -384,21 +405,163 @@ public class WalletsActivity extends BaseActivity implements
     public void onAddAccount(View view)
     {
         hideDialog();
+        
+        // Check network connectivity first
+        if (!Utils.isNetworkAvailable(this))
+        {
+            Toast.makeText(this, R.string.no_internet_connection, Toast.LENGTH_LONG).show();
+            return;
+        }
+        
+        Wallet[] currentWallets = viewModel.wallets().getValue();
+        List<Wallet> masterWallets = viewModel.findAllMasterHDWallets(currentWallets);
+        
+        if (masterWallets.isEmpty())
+        {
+            Toast.makeText(this, R.string.no_hd_wallet_found, Toast.LENGTH_LONG).show();
+            return;
+        }
+        
+        // If only one master wallet, derive directly
+        if (masterWallets.size() == 1)
+        {
+            deriveAccountFromMaster(masterWallets.get(0));
+        }
+        else
+        {
+            // Multiple master wallets - show selection dialog
+            showMasterWalletSelectionDialog(masterWallets);
+        }
+    }
+
+    private void showMasterWalletSelectionDialog(List<Wallet> masterWallets)
+    {
+        BottomSheetDialog bottomSheet = new BottomSheetDialog(this);
+        View sheetView = getLayoutInflater().inflate(R.layout.dialog_select_master_wallet, null);
+        bottomSheet.setContentView(sheetView);
+        
+        // Set up close button
+        ImageView closeButton = sheetView.findViewById(R.id.close_action);
+        closeButton.setOnClickListener(v -> bottomSheet.dismiss());
+        
+        // Set up RecyclerView with wallet list
+        RecyclerView walletList = sheetView.findViewById(R.id.wallet_list);
+        walletList.setLayoutManager(new LinearLayoutManager(this));
+        
+        // Create adapter for master wallets
+        MasterWalletSelectAdapter walletAdapter = new MasterWalletSelectAdapter(
+            masterWallets, 
+            viewModel.wallets().getValue(),
+            wallet -> {
+                bottomSheet.dismiss();
+                deriveAccountFromMaster(wallet);
+            }
+        );
+        walletList.setAdapter(walletAdapter);
+        
+        bottomSheet.setCancelable(true);
+        bottomSheet.setCanceledOnTouchOutside(true);
+        bottomSheet.show();
+    }
+    
+    /**
+     * Adapter for displaying master wallets in the selection dialog
+     */
+    private class MasterWalletSelectAdapter extends RecyclerView.Adapter<MasterWalletSelectAdapter.ViewHolder>
+    {
+        private final List<Wallet> masterWallets;
+        private final Wallet[] allWallets;
+        private final OnWalletSelectedListener listener;
+        
+        interface OnWalletSelectedListener {
+            void onWalletSelected(Wallet wallet);
+        }
+        
+        MasterWalletSelectAdapter(List<Wallet> masterWallets, Wallet[] allWallets, OnWalletSelectedListener listener)
+        {
+            this.masterWallets = masterWallets;
+            this.allWallets = allWallets;
+            this.listener = listener;
+        }
+        
+        @Override
+        public ViewHolder onCreateViewHolder(android.view.ViewGroup parent, int viewType)
+        {
+            View view = getLayoutInflater().inflate(R.layout.item_select_master_wallet, parent, false);
+            return new ViewHolder(view);
+        }
+        
+        @Override
+        public void onBindViewHolder(ViewHolder holder, int position)
+        {
+            Wallet wallet = masterWallets.get(position);
+            
+            // Set wallet name
+            String walletName = wallet.name != null && !wallet.name.isEmpty() 
+                ? wallet.name 
+                : getString(R.string.wallet_default_name) + " " + (position + 1);
+            holder.walletName.setText(walletName);
+            
+            // Set wallet address preview
+            String addressPreview = wallet.address.substring(0, 8) + "..." + wallet.address.substring(wallet.address.length() - 6);
+            holder.walletAddress.setText(addressPreview);
+            
+            // Set derived accounts count
+            int derivedCount = viewModel.countHDAccountsForMaster(allWallets, wallet.address) - 1; // -1 to exclude master
+            if (derivedCount > 0)
+            {
+                holder.derivedCount.setVisibility(View.VISIBLE);
+                holder.derivedCount.setText(getString(R.string.derived_accounts_count, derivedCount));
+            }
+            else
+            {
+                holder.derivedCount.setVisibility(View.GONE);
+            }
+            
+            // Set wallet icon
+            holder.walletIcon.bind(wallet);
+            
+            // Set click listener
+            holder.itemView.setOnClickListener(v -> listener.onWalletSelected(wallet));
+        }
+        
+        @Override
+        public int getItemCount()
+        {
+            return masterWallets.size();
+        }
+        
+        class ViewHolder extends RecyclerView.ViewHolder
+        {
+            com.alphawallet.app.widget.UserAvatar walletIcon;
+            TextView walletName;
+            TextView walletAddress;
+            TextView derivedCount;
+            
+            ViewHolder(View itemView)
+            {
+                super(itemView);
+                walletIcon = itemView.findViewById(R.id.wallet_icon);
+                walletName = itemView.findViewById(R.id.wallet_name);
+                walletAddress = itemView.findViewById(R.id.wallet_address);
+                derivedCount = itemView.findViewById(R.id.derived_count);
+            }
+        }
+    }
+
+    private void deriveAccountFromMaster(Wallet masterWallet)
+    {
         // Show loading indicator
         systemView.showProgress(true);
         
         // Set up for derived account
         Wallet[] currentWallets = viewModel.wallets().getValue();
-        Wallet primaryHDWallet = viewModel.findPrimaryHDWallet(currentWallets);
-        if (primaryHDWallet != null)
-        {
-            isDerivingAccount = true;
-            parentWalletAddress = primaryHDWallet.address;
-            derivedAccountIndex = viewModel.countHDAccounts(currentWallets);
-        }
+        isDerivingAccount = true;
+        parentWalletAddress = masterWallet.address;
+        derivedAccountIndex = viewModel.getNextHDKeyIndexForMaster(currentWallets, masterWallet.address);
         
-        // Add a new account derived from the HD wallet
-        viewModel.addHDAccount(this, this);
+        // Add a new account derived from the specified master HD wallet
+        viewModel.addHDAccountFromMaster(this, masterWallet, this);
     }
 
     private void onAddWallet()

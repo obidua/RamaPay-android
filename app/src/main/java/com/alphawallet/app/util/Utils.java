@@ -16,6 +16,9 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
 import android.net.Uri;
 import android.os.Build;
 import android.text.Spannable;
@@ -1561,5 +1564,36 @@ public class Utils
     public static boolean isDivisibleString(String originalText)
     {
         return !TextUtils.isEmpty(originalText) && originalText.length() <= 64;
+    }
+
+    /**
+     * Check if network/internet is available
+     * @param context Application context
+     * @return true if connected to internet, false otherwise
+     */
+    public static boolean isNetworkAvailable(Context context)
+    {
+        if (context == null) return false;
+        
+        try
+        {
+            ConnectivityManager connectivityManager = 
+                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            
+            if (connectivityManager == null) return false;
+            
+            Network network = connectivityManager.getActiveNetwork();
+            if (network == null) return false;
+            
+            NetworkCapabilities capabilities = connectivityManager.getNetworkCapabilities(network);
+            if (capabilities == null) return false;
+            
+            return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
+                   capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
+        }
+        catch (Exception e)
+        {
+            return false;
+        }
     }
 }

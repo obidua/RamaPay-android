@@ -87,7 +87,7 @@ public class WalletDataRealmSource {
                     continue;
                 }
 
-                if (w.type == WalletType.KEYSTORE_LEGACY && !testLegacyCipher(w, keyService))
+                if (w.type == WalletType.KEYSTORE_LEGACY && !isValidPrivateKeyWallet(w, keyService))
                 {
                     w.type = WalletType.KEYSTORE;
                     walletUpdates.add(w);
@@ -519,6 +519,19 @@ public class WalletDataRealmSource {
         return cipherTest.first == KeyService.KeyExceptionType.SUCCESSFUL_DECODE;
     }
 
+    private boolean testNewCipher(Wallet w, KeyService service)
+    {
+        //test for new cipher (AES/GCM/NoPadding) used for newly imported private key wallets
+        Pair<KeyService.KeyExceptionType, String> cipherTest = service.testCipher(w.address, KeyService.CIPHER_ALGORITHM);
+        return cipherTest.first == KeyService.KeyExceptionType.SUCCESSFUL_DECODE;
+    }
+
+    private boolean isValidPrivateKeyWallet(Wallet w, KeyService service)
+    {
+        //check if wallet passes either legacy or new cipher test
+        return testLegacyCipher(w, service) || testNewCipher(w, service);
+    }
+
     //One-time removal of the WalletTypeRealmInstance usage - this extra database was a
     // workaround for an issue that has since been fixed correctly.
     private void migrateWalletTypeData(Map<String, Wallet> walletList, KeyService service)
@@ -537,7 +550,7 @@ public class WalletDataRealmSource {
                 if (w != null)
                 {
                     walletTypeData.put(w.address.toLowerCase(), w);
-                    if (w.type == WalletType.KEYSTORE_LEGACY && !testLegacyCipher(w, service))
+                    if (w.type == WalletType.KEYSTORE_LEGACY && !isValidPrivateKeyWallet(w, service))
                     {
                         w.type = WalletType.KEYSTORE;
                     }

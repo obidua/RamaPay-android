@@ -1,5 +1,8 @@
 package com.alphawallet.app.ui;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.view.LayoutInflater;
@@ -8,17 +11,24 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.alphawallet.app.R;
 import com.alphawallet.app.ui.widget.OnImportKeystoreListener;
 import com.alphawallet.app.widget.PasswordInputView;
+import com.google.android.material.button.MaterialButton;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import dagger.hilt.android.AndroidEntryPoint;
+import timber.log.Timber;
 
 @AndroidEntryPoint
 public class ImportKeystoreFragment extends ImportFragment
@@ -29,8 +39,21 @@ public class ImportKeystoreFragment extends ImportFragment
     private PasswordInputView keystore;
     private PasswordInputView password;
     private Button importButton;
+    private MaterialButton browseButton;
     private TextView passwordText;
     private TextView importText;
+    
+    private final ActivityResultLauncher<Intent> filePickerLauncher = registerForActivityResult(
+        new ActivityResultContracts.StartActivityForResult(),
+        result -> {
+            if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                Uri uri = result.getData().getData();
+                if (uri != null) {
+                    readKeystoreFromUri(uri);
+                }
+            }
+        }
+    );
 
     @NonNull
     private OnImportKeystoreListener onImportKeystoreListener = dummyOnImportKeystoreListener;
@@ -59,16 +82,53 @@ public class ImportKeystoreFragment extends ImportFragment
         password = getView().findViewById(R.id.input_password);
         passwordText = getView().findViewById(R.id.text_password_notice);
         importText = getView().findViewById(R.id.import_text);
+        browseButton = getView().findViewById(R.id.button_browse_files);
         passwordText.setVisibility(View.GONE);
         password.setVisibility(View.GONE);
         importButton = getView().findViewById(R.id.import_action_ks);
         importButton.setOnClickListener(this);
+        browseButton.setOnClickListener(v -> openFilePicker());
         updateButtonState(false);
         keystore.getEditText().addTextChangedListener(this);
         password.getEditText().addTextChangedListener(this);
 
         keystore.setLayoutListener(getActivity(), this);
         password.setLayoutListener(getActivity(), this);
+    }
+    
+    private void openFilePicker() {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("*/*");
+        // Allow JSON files and all files (for keystore files without extension)
+        String[] mimeTypes = {"application/json", "text/plain", "*/*"};
+        intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
+        filePickerLauncher.launch(intent);
+    }
+    
+    private void readKeystoreFromUri(Uri uri) {
+        try {
+            if (getContext() == null) return;
+            
+            InputStream inputStream = getContext().getContentResolver().openInputStream(uri);
+            if (inputStream != null) {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                StringBuilder stringBuilder = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    stringBuilder.append(line);
+                }
+                reader.close();
+                inputStream.close();
+                
+                String keystoreContent = stringBuilder.toString();
+                keystore.setText(keystoreContent);
+                Timber.d("Keystore file loaded successfully");
+            }
+        } catch (Exception e) {
+            Timber.e(e, "Error reading keystore file");
+            keystore.setError(getString(R.string.invalid_keystore));
+        }
     }
 
     @Override

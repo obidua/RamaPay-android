@@ -1281,4 +1281,179 @@ public class TransactionsNetworkClient implements TransactionsNetworkClientType
 
         return txList;
     }
+
+    /**
+     * Force fetch the latest transactions from the API.
+     * This fetches both sent and received transactions directly from the blockchain explorer API.
+     * @param svs TokensService
+     * @param networkInfo Network to fetch from
+     * @param walletAddress The wallet address
+     * @param limit Number of transactions to fetch
+     * @return Array of fetched transactions
+     */
+    @Override
+    public Single<Transaction[]> fetchLatestTransactionsFromApi(TokensService svs, NetworkInfo networkInfo, String walletAddress, int limit)
+    {
+        return Single.fromCallable(() -> {
+            List<Transaction> allTransactions = new ArrayList<>();
+            
+            if (networkInfo == null || TextUtils.isEmpty(networkInfo.etherscanAPI)) {
+                return new Transaction[0];
+            }
+            
+            try {
+                // Try v2 API first (Blockscout format) - this is more reliable
+                String baseUrl = networkInfo.etherscanAPI.replace("/api/v1/", "").replace("/api/v1", "");
+                String v2Url = baseUrl + "/api/v2/addresses/" + walletAddress + "/transactions";
+                
+                Timber.d("Fetching transactions from v2 API: %s", v2Url);
+                boolean success = fetchFromV2Url(v2Url, walletAddress, networkInfo.chainId, allTransactions);
+                
+                // If v2 fails, try v1 API (etherscan-compatible format)
+                if (!success || allTransactions.isEmpty()) {
+                    String v1Url = networkInfo.etherscanAPI + 
+                        "?module=account&action=txlist&address=" + walletAddress +
+                        "&page=1&offset=" + limit +
+                        "&sort=desc" + getNetworkAPIToken(networkInfo);
+                    
+                    Timber.d("Trying v1 API: %s", v1Url);
+                    fetchFromV1Url(v1Url, walletAddress, networkInfo.chainId, allTransactions);
+                }
+                
+                // Store the fetched transactions in Realm
+                if (!allTransactions.isEmpty()) {
+                    try (Realm instance = realmManager.getRealmInstance(svs.getCurrentAddress())) {
+                        writeTransactions(instance, allTransactions);
+                        Timber.d("Stored %d transactions in local database", allTransactions.size());
+                    }
+                }
+                
+            } catch (Exception e) {
+                Timber.e(e, "Error fetching transactions from API");
+            }
+            
+            return allTransactions.toArray(new Transaction[0]);
+        }).subscribeOn(Schedulers.io());
+    }
+    
+    private boolean fetchFromV1Url(String fullUrl, String walletAddress, long chainId, List<Transaction> transactions) {
+        try {
+            Request request = new Request.Builder()
+                .url(fullUrl)
+                .header("User-Agent", "Chrome/74.0.3729.169")
+                .get()
+                .build();
+            
+            try (okhttp3.Response response = httpClient.newCall(request).execute()) {
+                if (response.body() != null && response.code() / 200 == 1) {
+                    String result = response.body().string();
+                    Timber.d("API Response length: %d", result.length());
+                    
+                    if (result.length() >= 80 && !result.contains("No transactions found")) {
+                        EtherscanTransaction[] txs = getEtherscanTransactions(result);
+                        for (EtherscanTransaction etx : txs) {
+                            Transaction tx = etx.createTransaction(walletAddress, chainId);
+                            if (tx != null) {
+                                transactions.add(tx);
+                            }
+                        }
+                        return true;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            Timber.e(e, "Error fetching from v1 URL");
+        }
+        return false;
+    }
+    
+    private boolean fetchFromV2Url(String v2Url, String walletAddress, long chainId, List<Transaction> transactions) {
+        try {
+            Request request = new Request.Builder()
+                .url(v2Url)
+                .header("User-Agent", "Chrome/74.0.3729.169")
+                .header("Accept", "application/json")
+                .get()
+                .build();
+            
+            try (okhttp3.Response response = httpClient.newCall(request).execute()) {
+                if (response.body() != null && response.code() / 200 == 1) {
+                    String result = response.body().string();
+                    Timber.d("V2 API Response length: %d", result.length());
+                    
+                    // Parse v2 API response format
+                    JSONObject jsonResponse = new JSONObject(result);
+                    if (jsonResponse.has("items")) {
+                        JSONArray items = jsonResponse.getJSONArray("items");
+                        for (int i = 0; i < items.length(); i++) {
+                            JSONObject item = items.getJSONObject(i);
+                            Transaction tx = parseV2Transaction(item, walletAddress, chainId);
+                            if (tx != null) {
+                                transactions.add(tx);
+                            }
+                        }
+                        return items.length() > 0;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            Timber.e(e, "Error fetching from v2 URL");
+        }
+        return false;
+    }
+    
+    private Transaction parseV2Transaction(JSONObject item, String walletAddress, long chainId) {
+        try {
+            String hash = item.optString("hash", "");
+            String from = "";
+            if (item.has("from") && item.get("from") instanceof JSONObject) {
+                from = item.getJSONObject("from").optString("hash", "");
+            } else {
+                from = item.optString("from", "");
+            }
+            String to = "";
+            if (item.has("to") && item.get("to") instanceof JSONObject) {
+                to = item.getJSONObject("to").optString("hash", "");
+            } else {
+                to = item.optString("to", "");
+            }
+            String value = item.optString("value", "0");
+            String gas = item.optString("gas_limit", item.optString("gas", "21000"));
+            String gasPrice = item.optString("gas_price", "0");
+            String gasUsed = item.optString("gas_used", gas);
+            int nonce = item.optInt("nonce", 0);
+            String input = item.optString("raw_input", item.optString("input", "0x"));
+            String blockNumber = String.valueOf(item.optLong("block_number", item.optLong("block", 0)));
+            String timestamp = item.optString("timestamp", "");
+            String isError = item.optString("status", "ok").equals("error") ? "1" : "0";
+            
+            // Convert timestamp from ISO 8601 format
+            long timeStamp = 0;
+            if (!TextUtils.isEmpty(timestamp)) {
+                try {
+                    // Parse ISO 8601 format: 2025-12-12T05:28:43.000000Z
+                    java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+                    sdf.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
+                    String cleanTimestamp = timestamp.split("\\.")[0];
+                    java.util.Date date = sdf.parse(cleanTimestamp);
+                    if (date != null) {
+                        timeStamp = date.getTime() / 1000;
+                    }
+                } catch (Exception e) {
+                    timeStamp = System.currentTimeMillis() / 1000;
+                }
+            }
+            
+            Timber.d("Parsed V2 tx: hash=%s, from=%s, to=%s, value=%s", hash, from, to, value);
+            
+            return new Transaction(
+                hash, isError, blockNumber, timeStamp, nonce,
+                from, to, value, gas, gasPrice, input,
+                gasUsed, chainId, "", ""
+            );
+        } catch (Exception e) {
+            Timber.e(e, "Error parsing v2 transaction");
+            return null;
+        }
+    }
 }

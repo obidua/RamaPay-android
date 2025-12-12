@@ -379,10 +379,46 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
         if (viewModel.checkNewWallet(wallet.address))
         {
             viewModel.setNewWallet(wallet.address, false);
+            
+            // Verify wallet key is properly stored before showing success
+            // For derived HD accounts, this checks the parent wallet's keystore
+            if (viewModel.verifyWalletKeyStorage(wallet))
+            {
+                // Show wallet creation success notification
+                showWalletCreatedSuccessNotification();
+            }
+            else
+            {
+                // Key verification failed - show error dialog
+                showWalletKeyErrorDialog();
+            }
+            
             Intent selectNetworkIntent = new Intent(this, NetworkToggleActivity.class);
             selectNetworkIntent.putExtra(C.EXTRA_SINGLE_ITEM, false);
             networkSettingsHandler.launch(selectNetworkIntent);
         }
+    }
+    
+    /**
+     * Show success notification when wallet is created and verified
+     */
+    private void showWalletCreatedSuccessNotification()
+    {
+        Toast.makeText(this, R.string.wallet_created_successfully, Toast.LENGTH_LONG).show();
+    }
+    
+    /**
+     * Show error dialog when wallet key verification fails
+     */
+    private void showWalletKeyErrorDialog()
+    {
+        AWalletAlertDialog errorDialog = new AWalletAlertDialog(this);
+        errorDialog.setTitle(R.string.key_error);
+        errorDialog.setMessage(R.string.wallet_key_verification_failed);
+        errorDialog.setIcon(AWalletAlertDialog.ERROR);
+        errorDialog.setButtonText(R.string.dialog_ok);
+        errorDialog.setButtonListener(v -> errorDialog.dismiss());
+        errorDialog.show();
     }
 
     private void setupFragmentListeners()

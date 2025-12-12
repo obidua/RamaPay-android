@@ -120,6 +120,14 @@
     <string name="currency">Currencies</string>
     <string name="advanced">Advanced Options</string>
     <string name="copy_wallet_address">Copy Wallet Address</string>
+    <string name="wallet_created_successfully">✓ Your wallet has been created successfully and is securely stored!</string>
+    <string name="wallet_key_verification_failed">Warning: Unable to verify wallet key storage. Please backup your wallet immediately or re-import to ensure your funds are safe.</string>
+    <string name="no_internet_connection">No internet connection. Please check your network and try again.</string>
+    <string name="no_hd_wallet_found">No HD wallet found. Please create a wallet with a seed phrase first.</string>
+    <string name="select_master_wallet">Select Master Wallet</string>
+    <string name="select_wallet_to_derive_from">Choose which wallet to derive a new account from</string>
+    <string name="wallet_default_name">Wallet</string>
+    <string name="derived_accounts_count">%d derived accounts</string>
     <string name="rename_this_wallet_action">Rename this Wallet</string>
     <string name="hint_contract_name">Name</string>
     <string name="hint_contract_venue">Venue</string>
@@ -438,6 +446,7 @@
     <string name="importing_tickets">Importing Tokens</string>
     <string name="wallet_name">Wallet Name</string>
     <string name="wallet_name_template">Wallet %1$d</string>
+    <string name="account_name_template">Account %1$d</string>
     <string name="no_token_found_title">Token Not Found</string>
     <string name="no_token_found">No Token contract found at this address on any active Ethereum chain.</string>
     <string name="welcome_to_the_decentralized_web">Welcome to the Decentralized web</string>
@@ -511,6 +520,7 @@
     <string name="seed_phrase_conversion_message">If your seed phrase is not in English, please convert it to English on your own using tools like this https://iancoleman.io/bip39/</string>
     <string name="bad_seed_phrase">Invalid recovery phrase. Please check and try again.</string>
     <string name="import_from_cloud">IMPORT FROM ICLOUD/DROPBOX/GOOGLE DRIVE</string>
+    <string name="or_paste_keystore_json">Or paste your keystore JSON above</string>
     <string name="enter_private_key">Enter private key</string>
     <string name="remember_your_password">NOTE: You must remember your password. We do not store your password elsewhere. KeyStore is always encrypted, otherwise whoever has it can gain the money.</string>
     <string name="private_key_check">Private key is hex only: use a–f A–F and 0–9</string>

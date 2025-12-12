@@ -1,5 +1,8 @@
 package com.alphawallet.app.ui;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -15,6 +18,7 @@ import androidx.annotation.Nullable;
 import com.alphawallet.app.R;
 import com.alphawallet.app.ui.widget.OnImportPrivateKeyListener;
 import com.alphawallet.app.widget.PasswordInputView;
+import com.google.android.material.button.MaterialButton;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,6 +34,7 @@ public class ImportPrivateKeyFragment extends ImportFragment
 
     private PasswordInputView privateKey;
     private Button importButton;
+    private MaterialButton pasteButton;
     private OnImportPrivateKeyListener onImportPrivateKeyListener = dummyOnImportPrivateKeyListener;
     private Pattern pattern;
     private LinearLayout buttonHolder;
@@ -55,13 +60,34 @@ public class ImportPrivateKeyFragment extends ImportFragment
     {
         privateKey = getView().findViewById(R.id.input_private_key);
         importButton = getView().findViewById(R.id.import_action_pk);
+        pasteButton = getView().findViewById(R.id.button_paste_pk);
         buttonHolder = getView().findViewById(R.id.button_holder_pk);
         importButton.setOnClickListener(this);
+        pasteButton.setOnClickListener(v -> pasteFromClipboard());
         privateKey.getEditText().addTextChangedListener(this);
         updateButtonState(false);
         pattern = Pattern.compile(validator, Pattern.MULTILINE);
 
         privateKey.setLayoutListener(getActivity(), this);
+    }
+    
+    private void pasteFromClipboard()
+    {
+        if (getContext() == null) return;
+        
+        ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+        if (clipboard != null && clipboard.hasPrimaryClip())
+        {
+            ClipData clipData = clipboard.getPrimaryClip();
+            if (clipData != null && clipData.getItemCount() > 0)
+            {
+                CharSequence pastedText = clipData.getItemAt(0).getText();
+                if (pastedText != null)
+                {
+                    privateKey.setText(pastedText.toString());
+                }
+            }
+        }
     }
 
     @Override

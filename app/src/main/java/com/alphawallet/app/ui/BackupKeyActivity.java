@@ -393,7 +393,21 @@ public class BackupKeyActivity extends BaseActivity implements
         try
         {
             HDWallet hdWallet = new HDWallet(mnemonic, "");
-            PrivateKey pk = hdWallet.getKeyForCoin(CoinType.ETHEREUM);
+            PrivateKey pk;
+            
+            // For derived HD accounts, use the correct account index
+            if (wallet.isDerivedHDAccount())
+            {
+                // Use wallet's hdKeyIndex for the derivation path
+                String derivationPath = "m/44'/60'/0'/0/" + wallet.hdKeyIndex;
+                pk = hdWallet.getKey(CoinType.ETHEREUM, derivationPath);
+            }
+            else
+            {
+                // For master wallet (index 0), use default derivation
+                pk = hdWallet.getKeyForCoin(CoinType.ETHEREUM);
+            }
+            
             String privateKeyHex = "0x" + Numeric.toHexStringNoPrefix(pk.data());
             
             TextView privateKeyText = findViewById(R.id.text_private_key);

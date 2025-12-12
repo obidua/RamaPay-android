@@ -678,6 +678,124 @@ public class WalletsViewModel extends BaseViewModel implements ServiceSyncCallba
     }
 
     /**
+     * Count the number of HD accounts derived from a specific master wallet
+     * @param walletArray All wallets
+     * @param masterAddress The master wallet address to count accounts for
+     * @return The count of derived accounts (including the master itself which is at index 0)
+     */
+    public int countHDAccountsForMaster(Wallet[] walletArray, String masterAddress)
+    {
+        if (walletArray == null || masterAddress == null) return 0;
+        
+        int count = 0;
+        for (Wallet wallet : walletArray)
+        {
+            if (wallet.type == WalletType.HDKEY)
+            {
+                // Count the master wallet itself
+                if (wallet.address.equalsIgnoreCase(masterAddress))
+                {
+                    count++;
+                }
+                // Count derived accounts that belong to this master
+                else if (wallet.parentAddress != null && wallet.parentAddress.equalsIgnoreCase(masterAddress))
+                {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+
+    /**
+     * Get the next available hdKeyIndex for deriving a new account from a master wallet.
+     * This finds the maximum existing hdKeyIndex and returns max + 1.
+     * @param walletArray All wallets
+     * @param masterAddress The master wallet address
+     * @return The next available hdKeyIndex for derivation
+     */
+    public int getNextHDKeyIndexForMaster(Wallet[] walletArray, String masterAddress)
+    {
+        if (walletArray == null || masterAddress == null) return 0;
+        
+        int maxIndex = -1;
+        for (Wallet wallet : walletArray)
+        {
+            if (wallet.type == WalletType.HDKEY)
+            {
+                // Check the master wallet itself (index 0)
+                if (wallet.address.equalsIgnoreCase(masterAddress))
+                {
+                    if (wallet.hdKeyIndex > maxIndex)
+                    {
+                        maxIndex = wallet.hdKeyIndex;
+                    }
+                }
+                // Check derived accounts that belong to this master
+                else if (wallet.parentAddress != null && wallet.parentAddress.equalsIgnoreCase(masterAddress))
+                {
+                    if (wallet.hdKeyIndex > maxIndex)
+                    {
+                        maxIndex = wallet.hdKeyIndex;
+                    }
+                }
+            }
+        }
+        return maxIndex + 1;
+    }
+
+    /**
+     * Find all master HD wallets (those with no parent address)
+     * @param walletArray All wallets
+     * @return List of master HD wallets
+     */
+    public java.util.List<Wallet> findAllMasterHDWallets(Wallet[] walletArray)
+    {
+        java.util.List<Wallet> masterWallets = new java.util.ArrayList<>();
+        if (walletArray == null) return masterWallets;
+        
+        for (Wallet wallet : walletArray)
+        {
+            if (wallet.type == WalletType.HDKEY && 
+                (wallet.parentAddress == null || wallet.parentAddress.isEmpty()))
+            {
+                masterWallets.add(wallet);
+            }
+        }
+        return masterWallets;
+    }
+
+    /**
+     * Find the master wallet for a given wallet (either itself if it's a master, or its parent)
+     * @param wallet The wallet to find the master for
+     * @param walletArray All wallets
+     * @return The master wallet, or null if not found
+     */
+    public Wallet findMasterWalletFor(Wallet wallet, Wallet[] walletArray)
+    {
+        if (wallet == null || walletArray == null) return null;
+        
+        // If wallet is not HD, return null
+        if (wallet.type != WalletType.HDKEY) return null;
+        
+        // If wallet has no parent, it IS the master
+        if (wallet.parentAddress == null || wallet.parentAddress.isEmpty())
+        {
+            return wallet;
+        }
+        
+        // Find the parent wallet
+        for (Wallet w : walletArray)
+        {
+            if (w.address.equalsIgnoreCase(wallet.parentAddress))
+            {
+                return w;
+            }
+        }
+        return null;
+    }
+
+    /**
      * Check if there's an HD wallet available for deriving new accounts
      */
     public boolean hasHDWallet(Wallet[] walletArray)
@@ -686,7 +804,7 @@ public class WalletsViewModel extends BaseViewModel implements ServiceSyncCallba
     }
 
     /**
-     * Add a new account derived from the HD wallet
+     * Add a new account derived from the HD wallet (uses primary wallet)
      * @param activity The calling activity
      * @param callback Callback for the result
      */
@@ -701,8 +819,28 @@ public class WalletsViewModel extends BaseViewModel implements ServiceSyncCallba
             return;
         }
         
-        int nextIndex = countHDAccounts(currentWallets);
-        keyService.deriveNewHDAccount(primaryHDWallet, nextIndex, callback);
+        addHDAccountFromMaster(activity, primaryHDWallet, callback);
+    }
+
+    /**
+     * Add a new account derived from a specific master HD wallet
+     * @param activity The calling activity
+     * @param masterWallet The master HD wallet to derive from
+     * @param callback Callback for the result
+     */
+    public void addHDAccountFromMaster(Activity activity, Wallet masterWallet, CreateWalletCallbackInterface callback)
+    {
+        Wallet[] currentWallets = wallets.getValue();
+        
+        if (masterWallet == null)
+        {
+            callback.keyFailure("No master wallet specified");
+            return;
+        }
+        
+        // Get the next available hdKeyIndex (max existing index + 1)
+        int nextIndex = getNextHDKeyIndexForMaster(currentWallets, masterWallet.address);
+        keyService.deriveNewHDAccount(masterWallet, nextIndex, callback);
     }
 
     /**

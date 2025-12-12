@@ -140,7 +140,17 @@ public class WalletActionsActivity extends BaseActivity implements Runnable, Vie
 
     private void setWalletName(int walletCount)
     {
-        wallet.name = getString(R.string.wallet_name_template, walletCount + 1);
+        // For HD wallets, use the hdKeyIndex for naming (Account 1, Account 2, etc.)
+        if (wallet.type == WalletType.HDKEY)
+        {
+            // hdKeyIndex 0 = Account 1, hdKeyIndex 1 = Account 2, etc.
+            wallet.name = getString(R.string.account_name_template, wallet.hdKeyIndex + 1);
+        }
+        else
+        {
+            // For other wallet types, use the total wallet count
+            wallet.name = getString(R.string.wallet_name_template, walletCount + 1);
+        }
         inputName.setText(wallet.name);
         viewModel.updateWallet(wallet);
     }
@@ -274,6 +284,20 @@ public class WalletActionsActivity extends BaseActivity implements Runnable, Vie
             {
                 showPrivateKeySetting.setVisibility(View.GONE);
                 findViewById(R.id.private_key_text).setVisibility(View.GONE);
+            }
+        }
+        else if (wallet.type == WalletType.KEYSTORE_LEGACY)
+        {
+            // For private key imported wallets, show the export private key option
+            backUpSetting.setVisibility(View.GONE);
+            findViewById(R.id.backup_text).setVisibility(View.GONE);
+            // Show private key option with appropriate label
+            if (showPrivateKeySetting != null)
+            {
+                showPrivateKeySetting.setVisibility(View.VISIBLE);
+                TextView privateKeyText = findViewById(R.id.private_key_text);
+                privateKeyText.setVisibility(View.VISIBLE);
+                privateKeyText.setText(getString(R.string.export_private_key_detail));
             }
         }
         else if (wallet.type == WalletType.WATCH || wallet.type == WalletType.HARDWARE)

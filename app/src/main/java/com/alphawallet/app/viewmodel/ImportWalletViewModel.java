@@ -75,7 +75,7 @@ public class ImportWalletViewModel extends BaseViewModel implements OnSetWatchWa
         progress.postValue(true);
         importWalletInteract
                 .importPrivateKey(privateKey, newPassword)
-                .flatMap(wallet -> importWalletInteract.storeKeystoreWallet(wallet, level, ensResolver))
+                .flatMap(wallet -> importWalletInteract.storePrivateKeyWallet(wallet, level, ensResolver))
                 .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(w -> onWallet(w, ImportWalletType.PRIVATE_KEY), this::onError).isDisposed();

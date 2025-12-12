@@ -50,6 +50,7 @@ import com.alphawallet.app.service.AlphaWalletNotificationService;
 import com.alphawallet.app.service.AnalyticsServiceType;
 import com.alphawallet.app.service.AssetDefinitionService;
 import com.alphawallet.app.service.GasService;
+import com.alphawallet.app.service.KeyService;
 import com.alphawallet.app.service.RealmManager;
 import com.alphawallet.app.service.TokensService;
 import com.alphawallet.app.service.TransactionsService;
@@ -119,6 +120,7 @@ public class HomeViewModel extends BaseViewModel
     private final RealmManager realmManager;
     private final TokensService tokensService;
     private final GasService gasService;
+    private final KeyService keyService;
     private final AlphaWalletNotificationService alphaWalletNotificationService;
     private final MutableLiveData<String> walletName = new MutableLiveData<>();
     private final MutableLiveData<Wallet> defaultWallet = new MutableLiveData<>();
@@ -148,7 +150,8 @@ public class HomeViewModel extends BaseViewModel
             RealmManager realmManager,
             TokensService tokensService,
             AlphaWalletNotificationService alphaWalletNotificationService,
-            GasService gasService)
+            GasService gasService,
+            KeyService keyService)
     {
         this.preferenceRepository = preferenceRepository;
         this.importTokenRouter = importTokenRouter;
@@ -168,6 +171,7 @@ public class HomeViewModel extends BaseViewModel
         this.preferenceRepository.incrementLaunchCount();
         this.tokensService = tokensService;
         this.gasService = gasService;
+        this.keyService = keyService;
     }
 
     @Override
@@ -764,6 +768,25 @@ public class HomeViewModel extends BaseViewModel
     public void setNewWallet(String address, boolean isNewWallet)
     {
         preferenceRepository.setNewWallet(address, isNewWallet);
+    }
+    
+    /**
+     * Verify that the wallet key is properly stored and accessible
+     * For derived HD accounts, verify the parent (master) wallet's keystore
+     * Returns true if key storage is verified, false if there's an issue
+     */
+    public boolean verifyWalletKeyStorage(Wallet wallet)
+    {
+        if (wallet == null) return false;
+        
+        // For derived HD accounts, verify the parent wallet's keystore
+        if (wallet.isDerivedHDAccount() && wallet.parentAddress != null && !wallet.parentAddress.isEmpty())
+        {
+            return keyService.hasKeystore(wallet.parentAddress);
+        }
+        
+        // For master HD wallets and other wallet types, verify the wallet's own keystore
+        return keyService.hasKeystore(wallet.address);
     }
 
     public void checkLatestGithubRelease()

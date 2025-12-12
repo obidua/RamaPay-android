@@ -75,6 +75,18 @@ public class ImportWalletInteract {
                 .map(name -> { wallet.ENSname = name; return wallet; })
                 .flatMap(walletRepository::storeWallet);*/
     }
+    
+    /**
+     * Store wallet imported from private key - uses KEYSTORE_LEGACY type
+     * to differentiate from keystore JSON imports and allow private key export
+     */
+    public Single<Wallet> storePrivateKeyWallet(Wallet wallet, KeyService.AuthenticationLevel level, AWEnsResolver ensResolver)
+    {
+        wallet.authLevel = level;
+        wallet.type = WalletType.KEYSTORE_LEGACY;
+        wallet.lastBackupTime = System.currentTimeMillis();
+        return walletRepository.storeWallet(wallet);
+    }
 
     public boolean keyStoreExists(String address)
     {
