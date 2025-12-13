@@ -82,11 +82,24 @@ public class ImportPrivateKeyFragment extends ImportFragment
             if (clipData != null && clipData.getItemCount() > 0)
             {
                 CharSequence pastedText = clipData.getItemAt(0).getText();
-                if (pastedText != null)
+                if (pastedText != null && pastedText.length() > 0)
                 {
                     privateKey.setText(pastedText.toString());
+                    android.widget.Toast.makeText(getContext(), R.string.private_key_pasted, android.widget.Toast.LENGTH_SHORT).show();
+                }
+                else
+                {
+                    android.widget.Toast.makeText(getContext(), R.string.clipboard_empty, android.widget.Toast.LENGTH_SHORT).show();
                 }
             }
+            else
+            {
+                android.widget.Toast.makeText(getContext(), R.string.clipboard_empty, android.widget.Toast.LENGTH_SHORT).show();
+            }
+        }
+        else
+        {
+            android.widget.Toast.makeText(getContext(), R.string.clipboard_empty, android.widget.Toast.LENGTH_SHORT).show();
         }
     }
 

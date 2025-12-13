@@ -1,6 +1,9 @@
 package com.alphawallet.app.ui;
 
 import android.app.Activity;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -10,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -39,7 +43,7 @@ public class ImportKeystoreFragment extends ImportFragment
     private PasswordInputView keystore;
     private PasswordInputView password;
     private Button importButton;
-    private MaterialButton browseButton;
+    private MaterialButton pasteButton;
     private TextView passwordText;
     private TextView importText;
     
@@ -82,18 +86,40 @@ public class ImportKeystoreFragment extends ImportFragment
         password = getView().findViewById(R.id.input_password);
         passwordText = getView().findViewById(R.id.text_password_notice);
         importText = getView().findViewById(R.id.import_text);
-        browseButton = getView().findViewById(R.id.button_browse_files);
+        pasteButton = getView().findViewById(R.id.button_paste_keystore);
         passwordText.setVisibility(View.GONE);
         password.setVisibility(View.GONE);
         importButton = getView().findViewById(R.id.import_action_ks);
         importButton.setOnClickListener(this);
-        browseButton.setOnClickListener(v -> openFilePicker());
+        pasteButton.setOnClickListener(v -> pasteKeystoreFromClipboard());
         updateButtonState(false);
         keystore.getEditText().addTextChangedListener(this);
         password.getEditText().addTextChangedListener(this);
 
         keystore.setLayoutListener(getActivity(), this);
         password.setLayoutListener(getActivity(), this);
+    }
+    
+    private void pasteKeystoreFromClipboard() {
+        if (getContext() == null) return;
+        
+        ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+        if (clipboard != null && clipboard.hasPrimaryClip()) {
+            ClipData clipData = clipboard.getPrimaryClip();
+            if (clipData != null && clipData.getItemCount() > 0) {
+                CharSequence pastedText = clipData.getItemAt(0).getText();
+                if (pastedText != null && pastedText.length() > 0) {
+                    keystore.setText(pastedText.toString());
+                    Toast.makeText(getContext(), R.string.keystore_pasted, Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getContext(), R.string.clipboard_empty, Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(getContext(), R.string.clipboard_empty, Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            Toast.makeText(getContext(), R.string.clipboard_empty, Toast.LENGTH_SHORT).show();
+        }
     }
     
     private void openFilePicker() {

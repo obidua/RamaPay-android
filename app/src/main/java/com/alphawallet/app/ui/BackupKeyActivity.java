@@ -848,6 +848,31 @@ public class BackupKeyActivity extends BaseActivity implements
         title.setText(R.string.write_down_seed_phrase);
         functionButtonBar.setPrimaryButtonText(R.string.wrote_down_seed_phrase);
         functionButtonBar.setPrimaryButtonClickListener(this);
+        
+        // Setup copy seed phrase button
+        View copySeedButton = findViewById(R.id.button_copy_seed);
+        if (copySeedButton != null)
+        {
+            copySeedButton.setOnClickListener(v -> copySeedPhraseToClipboard());
+        }
+    }
+    
+    private void copySeedPhraseToClipboard()
+    {
+        if (mnemonicArray != null && mnemonicArray.length > 0)
+        {
+            StringBuilder seedPhrase = new StringBuilder();
+            for (int i = 0; i < mnemonicArray.length; i++)
+            {
+                if (i > 0) seedPhrase.append(" ");
+                seedPhrase.append(mnemonicArray[i]);
+            }
+            
+            ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+            ClipData clip = ClipData.newPlainText("Seed Phrase", seedPhrase.toString());
+            clipboard.setPrimaryClip(clip);
+            Toast.makeText(this, R.string.seed_phrase_copied, Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void DisplaySeed()

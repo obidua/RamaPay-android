@@ -2,6 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:custom="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -25,18 +26,25 @@
             custom:lines="2"
             custom:minHeightValue="90" />
 
+        <!-- Paste Button -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/button_paste_pk"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="40dp"
             android:layout_marginStart="@dimen/standard_16"
+            android:layout_marginTop="@dimen/tiny_8"
             android:text="@string/paste"
-            android:textColor="@color/brand"
-            app:icon="@drawable/ic_copy"
-            app:iconTint="@color/brand"
-            app:iconPadding="4dp"
-            xmlns:app="http://schemas.android.com/apk/res-auto" />
+            android:textSize="13sp"
+            android:textColor="?colorPrimary"
+            android:textAllCaps="false"
+            app:icon="@drawable/ic_paste"
+            app:iconSize="18dp"
+            app:iconTint="?colorPrimary"
+            app:iconPadding="6dp"
+            app:strokeColor="?colorPrimary"
+            app:strokeWidth="1dp"
+            app:cornerRadius="20dp" />
 
         <TextView
             android:id="@+id/text_privatekey_hint"
@@ -55,19 +63,6 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:orientation="vertical">
-
-        <TextView
-            style="@style/Aw.Typography.Caption"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/base_24"
-            android:layout_marginEnd="@dimen/base_24"
-            android:layout_marginBottom="@dimen/cozy_20"
-            android:autoLink="web"
-            android:gravity="center_horizontal"
-            android:linksClickable="true"
-            android:text="@string/import_from_cloud"
-            tools:text="@string/import_from_cloud" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/import_action_pk"

@@ -1,5 +1,8 @@
 package com.alphawallet.app.ui;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.Editable;
@@ -9,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -95,6 +99,37 @@ public class ImportSeedFragment extends ImportFragment implements OnSuggestionCl
         suggestions = Arrays.asList(getResources().getStringArray(R.array.bip39_english));
         suggestionsAdapter = new SuggestionsAdapter(suggestions, this);
         listSuggestions.setAdapter(suggestionsAdapter);
+        
+        // Setup paste button
+        View pasteButton = getView().findViewById(R.id.button_paste_seed);
+        if (pasteButton != null)
+        {
+            pasteButton.setOnClickListener(v -> pasteSeedPhraseFromClipboard());
+        }
+    }
+    
+    private void pasteSeedPhraseFromClipboard()
+    {
+        if (getActivity() == null) return;
+        
+        ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+        if (clipboard != null && clipboard.hasPrimaryClip())
+        {
+            ClipData clipData = clipboard.getPrimaryClip();
+            if (clipData != null && clipData.getItemCount() > 0)
+            {
+                CharSequence pastedText = clipData.getItemAt(0).getText();
+                if (pastedText != null && pastedText.length() > 0)
+                {
+                    String seedText = pastedText.toString().trim().toLowerCase(Locale.ENGLISH);
+                    seedPhrase.getEditText().setText(seedText);
+                    seedPhrase.getEditText().setSelection(seedText.length());
+                    Toast.makeText(getActivity(), R.string.seed_phrase_pasted, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            }
+        }
+        Toast.makeText(getActivity(), R.string.clipboard_empty, Toast.LENGTH_SHORT).show();
     }
 
     private void setHintState(boolean enabled){

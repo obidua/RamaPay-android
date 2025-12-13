@@ -7,14 +7,23 @@ import static com.alphawallet.app.entity.BackupState.ENTER_BACKUP_STATE_HD;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.NetworkRequest;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.alphawallet.app.R;
@@ -30,6 +39,7 @@ import com.alphawallet.app.router.HomeRouter;
 import com.alphawallet.app.router.ImportWalletRouter;
 import com.alphawallet.app.service.KeyService;
 import com.alphawallet.app.util.RootUtil;
+import com.alphawallet.app.util.Utils;
 import com.alphawallet.app.viewmodel.SplashViewModel;
 import com.alphawallet.app.widget.AWalletAlertDialog;
 import com.alphawallet.app.widget.SignTransactionDialog;
@@ -45,6 +55,32 @@ public class SplashActivity extends BaseActivity implements CreateWalletCallback
     private String pendingWalletAddress;
     private KeyService.AuthenticationLevel pendingAuthLevel;
     private View loadingLayout;
+    
+    // Network status views
+    private ImageView iconNetworkStatus;
+    private TextView textNetworkStatus;
+    private boolean isNetworkAvailable = false;
+    private ConnectivityManager connectivityManager;
+    
+    private final ConnectivityManager.NetworkCallback networkCallback = new ConnectivityManager.NetworkCallback() {
+        @Override
+        public void onAvailable(@NonNull Network network) {
+            runOnUiThread(() -> updateNetworkStatus(true));
+        }
+
+        @Override
+        public void onLost(@NonNull Network network) {
+            runOnUiThread(() -> updateNetworkStatus(false));
+        }
+
+        @Override
+        public void onCapabilitiesChanged(@NonNull Network network, @NonNull NetworkCapabilities capabilities) {
+            boolean hasInternet = capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
+                                  capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
+            runOnUiThread(() -> updateNetworkStatus(hasInternet));
+        }
+    };
+    
     private final Runnable displayError = new Runnable()
     {
         @Override
@@ -100,8 +136,8 @@ public class SplashActivity extends BaseActivity implements CreateWalletCallback
     {
         super.onCreate(savedInstanceState);
         
-        // Set window background to white to prevent dark lines
-        getWindow().setBackgroundDrawableResource(android.R.color.white);
+        // Set window background for futuristic theme
+        getWindow().setBackgroundDrawableResource(R.drawable.futuristic_background);
         
         setContentView(R.layout.activity_splash);
 
@@ -111,8 +147,11 @@ public class SplashActivity extends BaseActivity implements CreateWalletCallback
             .load(R.raw.ramapay_splash)
             .into(splashImage);
 
+        // Start logo and ring animations
+        startLogoAnimations();
+
         // Apply gradient to Ramestta Network text (Purple to Dark Gold)
-        android.widget.TextView ramesttaText = findViewById(R.id.text_ramestta_network);
+        TextView ramesttaText = findViewById(R.id.text_ramestta_network);
         if (ramesttaText != null)
         {
             ramesttaText.post(() -> {
@@ -120,11 +159,11 @@ public class SplashActivity extends BaseActivity implements CreateWalletCallback
                 android.graphics.LinearGradient gradient = new android.graphics.LinearGradient(
                     0, 0, width, 0,
                     new int[]{
-                        android.graphics.Color.parseColor("#6B2C91"), // Purple (80%)
-                        android.graphics.Color.parseColor("#8B4FA8"), // Mid Purple
-                        android.graphics.Color.parseColor("#B8860B")  // Dark Gold (20%)
+                        android.graphics.Color.parseColor("#D4AF37"), // Gold
+                        android.graphics.Color.parseColor("#FFD700"), // Bright Gold
+                        android.graphics.Color.parseColor("#D4AF37")  // Gold
                     },
-                    new float[]{0.0f, 0.8f, 1.0f}, // 80% purple, 20% dark gold
+                    new float[]{0.0f, 0.5f, 1.0f},
                     android.graphics.Shader.TileMode.CLAMP
                 );
                 ramesttaText.getPaint().setShader(gradient);
@@ -134,6 +173,13 @@ public class SplashActivity extends BaseActivity implements CreateWalletCallback
 
         // Initialize loading layout
         loadingLayout = findViewById(R.id.layout_loading);
+        
+        // Initialize network status views
+        iconNetworkStatus = findViewById(R.id.icon_network_status);
+        textNetworkStatus = findViewById(R.id.text_network_status);
+        
+        // Setup network connectivity monitoring
+        setupNetworkMonitoring();
 
         //detect previous launch
         viewModel = new ViewModelProvider(this)
@@ -174,6 +220,12 @@ public class SplashActivity extends BaseActivity implements CreateWalletCallback
             viewModel.setDefaultBrowser();
             findViewById(R.id.layout_new_wallet).setVisibility(View.VISIBLE);
             findViewById(R.id.button_create).setOnClickListener(v -> {
+                // Check network connectivity first
+                if (!isNetworkAvailable)
+                {
+                    Toast.makeText(this, R.string.no_internet_connection, Toast.LENGTH_LONG).show();
+                    return;
+                }
                 AnalyticsProperties props = new AnalyticsProperties();
                 props.put(FirstWalletAction.KEY, FirstWalletAction.CREATE_WALLET.getValue());
                 viewModel.track(Analytics.Action.FIRST_WALLET_ACTION, props);
@@ -183,6 +235,12 @@ public class SplashActivity extends BaseActivity implements CreateWalletCallback
                 new ImportWalletRouter().openWatchCreate(this, IMPORT_REQUEST_CODE);
             });
             findViewById(R.id.button_import).setOnClickListener(v -> {
+                // Check network connectivity first
+                if (!isNetworkAvailable)
+                {
+                    Toast.makeText(this, R.string.no_internet_connection, Toast.LENGTH_LONG).show();
+                    return;
+                }
                 new ImportWalletRouter().openForResult(this, IMPORT_REQUEST_CODE, true);
             });
         }
@@ -241,6 +299,19 @@ public class SplashActivity extends BaseActivity implements CreateWalletCallback
     {
         super.onDestroy();
         handler = null;
+        
+        // Unregister network callback
+        if (connectivityManager != null)
+        {
+            try
+            {
+                connectivityManager.unregisterNetworkCallback(networkCallback);
+            }
+            catch (Exception e)
+            {
+                // Callback may not be registered
+            }
+        }
     }
 
     @Override
@@ -310,5 +381,105 @@ public class SplashActivity extends BaseActivity implements CreateWalletCallback
         });
         
         dialog.show();
+    }
+    
+    /**
+     * Setup network connectivity monitoring to track online/offline status
+     */
+    private void setupNetworkMonitoring()
+    {
+        connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connectivityManager != null)
+        {
+            // Check initial network status
+            isNetworkAvailable = Utils.isNetworkAvailable(this);
+            updateNetworkStatus(isNetworkAvailable);
+            
+            // Register for network changes
+            NetworkRequest networkRequest = new NetworkRequest.Builder()
+                .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                .addCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+                .build();
+            connectivityManager.registerNetworkCallback(networkRequest, networkCallback);
+        }
+    }
+    
+    /**
+     * Update the network status indicator UI
+     * @param isOnline true if connected to internet, false otherwise
+     */
+    private void updateNetworkStatus(boolean isOnline)
+    {
+        isNetworkAvailable = isOnline;
+        
+        if (iconNetworkStatus != null)
+        {
+            iconNetworkStatus.setImageResource(isOnline ? 
+                R.drawable.ic_online_indicator : R.drawable.ic_offline_indicator);
+        }
+        
+        if (textNetworkStatus != null)
+        {
+            textNetworkStatus.setText(isOnline ? R.string.online : R.string.offline);
+            textNetworkStatus.setTextColor(isOnline ? 
+                android.graphics.Color.parseColor("#4CAF50") : 
+                android.graphics.Color.parseColor("#F44336"));
+        }
+    }
+    
+    /**
+     * Start all logo animations for futuristic effect
+     */
+    private void startLogoAnimations()
+    {
+        // Rotating inner ring (gold gradient)
+        ImageView ringInner = findViewById(R.id.ring_inner);
+        if (ringInner != null)
+        {
+            Animation rotateRing = AnimationUtils.loadAnimation(this, R.anim.rotate_ring);
+            ringInner.startAnimation(rotateRing);
+        }
+        
+        // Rotating outer ring (purple) - reverse direction
+        ImageView ringOuter = findViewById(R.id.ring_outer);
+        if (ringOuter != null)
+        {
+            Animation rotateRingReverse = AnimationUtils.loadAnimation(this, R.anim.rotate_ring_reverse);
+            ringOuter.startAnimation(rotateRingReverse);
+        }
+        
+        // Pulsing glow effect
+        ImageView glowOuter = findViewById(R.id.glow_outer);
+        if (glowOuter != null)
+        {
+            Animation pulseGlow = AnimationUtils.loadAnimation(this, R.anim.pulse_glow);
+            glowOuter.startAnimation(pulseGlow);
+        }
+        
+        // Floating logo animation
+        ImageView splashImage = findViewById(R.id.splash_image);
+        if (splashImage != null)
+        {
+            Animation logoFloat = AnimationUtils.loadAnimation(this, R.anim.logo_float);
+            splashImage.startAnimation(logoFloat);
+        }
+        
+        // Fade in text animations with delays
+        TextView welcomeText = findViewById(R.id.text_welcome);
+        TextView subtitleText = findViewById(R.id.text_subtitle);
+        
+        if (welcomeText != null)
+        {
+            Animation fadeInUp = AnimationUtils.loadAnimation(this, R.anim.fade_in_up);
+            fadeInUp.setStartOffset(300);
+            welcomeText.startAnimation(fadeInUp);
+        }
+        
+        if (subtitleText != null)
+        {
+            Animation fadeInUp = AnimationUtils.loadAnimation(this, R.anim.fade_in_up);
+            fadeInUp.setStartOffset(500);
+            subtitleText.startAnimation(fadeInUp);
+        }
     }
 }

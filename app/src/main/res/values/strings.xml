@@ -939,6 +939,15 @@
     <string name="connected_to">Connected to</string>
     <string name="not_connected">Not Connected</string>
     <string name="online">Online</string>
+    <string name="offline">Offline</string>
+    <string name="network_status">Network Status</string>
+    <string name="copy_seed_phrase">Copy Recovery Phrase</string>
+    <string name="paste_seed_phrase">Paste from Clipboard</string>
+    <string name="seed_phrase_copied">Recovery phrase copied to clipboard</string>
+    <string name="seed_phrase_pasted">Recovery phrase pasted</string>
+    <string name="clipboard_empty">Clipboard is empty</string>
+    <string name="keystore_pasted">Keystore pasted from clipboard</string>
+    <string name="private_key_pasted">Private key pasted from clipboard</string>
     <string name="summary_change_24h">%1$s (%2$s) Today</string>
     <string name="performance">Performance</string>
     <string name="token_name_hint">Search token</string>

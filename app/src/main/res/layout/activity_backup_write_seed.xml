@@ -30,6 +30,28 @@
         app:flexDirection="row"
         app:flexWrap="wrap" />
 
+    <!-- Copy Seed Phrase Button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/button_copy_seed"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_below="@id/layout_word_holder"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="@dimen/cozy_20"
+        android:text="@string/copy_seed_phrase"
+        android:textColor="?attr/colorOnSurface"
+        android:textSize="13sp"
+        android:textAllCaps="false"
+        app:icon="@drawable/ic_copy"
+        app:iconSize="18dp"
+        app:iconGravity="start"
+        app:iconPadding="6dp"
+        app:iconTint="?attr/colorOnSurface"
+        app:strokeColor="?attr/colorOnSurface"
+        app:strokeWidth="1dp"
+        app:cornerRadius="20dp" />
+
     <com.alphawallet.app.widget.FunctionButtonBar
         android:id="@+id/layoutButtons"
         android:layout_width="match_parent"
