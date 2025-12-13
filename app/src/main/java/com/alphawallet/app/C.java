@@ -214,6 +214,7 @@ public abstract class C {
             "com.stormbird.wallet.WC_ADD_CHAIN";
     public static final String SHOW_BACKUP = "com.stormbird.wallet.CHECK_BACKUP";
     public static final String HANDLE_BACKUP = "com.stormbird.wallet.HANDLE_BACKUP";
+    public static final String KEY_ERROR = "com.ramapay.wallet.KEY_ERROR";
     public static final String FROM_HOME_ROUTER = "HomeRouter";
     public static final String TOKEN_CLICK = "com.stormbird.wallet.TOKEN_CLICK";
     public static final String SETTINGS_INSTANTIATED = "com.stormbird.wallet.SETTINGS_INSTANTIATED";

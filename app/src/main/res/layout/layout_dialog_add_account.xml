@@ -1,38 +1,311 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/cozy_20">
 
     <com.alphawallet.app.widget.BottomSheetHandleView
-            android:layout_width="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal" />
+
+    <!-- Title -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="@dimen/cozy_20"
+        android:paddingEnd="@dimen/cozy_20"
+        android:paddingTop="@dimen/tiny_8"
+        android:paddingBottom="@dimen/standard_16"
+        android:text="@string/add_or_manage_wallet"
+        android:textColor="?android:textColorPrimary"
+        android:textSize="@dimen/sp20"
+        android:textStyle="bold" />
+
+    <!-- Add Account Option -->
+    <LinearLayout
+        android:id="@+id/add_account_action"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?selectableItemBackground"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/cozy_20"
+        android:paddingEnd="@dimen/tiny_8"
+        android:paddingTop="@dimen/small_12"
+        android:paddingBottom="@dimen/small_12"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <ImageView
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:src="@drawable/ic_add_circle"
+            app:tint="@color/azure" />
+
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal" />
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:paddingStart="@dimen/standard_16"
+            android:paddingEnd="@dimen/tiny_8">
 
-    <TextView
-            android:id="@+id/add_account_action"
-            style="@style/Aw.Component.ActionItem"
-            android:text="@string/action_add_account"
-            android:visibility="gone" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/action_add_account"
+                android:textColor="?android:textColorPrimary"
+                android:textSize="@dimen/sp17" />
 
-    <TextView
-            android:id="@+id/new_account_action"
-            style="@style/Aw.Component.ActionItem"
-            android:text="@string/action_create_new_account" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="@string/menu_add_account_desc"
+                android:textColor="?android:textColorSecondary"
+                android:textSize="@dimen/sp12"
+                android:maxLines="2"
+                android:ellipsize="end" />
+        </LinearLayout>
 
-    <TextView
-            android:id="@+id/import_account_action"
-            style="@style/Aw.Component.ActionItem"
-            android:text="@string/title_import" />
+        <ImageView
+            android:id="@+id/info_add_account"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:padding="@dimen/tiny_8"
+            android:background="?selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_help"
+            app:tint="@color/dove"
+            android:contentDescription="@string/hint_info" />
+    </LinearLayout>
 
-    <TextView
-            android:id="@+id/watch_account_action"
-            style="@style/Aw.Component.ActionItem"
-            android:text="@string/action_watch_account" />
+    <!-- Create New Wallet Option -->
+    <LinearLayout
+        android:id="@+id/new_account_action"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?selectableItemBackground"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/cozy_20"
+        android:paddingEnd="@dimen/tiny_8"
+        android:paddingTop="@dimen/small_12"
+        android:paddingBottom="@dimen/small_12">
 
-    <TextView
-            android:id="@+id/hardware_card"
-            style="@style/Aw.Component.ActionItem"
-            android:text="@string/use_hardware_card" />
+        <ImageView
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:src="@drawable/ic_add_plus"
+            app:tint="@color/emerald" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:paddingStart="@dimen/standard_16"
+            android:paddingEnd="@dimen/tiny_8">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/action_create_new_account"
+                android:textColor="?android:textColorPrimary"
+                android:textSize="@dimen/sp17" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="@string/menu_create_wallet_desc"
+                android:textColor="?android:textColorSecondary"
+                android:textSize="@dimen/sp12"
+                android:maxLines="2"
+                android:ellipsize="end" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/info_new_account"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:padding="@dimen/tiny_8"
+            android:background="?selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_help"
+            app:tint="@color/dove"
+            android:contentDescription="@string/hint_info" />
+    </LinearLayout>
+
+    <!-- Import Wallet Option -->
+    <LinearLayout
+        android:id="@+id/import_account_action"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?selectableItemBackground"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/cozy_20"
+        android:paddingEnd="@dimen/tiny_8"
+        android:paddingTop="@dimen/small_12"
+        android:paddingBottom="@dimen/small_12">
+
+        <ImageView
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:src="@drawable/ic_settings_backup"
+            app:tint="@color/pumpkin" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:paddingStart="@dimen/standard_16"
+            android:paddingEnd="@dimen/tiny_8">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/title_import"
+                android:textColor="?android:textColorPrimary"
+                android:textSize="@dimen/sp17" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="@string/menu_import_wallet_desc"
+                android:textColor="?android:textColorSecondary"
+                android:textSize="@dimen/sp12"
+                android:maxLines="2"
+                android:ellipsize="end" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/info_import_account"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:padding="@dimen/tiny_8"
+            android:background="?selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_help"
+            app:tint="@color/dove"
+            android:contentDescription="@string/hint_info" />
+    </LinearLayout>
+
+    <!-- Watch Wallet Option -->
+    <LinearLayout
+        android:id="@+id/watch_account_action"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?selectableItemBackground"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/cozy_20"
+        android:paddingEnd="@dimen/tiny_8"
+        android:paddingTop="@dimen/small_12"
+        android:paddingBottom="@dimen/small_12">
+
+        <ImageView
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:src="@drawable/ic_browse"
+            app:tint="@color/indigo" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:paddingStart="@dimen/standard_16"
+            android:paddingEnd="@dimen/tiny_8">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/action_watch_account"
+                android:textColor="?android:textColorPrimary"
+                android:textSize="@dimen/sp17" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="@string/menu_watch_wallet_desc"
+                android:textColor="?android:textColorSecondary"
+                android:textSize="@dimen/sp12"
+                android:maxLines="2"
+                android:ellipsize="end" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/info_watch_account"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:padding="@dimen/tiny_8"
+            android:background="?selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_help"
+            app:tint="@color/dove"
+            android:contentDescription="@string/hint_info" />
+    </LinearLayout>
+
+    <!-- Hardware Card Option -->
+    <LinearLayout
+        android:id="@+id/hardware_card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?selectableItemBackground"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/cozy_20"
+        android:paddingEnd="@dimen/tiny_8"
+        android:paddingTop="@dimen/small_12"
+        android:paddingBottom="@dimen/small_12"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:src="@drawable/ic_wallet_connect_card"
+            app:tint="@color/dove" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:paddingStart="@dimen/standard_16"
+            android:paddingEnd="@dimen/tiny_8">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/use_hardware_card"
+                android:textColor="?android:textColorPrimary"
+                android:textSize="@dimen/sp17" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="@string/menu_hardware_card_desc"
+                android:textColor="?android:textColorSecondary"
+                android:textSize="@dimen/sp12"
+                android:maxLines="2"
+                android:ellipsize="end" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/info_hardware_card"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:padding="@dimen/tiny_8"
+            android:background="?selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_help"
+            app:tint="@color/dove"
+            android:contentDescription="@string/hint_info" />
+    </LinearLayout>
 
 </LinearLayout>
 

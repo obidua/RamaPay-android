@@ -123,6 +123,7 @@ public class WalletFragment extends BaseFragment implements
     private boolean completed = false;
     private boolean hasWCSession = false;
     private TokenCardMeta[] currentMetas = new TokenCardMeta[0];
+    private boolean hasKeyError = false; // Track if wallet key verification failed
 
     @Inject
     AWWalletConnectClient awWalletConnectClient;
@@ -182,7 +183,49 @@ public class WalletFragment extends BaseFragment implements
                     }
                 });
 
+        // Listen for key error events from HomeActivity
+        getParentFragmentManager()
+                .setFragmentResultListener(C.KEY_ERROR, this, (requestKey, bundle) ->
+                {
+                    if (bundle.getBoolean(C.KEY_ERROR, false))
+                    {
+                        onKeyError();
+                    }
+                });
+
         return view;
+    }
+    
+    /**
+     * Called when wallet key verification fails
+     * Hides sensitive wallet information to prevent accidental fund transfers to an inaccessible wallet
+     */
+    private void onKeyError()
+    {
+        hasKeyError = true;
+        
+        // Hide wallet balance to prevent showing potentially inaccessible funds
+        if (largeTitleView != null)
+        {
+            largeTitleView.title.setText(R.string.key_error);
+            largeTitleView.subtitle.setText(R.string.postponed_backup_warning);
+        }
+        
+        // Hide the address avatar to prevent copying the address
+        if (addressAvatar != null)
+        {
+            addressAvatar.setVisibility(View.GONE);
+        }
+        
+        // Disable quick actions that could lead to fund transfers
+        View view = getView();
+        if (view != null)
+        {
+            View sendAction = view.findViewById(R.id.action_send);
+            View receiveAction = view.findViewById(R.id.action_receive);
+            if (sendAction != null) sendAction.setEnabled(false);
+            if (receiveAction != null) receiveAction.setEnabled(false);
+        }
     }
 
     private void initResultLaunchers()

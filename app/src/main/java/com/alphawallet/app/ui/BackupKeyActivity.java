@@ -519,6 +519,54 @@ public class BackupKeyActivity extends BaseActivity implements
         }
     }
 
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+        
+        // Restore seed phrase display when user returns to the activity
+        // The mnemonicArray still contains the seed words, just need to re-display them
+        if (mnemonicArray != null && mnemonicArray.length > 0)
+        {
+            switch (state)
+            {
+                case WRITE_DOWN_SEED_PHRASE:
+                case SHOW_SEED_PHRASE:
+                case SHOW_SEED_PHRASE_SINGLE:
+                    // Restore the seed phrase words to the screen
+                    if (layoutWordHolder != null)
+                    {
+                        layoutWordHolder.setVisibility(View.VISIBLE);
+                        layoutWordHolder.removeAllViews();
+                        addSeedWordsToScreen();
+                    }
+                    break;
+                    
+                case VERIFY_SEED_PHRASE:
+                case SEED_PHRASE_INVALID:
+                    // For verification state, we need to restore the verification UI
+                    // but the mnemonic was already fetched, so just setup the verification again
+                    if (layoutWordHolder != null)
+                    {
+                        layoutWordHolder.setVisibility(View.VISIBLE);
+                        layoutWordHolder.removeAllViews();
+                        setupSelectableWords();
+                    }
+                    break;
+                    
+                case SHOW_PRIVATE_KEY:
+                    // Private key needs to be re-derived for security
+                    // This requires re-authentication, so redirect to seed fetch
+                    viewModel.getAuthentication(wallet, this, this);
+                    break;
+                    
+                default:
+                    // Other states don't need special handling
+                    break;
+            }
+        }
+    }
+
     private void initViews()
     {
         title = findViewById(R.id.text_title);

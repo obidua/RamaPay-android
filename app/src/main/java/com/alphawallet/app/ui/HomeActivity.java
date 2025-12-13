@@ -133,8 +133,20 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
                 if (resultCode == RESULT_OK || resultCode == AppLockActivity.RESULT_AUTHENTICATED) {
                     // Authentication successful - refresh session and continue
                     appSecurityManager.refreshSession();
-                    // Force window refresh after unlock
-                    getWindow().getDecorView().invalidate();
+                    
+                    // Reset window background to proper splash drawable
+                    getWindow().setBackgroundDrawableResource(R.drawable.background_splash);
+                    
+                    // Force complete view hierarchy refresh after unlock
+                    View pager = findViewById(R.id.view_pager);
+                    if (pager != null) {
+                        pager.post(() -> {
+                            pager.requestLayout();
+                            pager.invalidate();
+                            // Also notify current fragment to refresh
+                            getSupportFragmentManager().setFragmentResult(RESET_TOKEN_SERVICE, new Bundle());
+                        });
+                    }
                 } else {
                     // User cancelled or failed authentication - close app
                     finishAffinity();
@@ -409,25 +421,40 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
             
             // Verify wallet key is properly stored before showing success
             // For derived HD accounts, this checks the parent wallet's keystore
-            if (viewModel.verifyWalletKeyStorage(wallet))
-            {
-                // Show wallet creation success notification
-                showWalletCreatedSuccessNotification();
-                
-                // Show security setup for first wallet if not already set up
-                if (!appSecurityManager.isFirstWalletCreated() && 
-                    !appSecurityManager.isSecurityEnabled() && 
-                    !appSecurityManager.isSecuritySetupSkipped())
+            // Use a delayed verification to allow keystore operations to complete
+            final Wallet walletToVerify = wallet;
+            handler.postDelayed(() -> {
+                if (viewModel.verifyWalletKeyStorage(walletToVerify))
                 {
-                    // Delay security setup to let network selection complete first
-                    handler.postDelayed(this::showSecuritySetup, 500);
+                    // Show wallet creation success notification
+                    showWalletCreatedSuccessNotification();
+                    
+                    // Show security setup for first wallet if not already set up
+                    if (!appSecurityManager.isFirstWalletCreated() && 
+                        !appSecurityManager.isSecurityEnabled() && 
+                        !appSecurityManager.isSecuritySetupSkipped())
+                    {
+                        // Delay security setup to let network selection complete first
+                        handler.postDelayed(this::showSecuritySetup, 500);
+                    }
                 }
-            }
-            else
-            {
-                // Key verification failed - show error dialog
-                showWalletKeyErrorDialog();
-            }
+                else
+                {
+                    // Retry once more after another delay before showing error
+                    handler.postDelayed(() -> {
+                        if (!viewModel.verifyWalletKeyStorage(walletToVerify))
+                        {
+                            // Key verification still failed - show error dialog
+                            // This is a critical error - the wallet key may not be properly stored
+                            showWalletKeyErrorDialog();
+                        }
+                        else
+                        {
+                            showWalletCreatedSuccessNotification();
+                        }
+                    }, 500);
+                }
+            }, 300);
             
             Intent selectNetworkIntent = new Intent(this, NetworkToggleActivity.class);
             selectNetworkIntent.putExtra(C.EXTRA_SINGLE_ITEM, false);
@@ -457,6 +484,11 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
      */
     private void showWalletKeyErrorDialog()
     {
+        // Notify WalletFragment to hide sensitive wallet information
+        Bundle keyErrorBundle = new Bundle();
+        keyErrorBundle.putBoolean(C.KEY_ERROR, true);
+        getSupportFragmentManager().setFragmentResult(C.KEY_ERROR, keyErrorBundle);
+        
         AWalletAlertDialog errorDialog = new AWalletAlertDialog(this);
         errorDialog.setTitle(R.string.key_error);
         errorDialog.setMessage(R.string.wallet_key_verification_failed);

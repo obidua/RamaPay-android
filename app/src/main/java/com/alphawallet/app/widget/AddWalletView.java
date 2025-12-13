@@ -1,9 +1,12 @@
 package com.alphawallet.app.widget;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.annotation.LayoutRes;
@@ -18,7 +21,7 @@ public class AddWalletView extends FrameLayout implements View.OnClickListener {
     private OnCloseActionListener onCloseActionListener;
     private OnHardwareCardActionListener onHardwareCardClickListener;
     private OnAddAccountClickListener onAddAccountClickListener;
-    private TextView addAccountAction;
+    private View addAccountAction;
 
     public AddWalletView(Context context) {
         this(context, R.layout.layout_dialog_add_account);
@@ -38,6 +41,42 @@ public class AddWalletView extends FrameLayout implements View.OnClickListener {
         findViewById(R.id.import_account_action).setOnClickListener(this);
         findViewById(R.id.watch_account_action).setOnClickListener(this);
         findViewById(R.id.hardware_card).setOnClickListener(this);
+        
+        // Set up info button click listeners
+        setupInfoButton(R.id.info_add_account, R.string.menu_add_account_detail_title, R.string.menu_add_account_detail_content);
+        setupInfoButton(R.id.info_new_account, R.string.menu_create_wallet_detail_title, R.string.menu_create_wallet_detail_content);
+        setupInfoButton(R.id.info_import_account, R.string.menu_import_wallet_detail_title, R.string.menu_import_wallet_detail_content);
+        setupInfoButton(R.id.info_watch_account, R.string.menu_watch_wallet_detail_title, R.string.menu_watch_wallet_detail_content);
+        setupInfoButton(R.id.info_hardware_card, R.string.menu_hardware_card_detail_title, R.string.menu_hardware_card_detail_content);
+    }
+    
+    private void setupInfoButton(int buttonId, int titleResId, int contentResId) {
+        View infoButton = findViewById(buttonId);
+        if (infoButton != null) {
+            infoButton.setOnClickListener(v -> showInfoDialog(titleResId, contentResId));
+        }
+    }
+    
+    private void showInfoDialog(int titleResId, int contentResId) {
+        Context context = getContext();
+        String title = context.getString(titleResId);
+        String content = context.getString(contentResId);
+        
+        // Create scrollable text view for long content
+        ScrollView scrollView = new ScrollView(context);
+        TextView textView = new TextView(context);
+        int padding = (int) (20 * context.getResources().getDisplayMetrics().density);
+        textView.setPadding(padding, padding, padding, padding);
+        textView.setText(Html.fromHtml(content, Html.FROM_HTML_MODE_COMPACT));
+        textView.setTextSize(15);
+        textView.setLineSpacing(0, 1.3f);
+        scrollView.addView(textView);
+        
+        new AlertDialog.Builder(context)
+                .setTitle(title)
+                .setView(scrollView)
+                .setPositiveButton(android.R.string.ok, null)
+                .show();
     }
 
     @Override
@@ -152,10 +191,10 @@ public class AddWalletView extends FrameLayout implements View.OnClickListener {
 
     public void setHardwareActive(boolean isStub)
     {
-        TextView hardwareText = findViewById(R.id.hardware_card);
-        if (isStub)
+        View hardwareView = findViewById(R.id.hardware_card);
+        if (isStub && hardwareView != null)
         {
-            hardwareText.setVisibility(View.GONE);
+            hardwareView.setVisibility(View.GONE);
         }
     }
 }

@@ -1,27 +1,190 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="@dimen/standard_16">
 
     <com.alphawallet.app.widget.BottomSheetHandleView
         android:layout_width="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_height="wrap_content" />
 
+    <!-- Title -->
     <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/buy_rama"
+        android:textColor="?android:textColorPrimary"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginTop="@dimen/tiny_8"
+        android:layout_marginBottom="@dimen/standard_16"
+        android:gravity="center" />
+
+    <!-- Buy from BitMart -->
+    <LinearLayout
         android:id="@+id/buy_from_bitmart"
-        style="@style/Aw.Component.ActionItem"
-        android:text="@string/buy_from_bitmart" />
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="@dimen/small_12"
+        android:layout_marginBottom="@dimen/tiny_8"
+        android:background="?attr/selectableItemBackground">
 
-    <TextView
+        <ImageView
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:src="@drawable/ic_action_buy"
+            app:tint="?colorPrimary" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginStart="@dimen/small_12">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/buy_from_bitmart"
+                android:textColor="?android:textColorPrimary"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/buy_from_bitmart_desc"
+                android:textColor="?android:textColorSecondary"
+                android:textSize="12sp"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:layout_marginTop="2dp" />
+
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/info_buy_bitmart"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:src="@drawable/ic_help"
+            android:padding="@dimen/tiny_8"
+            android:background="?selectableItemBackgroundBorderless"
+            app:tint="@color/dove" />
+
+    </LinearLayout>
+
+    <!-- Buy from Koinpark -->
+    <LinearLayout
         android:id="@+id/buy_from_koinpark"
-        style="@style/Aw.Component.ActionItem"
-        android:text="@string/buy_from_koinpark" />
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="@dimen/small_12"
+        android:layout_marginBottom="@dimen/tiny_8"
+        android:background="?attr/selectableItemBackground">
 
-    <TextView
+        <ImageView
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:src="@drawable/ic_action_receive"
+            app:tint="?colorPrimary" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginStart="@dimen/small_12">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/buy_from_koinpark"
+                android:textColor="?android:textColorPrimary"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/buy_from_koinpark_desc"
+                android:textColor="?android:textColorSecondary"
+                android:textSize="12sp"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:layout_marginTop="2dp" />
+
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/info_buy_koinpark"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:src="@drawable/ic_help"
+            android:padding="@dimen/tiny_8"
+            android:background="?selectableItemBackgroundBorderless"
+            app:tint="@color/dove" />
+
+    </LinearLayout>
+
+    <!-- RAMA Swap -->
+    <LinearLayout
         android:id="@+id/buy_from_ramaswap"
-        style="@style/Aw.Component.ActionItem"
-        android:text="@string/buy_from_ramaswap" />
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="@dimen/small_12"
+        android:background="?attr/selectableItemBackground">
+
+        <ImageView
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:src="@drawable/ic_action_swap"
+            app:tint="?colorPrimary" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginStart="@dimen/small_12">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/buy_from_ramaswap"
+                android:textColor="?android:textColorPrimary"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/buy_from_ramaswap_desc"
+                android:textColor="?android:textColorSecondary"
+                android:textSize="12sp"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:layout_marginTop="2dp" />
+
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/info_buy_ramaswap"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:src="@drawable/ic_help"
+            android:padding="@dimen/tiny_8"
+            android:background="?selectableItemBackgroundBorderless"
+            app:tint="@color/dove" />
+
+    </LinearLayout>
 
 </LinearLayout>

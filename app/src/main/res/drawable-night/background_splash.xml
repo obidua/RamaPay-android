@@ -2,10 +2,10 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android"
     android:opacity="opaque">
     
-    <!-- Dark background only -->
+    <!-- Dark background for night mode -->
     <item>
         <shape>
-            <solid android:color="#FFFFFF" />
+            <solid android:color="@color/cod" />
         </shape>
     </item>
     

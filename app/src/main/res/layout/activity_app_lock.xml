@@ -35,7 +35,9 @@
         android:hint="@string/enter_password"
         app:passwordToggleEnabled="true"
         app:passwordToggleTint="?android:textColorSecondary"
-        app:boxStrokeColor="?colorPrimary"
+        app:boxStrokeColor="@color/selector_text_input_box_stroke"
+        app:boxStrokeWidth="1.5dp"
+        app:boxStrokeWidthFocused="2dp"
         app:hintTextColor="?android:textColorSecondary">
 
         <com.google.android.material.textfield.TextInputEditText
