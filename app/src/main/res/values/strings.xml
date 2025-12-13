@@ -524,6 +524,9 @@
     <string name="verify_seed_phrase">Verify Seed Phrase</string>
     <string name="action_continue">Continue</string>
     <string name="invalid_phrase">Invalid recovery phrase. Please check and try again.</string>
+    <string name="tap_word_to_remove">Tap a filled word to remove it</string>
+    <string name="select_words_below">Select the missing words in order</string>
+    <string name="complete_seed_phrase">Complete the seed phrase by selecting the missing words</string>
     <string name="manage_wallet">Manage Wallet</string>
     <string name="show_seed_phrase">Show Seed Phrase</string>
     <string name="lose_this_wallet">Lose this Wallet</string>
@@ -948,6 +951,43 @@
     <string name="clipboard_empty">Clipboard is empty</string>
     <string name="keystore_pasted">Keystore pasted from clipboard</string>
     <string name="private_key_pasted">Private key pasted from clipboard</string>
+    
+    <!-- App Security -->
+    <string name="secure_your_wallet">Secure Your Wallet</string>
+    <string name="security_setup_description">Create a password to protect your wallet. This password will be required to open the app and sign transactions.</string>
+    <string name="create_password">Create Password</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="password_requirements">Password must be at least 6 characters</string>
+    <string name="enable_biometric">Use Fingerprint / Face ID</string>
+    <string name="biometric_description">Quick and secure authentication</string>
+    <string name="enable_security">Enable Security</string>
+    <string name="skip_for_now">Skip for now</string>
+    <string name="passwords_do_not_match">Passwords do not match</string>
+    <string name="password_too_short">Password must be at least 6 characters</string>
+    <string name="security_enabled">Security enabled successfully</string>
+    <string name="security_setup_failed">Failed to setup security</string>
+    <string name="unlock_ramapay">Unlock RamaPay</string>
+    <string name="incorrect_password">Incorrect password</string>
+    <string name="use_biometric">Use Fingerprint / Face ID</string>
+    <string name="unlock">Unlock</string>
+    <string name="app_security">App Security</string>
+    <string name="security_settings">Security Settings</string>
+    <string name="change_password">Change Password</string>
+    <string name="current_password">Current Password</string>
+    <string name="new_password">New Password</string>
+    <string name="new_password_optional">New Password (leave empty to keep current)</string>
+    <string name="enter_current_password_to_change">Enter current password. Leave new password empty to only change biometric settings.</string>
+    <string name="save_changes">Save Changes</string>
+    <string name="confirm_new_password">Confirm New Password</string>
+    <string name="password_changed">Password changed successfully</string>
+    <string name="biometric_auth">Biometric Authentication</string>
+    <string name="disable_security">Disable Security</string>
+    <string name="disable_security_warning">This will remove app lock protection. Are you sure?</string>
+    <string name="security_disabled">Security disabled</string>
+    <string name="authenticate_to_continue">Authenticate to continue</string>
+    <string name="biometric_not_available">Biometric authentication not available on this device</string>
+    <string name="setup_security_later">You can enable security later from Settings</string>
+    
     <string name="summary_change_24h">%1$s (%2$s) Today</string>
     <string name="performance">Performance</string>
     <string name="token_name_hint">Search token</string>

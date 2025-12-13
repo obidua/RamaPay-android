@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?android:colorBackground"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/base_24">
+
+        <!-- Header Icon -->
+        <ImageView
+            android:id="@+id/security_icon"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="@dimen/base_24"
+            android:src="@drawable/ic_key_security"
+            app:tint="?colorPrimary" />
+
+        <!-- Title -->
+        <TextView
+            android:id="@+id/title"
+            style="@style/Aw.Typography.Title.Large.SemiBold"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/base_24"
+            android:gravity="center"
+            android:text="@string/secure_your_wallet"
+            android:textColor="?android:textColorPrimary" />
+
+        <!-- Subtitle -->
+        <TextView
+            android:id="@+id/subtitle"
+            style="@style/Aw.Typography.Sub"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/standard_16"
+            android:gravity="center"
+            android:text="@string/security_setup_description"
+            android:textColor="?android:textColorSecondary" />
+
+        <!-- Password Input -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/password_layout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/large_32"
+            android:hint="@string/create_password"
+            app:passwordToggleEnabled="true"
+            app:passwordToggleTint="?android:textColorSecondary"
+            app:boxStrokeColor="?colorPrimary"
+            app:hintTextColor="?android:textColorSecondary">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/password_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPassword"
+                android:maxLines="1"
+                android:textColor="?android:textColorPrimary"
+                android:textColorHint="?android:textColorSecondary" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Confirm Password Input -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/confirm_password_layout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/standard_16"
+            android:hint="@string/confirm_password"
+            app:passwordToggleEnabled="true"
+            app:passwordToggleTint="?android:textColorSecondary"
+            app:boxStrokeColor="?colorPrimary"
+            app:hintTextColor="?android:textColorSecondary">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/confirm_password_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPassword"
+                android:maxLines="1"
+                android:textColor="?android:textColorPrimary"
+                android:textColorHint="?android:textColorSecondary" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Password Requirements -->
+        <TextView
+            android:id="@+id/password_requirements"
+            style="@style/Aw.Typography.Sub"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/tiny_8"
+            android:text="@string/password_requirements"
+            android:textColor="?android:textColorSecondary" />
+
+        <!-- Biometric Section -->
+        <LinearLayout
+            android:id="@+id/biometric_section"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/base_24"
+            android:background="@drawable/background_round_corner"
+            android:orientation="horizontal"
+            android:padding="@dimen/standard_16"
+            android:visibility="visible">
+
+            <ImageView
+                android:id="@+id/biometric_icon"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/ic_fingerprint"
+                app:tint="?colorPrimary" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/standard_16"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    style="@style/Aw.Typography.SemiBold"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/enable_biometric"
+                    android:textColor="?android:textColorPrimary" />
+
+                <TextView
+                    style="@style/Aw.Typography.Sub"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="@string/biometric_description"
+                    android:textColor="?android:textColorSecondary" />
+
+            </LinearLayout>
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/biometric_switch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:checked="true" />
+
+        </LinearLayout>
+
+        <!-- Spacer -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <!-- Enable Security Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_enable_security"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="@dimen/base_24"
+            android:text="@string/enable_security"
+            android:textAllCaps="false"
+            android:textColor="@color/mine"
+            app:backgroundTint="?colorPrimary"
+            app:cornerRadius="28dp" />
+
+        <!-- Skip Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_skip"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="@dimen/standard_16"
+            android:layout_marginBottom="@dimen/base_24"
+            android:text="@string/skip_for_now"
+            android:textAllCaps="false"
+            android:textColor="?android:textColorSecondary"
+            app:strokeColor="?android:textColorSecondary"
+            app:strokeWidth="1dp"
+            app:cornerRadius="28dp" />
+
+    </LinearLayout>
+
+</ScrollView>

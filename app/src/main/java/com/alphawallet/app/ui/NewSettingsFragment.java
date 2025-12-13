@@ -49,6 +49,7 @@ import com.alphawallet.app.util.Utils;
 import com.alphawallet.app.viewmodel.NewSettingsViewModel;
 import com.alphawallet.app.widget.NotificationView;
 import com.alphawallet.app.widget.SettingsItemView;
+import com.alphawallet.app.service.AppSecurityManager;
 import com.google.android.material.card.MaterialCardView;
 
 import java.util.Locale;
@@ -57,9 +58,14 @@ import dagger.hilt.android.AndroidEntryPoint;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
+import javax.inject.Inject;
+
 @AndroidEntryPoint
 public class NewSettingsFragment extends BaseFragment
 {
+    @Inject
+    AppSecurityManager appSecurityManager;
+    
     private NewSettingsViewModel viewModel;
     private LinearLayout walletSettingsLayout;
     private LinearLayout systemSettingsLayout;
@@ -67,6 +73,7 @@ public class NewSettingsFragment extends BaseFragment
     private SettingsItemView myAddressSetting;
     private SettingsItemView changeWalletSetting;
     private SettingsItemView backUpWalletSetting;
+    private SettingsItemView appSecuritySetting;
     private SettingsItemView notificationsSetting;
     private SettingsItemView changeLanguage;
     private SettingsItemView changeCurrency;
@@ -371,6 +378,13 @@ public class NewSettingsFragment extends BaseFragment
                         .withListener(this::onDarkModeSettingClicked)
                         .build();
 
+        appSecuritySetting =
+                new SettingsItemView.Builder(getContext())
+                        .withIcon(R.drawable.ic_key_security)
+                        .withTitle(R.string.app_security)
+                        .withListener(this::onAppSecuritySettingClicked)
+                        .build();
+
         supportSetting =
                 new SettingsItemView.Builder(getContext())
                         .withIcon(R.drawable.ic_settings_support)
@@ -422,6 +436,8 @@ public class NewSettingsFragment extends BaseFragment
         systemSettingsLayout.addView(changeCurrency, systemIndex++);
 
         systemSettingsLayout.addView(darkModeSetting, systemIndex++);
+
+        systemSettingsLayout.addView(appSecuritySetting, systemIndex++);
 
         systemSettingsLayout.addView(advancedSetting, systemIndex++);
 
@@ -565,6 +581,27 @@ public class NewSettingsFragment extends BaseFragment
         {
             viewModel.track(Analytics.Navigation.SETTINGS);
             viewModel.prepare();
+        }
+        
+        // Update app security setting subtitle
+        updateAppSecurityStatus();
+    }
+    
+    private void updateAppSecurityStatus()
+    {
+        if (appSecuritySetting != null && appSecurityManager != null)
+        {
+            if (appSecurityManager.isSecurityEnabled())
+            {
+                String status = appSecurityManager.isBiometricEnabled() 
+                        ? getString(R.string.key_secure) + " + " + getString(R.string.biometric_auth)
+                        : getString(R.string.key_secure);
+                appSecuritySetting.setSubtitle(status);
+            }
+            else
+            {
+                appSecuritySetting.setSubtitle(getString(R.string.not_locked));
+            }
         }
     }
 
@@ -717,6 +754,12 @@ public class NewSettingsFragment extends BaseFragment
     private void onDarkModeSettingClicked()
     {
         Intent intent = new Intent(getActivity(), SelectThemeActivity.class);
+        startActivity(intent);
+    }
+
+    private void onAppSecuritySettingClicked()
+    {
+        Intent intent = SetupSecurityActivity.createIntent(requireContext(), true, false);
         startActivity(intent);
     }
 

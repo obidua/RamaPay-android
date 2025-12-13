@@ -80,6 +80,7 @@ import com.alphawallet.app.web3.entity.Web3Transaction;
 import com.alphawallet.app.widget.AWalletAlertDialog;
 import com.alphawallet.app.widget.AWalletConfirmationDialog;
 import com.alphawallet.app.widget.SignTransactionDialog;
+import com.alphawallet.app.service.AppSecurityManager;
 import com.alphawallet.hardware.SignatureFromKey;
 import com.alphawallet.token.entity.Signable;
 import com.github.florent37.tutoshowcase.TutoShowcase;
@@ -103,6 +104,10 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
 {
     @Inject
     AWWalletConnectClient awWalletConnectClient;
+    
+    @Inject
+    AppSecurityManager appSecurityManager;
+    
     public static final int RC_ASSET_EXTERNAL_WRITE_PERM = 223;
     public static final int RC_ASSET_NOTIFICATION_PERM = 224;
     public static final int DAPP_BARCODE_READER_REQUEST_CODE = 1;
@@ -114,6 +119,25 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final ActivityResultLauncher<Intent> networkSettingsHandler = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
             result -> getSupportFragmentManager().setFragmentResult(RESET_TOKEN_SERVICE, new Bundle()));
+    
+    private final ActivityResultLauncher<Intent> securitySetupHandler = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                // Security setup completed or skipped
+                appSecurityManager.setFirstWalletCreated();
+            });
+    
+    private final ActivityResultLauncher<Intent> appLockHandler = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                isShowingAppLock = false;
+                int resultCode = result.getResultCode();
+                if (resultCode == RESULT_OK || resultCode == AppLockActivity.RESULT_AUTHENTICATED) {
+                    // Authentication successful - refresh session and continue
+                    appSecurityManager.refreshSession();
+                } else {
+                    // User cancelled or failed authentication - close app
+                    finishAffinity();
+                }
+            });
 
     private HomeViewModel viewModel;
     private WalletConnectViewModel viewModelWC;
@@ -130,6 +154,7 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
     private String openToken = null;
     private String pendingDappUrl = null;
     private AWalletAlertDialog wcProgressDialog;
+    private boolean isShowingAppLock = false;
     private final ActivityResultLauncher<String> requestPermissionLauncher =
         registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
             if (isGranted)
@@ -386,6 +411,15 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
             {
                 // Show wallet creation success notification
                 showWalletCreatedSuccessNotification();
+                
+                // Show security setup for first wallet if not already set up
+                if (!appSecurityManager.isFirstWalletCreated() && 
+                    !appSecurityManager.isSecurityEnabled() && 
+                    !appSecurityManager.isSecuritySetupSkipped())
+                {
+                    // Delay security setup to let network selection complete first
+                    handler.postDelayed(this::showSecuritySetup, 500);
+                }
             }
             else
             {
@@ -397,6 +431,15 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
             selectNetworkIntent.putExtra(C.EXTRA_SINGLE_ITEM, false);
             networkSettingsHandler.launch(selectNetworkIntent);
         }
+    }
+    
+    /**
+     * Show security setup screen for first-time wallet creation
+     */
+    private void showSecuritySetup()
+    {
+        Intent securityIntent = SetupSecurityActivity.createIntent(this, false, true);
+        securitySetupHandler.launch(securityIntent);
     }
     
     /**
@@ -659,6 +702,14 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
     protected void onResume()
     {
         super.onResume();
+        
+        // Check if app lock is required (but not if already showing or just returned from splash)
+        if (!isShowingAppLock && appSecurityManager.requiresAuthentication())
+        {
+            showAppLock();
+            return; // Don't continue with resume until authenticated
+        }
+        
         // Ensure success overlay is hidden when resuming
         if (successOverlay != null && successOverlay.getVisibility() == View.VISIBLE)
         {
@@ -675,6 +726,19 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
             homeReceiver.register(this);
         }
         initViews();
+        
+        // Refresh security session on user activity
+        appSecurityManager.refreshSession();
+    }
+    
+    /**
+     * Show app lock screen for authentication
+     */
+    private void showAppLock()
+    {
+        isShowingAppLock = true;
+        Intent lockIntent = AppLockActivity.createIntent(this);
+        appLockHandler.launch(lockIntent);
     }
 
     @Override

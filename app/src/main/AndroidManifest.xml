@@ -137,6 +137,18 @@
                 android:name=".ui.SplashActivity"
                 android:theme="@style/AppTheme.NoActionBar.Splash" />
 
+        <activity
+                android:name=".ui.SetupSecurityActivity"
+                android:theme="@style/AppTheme.NoActionBar"
+                android:label="@string/security_settings" />
+
+        <activity
+                android:name=".ui.AppLockActivity"
+                android:theme="@style/AppTheme.NoActionBar"
+                android:launchMode="singleTop"
+                android:label="@string/unlock_ramapay"
+                android:excludeFromRecents="true" />
+
         <service
                 android:name=".service.AlphaWalletFirebaseMessagingService"
                 android:exported="false">

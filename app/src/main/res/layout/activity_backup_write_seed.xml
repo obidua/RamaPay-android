@@ -40,15 +40,14 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="@dimen/cozy_20"
         android:text="@string/copy_seed_phrase"
-        android:textColor="?attr/colorOnSurface"
+        android:textColor="?colorPrimary"
         android:textSize="13sp"
         android:textAllCaps="false"
         app:icon="@drawable/ic_copy"
         app:iconSize="18dp"
-        app:iconGravity="start"
         app:iconPadding="6dp"
-        app:iconTint="?attr/colorOnSurface"
-        app:strokeColor="?attr/colorOnSurface"
+        app:iconTint="?colorPrimary"
+        app:strokeColor="?colorPrimary"
         app:strokeWidth="1dp"
         app:cornerRadius="20dp" />
 

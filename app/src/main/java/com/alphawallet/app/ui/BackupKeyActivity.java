@@ -48,6 +48,8 @@ import com.google.android.flexbox.FlexDirection;
 import com.google.android.flexbox.FlexboxLayout;
 import com.google.android.material.card.MaterialCardView;
 
+import androidx.core.content.ContextCompat;
+
 import org.web3j.utils.Numeric;
 
 import wallet.core.jni.CoinType;
@@ -97,7 +99,10 @@ public class BackupKeyActivity extends BaseActivity implements
     // For random word verification (only 4 words)
     private int[] randomWordPositions = new int[4]; // Stores positions like 3, 5, 9, 12
     private List<String> selectedWords = new ArrayList<>(); // Stores user's selected words in order
-    private TextView[] wordInputs = new TextView[4]; // The 4 input boxes
+    private TextView[] allWordBoxes = new TextView[12]; // All 12 word boxes in the grid
+    private TextView[] selectableWordViews = new TextView[4]; // The 4 selectable word views at bottom
+    private int currentFillIndex = 0; // Tracks which position to fill next (0-3)
+    private TextView tapHintText; // Hint for tap to remove
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState)
@@ -589,14 +594,30 @@ public class BackupKeyActivity extends BaseActivity implements
 
     private void ResetInputBox()
     {
-        // Clear all 4 word input boxes
-        for (TextView wordInput : wordInputs)
+        // Clear only the 4 selectable word boxes and reset their state
+        for (int position : randomWordPositions)
         {
-            if (wordInput != null) wordInput.setText("");
+            if (allWordBoxes[position] != null)
+            {
+                allWordBoxes[position].setText((position + 1) + "#");
+                allWordBoxes[position].setTag(null);
+                allWordBoxes[position].setBackground(ContextCompat.getDrawable(this, R.drawable.background_seed_word_box_active));
+            }
+        }
+        currentFillIndex = 0;
+        if (randomWordPositions.length > 0)
+        {
+            updateWordBoxHighlight();
         }
         
-        TextView invalid = findViewById(R.id.text_invalid);
-        if (invalid != null) invalid.setVisibility(View.GONE);
+        // Reset selectable words visibility
+        for (int i = 0; i < selectableWordViews.length; i++)
+        {
+            if (selectableWordViews[i] != null)
+            {
+                selectableWordViews[i].setVisibility(View.VISIBLE);
+            }
+        }
     }
 
     private void JSONBackup()
@@ -637,10 +658,6 @@ public class BackupKeyActivity extends BaseActivity implements
         }
 
         layoutWordHolder.setVisibility(View.GONE);
-        
-        // Hide the word input boxes
-        LinearLayout wordInputsContainer = findViewById(R.id.word_inputs_container);
-        if (wordInputsContainer != null) wordInputsContainer.setVisibility(View.GONE);
 
         //terminate and display tick
         backupKeySuccess(BackupOperationType.BACKUP_HD_KEY);
@@ -729,11 +746,21 @@ public class BackupKeyActivity extends BaseActivity implements
         setContentView(R.layout.activity_verify_seed_phrase);
         initViews();
         
-        // Initialize the 4 word input TextViews
-        wordInputs[0] = findViewById(R.id.word_input_1);
-        wordInputs[1] = findViewById(R.id.word_input_2);
-        wordInputs[2] = findViewById(R.id.word_input_3);
-        wordInputs[3] = findViewById(R.id.word_input_4);
+        // Initialize all 12 word boxes from the grid
+        allWordBoxes[0] = findViewById(R.id.word_box_1);
+        allWordBoxes[1] = findViewById(R.id.word_box_2);
+        allWordBoxes[2] = findViewById(R.id.word_box_3);
+        allWordBoxes[3] = findViewById(R.id.word_box_4);
+        allWordBoxes[4] = findViewById(R.id.word_box_5);
+        allWordBoxes[5] = findViewById(R.id.word_box_6);
+        allWordBoxes[6] = findViewById(R.id.word_box_7);
+        allWordBoxes[7] = findViewById(R.id.word_box_8);
+        allWordBoxes[8] = findViewById(R.id.word_box_9);
+        allWordBoxes[9] = findViewById(R.id.word_box_10);
+        allWordBoxes[10] = findViewById(R.id.word_box_11);
+        allWordBoxes[11] = findViewById(R.id.word_box_12);
+        
+        tapHintText = findViewById(R.id.text_tap_hint);
         
         functionButtonBar.setPrimaryButtonText(R.string.action_continue);
         functionButtonBar.setPrimaryButtonClickListener(v -> TestSeedPhrase());
@@ -750,27 +777,233 @@ public class BackupKeyActivity extends BaseActivity implements
         {
             generateRandomWordPositions();
             selectedWords.clear();
+            currentFillIndex = 0;
             
-            // Clear all word inputs
-            for (TextView wordInput : wordInputs)
-            {
-                if (wordInput != null) wordInput.setText("");
-            }
+            // Setup all 12 word boxes
+            setupWordBoxesGrid();
             
-            // Update the instruction text to show which word numbers to select
+            // Update the instruction text
             TextView detail = findViewById(R.id.text_detail);
             if (detail != null)
             {
-                String instruction = String.format("Select word #%d, #%d, #%d, and #%d in order",
-                    randomWordPositions[0] + 1,
-                    randomWordPositions[1] + 1,
-                    randomWordPositions[2] + 1,
-                    randomWordPositions[3] + 1);
-                detail.setText(instruction);
+                detail.setText(R.string.complete_seed_phrase);
                 detail.setVisibility(View.VISIBLE);
             }
 
-            jumbleList();
+            // Show only the 4 words that need to be selected (shuffled)
+            setupSelectableWords();
+        }
+    }
+    
+    private void setupWordBoxesGrid()
+    {
+        for (int i = 0; i < 12; i++)
+        {
+            final int position = i;
+            TextView box = allWordBoxes[i];
+            if (box == null) continue;
+            
+            boolean isRandomPosition = isPositionRandom(i);
+            
+            if (isRandomPosition)
+            {
+                // This is one of the 4 positions user needs to fill
+                box.setText((i + 1) + "# ......");
+                box.setBackgroundResource(R.drawable.background_seed_word_box_active);
+                box.setTextColor(getResources().getColor(R.color.text_secondary, getTheme()));
+                box.setTag(null); // No word filled yet
+                
+                // Set click listener to remove word if filled
+                box.setOnClickListener(v -> onWordBoxClick(position));
+            }
+            else
+            {
+                // This position shows masked word
+                box.setText((i + 1) + "# ****");
+                box.setBackgroundResource(R.drawable.background_seed_word_box_disabled);
+                box.setTextColor(getResources().getColor(R.color.text_secondary, getTheme()));
+                box.setOnClickListener(null);
+                box.setClickable(false);
+            }
+        }
+        updateWordBoxHighlight();
+    }
+    
+    private boolean isPositionRandom(int position)
+    {
+        for (int randomPos : randomWordPositions)
+        {
+            if (randomPos == position) return true;
+        }
+        return false;
+    }
+    
+    private void updateWordBoxHighlight()
+    {
+        // Highlight the current box that needs to be filled
+        for (int i = 0; i < 4; i++)
+        {
+            int pos = randomWordPositions[i];
+            TextView box = allWordBoxes[pos];
+            if (box == null) continue;
+            
+            String tag = (String) box.getTag();
+            boolean isFilled = tag != null && !tag.isEmpty();
+            
+            if (isFilled)
+            {
+                // Box is filled - show the word with filled style
+                box.setBackgroundResource(R.drawable.background_seed_word_box_filled);
+                box.setTextColor(getResources().getColor(R.color.brand, getTheme()));
+            }
+            else if (i == currentFillIndex)
+            {
+                // This is the next box to fill - highlight it
+                box.setBackgroundResource(R.drawable.background_seed_word_box_active);
+                box.setTextColor(getResources().getColor(R.color.text_secondary, getTheme()));
+                box.setText((pos + 1) + "# ......");
+            }
+            else
+            {
+                // Empty but not current
+                box.setBackgroundResource(R.drawable.background_seed_word_box);
+                box.setTextColor(getResources().getColor(R.color.text_secondary, getTheme()));
+                box.setText((pos + 1) + "# ......");
+            }
+        }
+        
+        // Show/hide tap hint based on whether any words are filled
+        if (tapHintText != null)
+        {
+            tapHintText.setVisibility(currentFillIndex > 0 ? View.VISIBLE : View.GONE);
+        }
+    }
+    
+    private void onWordBoxClick(int position)
+    {
+        // Find which random position index this is
+        int randomIndex = -1;
+        for (int i = 0; i < 4; i++)
+        {
+            if (randomWordPositions[i] == position)
+            {
+                randomIndex = i;
+                break;
+            }
+        }
+        
+        if (randomIndex == -1) return;
+        
+        TextView box = allWordBoxes[position];
+        if (box == null) return;
+        
+        String filledWord = (String) box.getTag();
+        if (filledWord == null || filledWord.isEmpty()) return; // Nothing to remove
+        
+        // Remove this word and all words after it
+        for (int i = randomIndex; i < 4; i++)
+        {
+            int pos = randomWordPositions[i];
+            TextView b = allWordBoxes[pos];
+            if (b != null)
+            {
+                String word = (String) b.getTag();
+                if (word != null && !word.isEmpty())
+                {
+                    // Return word to selectable list
+                    returnWordToSelection(word);
+                }
+                b.setTag(null);
+                b.setText((pos + 1) + "# ......");
+            }
+        }
+        
+        // Update selected words list
+        while (selectedWords.size() > randomIndex)
+        {
+            selectedWords.remove(selectedWords.size() - 1);
+        }
+        
+        currentFillIndex = randomIndex;
+        updateWordBoxHighlight();
+        functionButtonBar.setPrimaryButtonEnabled(false);
+        
+        // Hide invalid message
+        TextView invalid = findViewById(R.id.text_invalid);
+        if (invalid != null) invalid.setVisibility(View.INVISIBLE);
+    }
+    
+    private void returnWordToSelection(String word)
+    {
+        // Find the word view and make it visible/enabled again
+        for (TextView tv : selectableWordViews)
+        {
+            if (tv != null && word.equals(tv.getText().toString()))
+            {
+                tv.setSelected(false);
+                tv.setAlpha(1.0f);
+                tv.setClickable(true);
+                tv.setOnClickListener(view -> onSelectableWordClick(tv));
+                break;
+            }
+        }
+    }
+    
+    private void setupSelectableWords()
+    {
+        layoutWordHolder.removeAllViews();
+        
+        // Create a shuffled list of just the 4 words
+        List<String> wordsToShow = new ArrayList<>();
+        for (int pos : randomWordPositions)
+        {
+            wordsToShow.add(mnemonicArray[pos]);
+        }
+        
+        // Shuffle the words
+        java.util.Collections.shuffle(wordsToShow);
+        
+        // Create TextViews for each word
+        for (int i = 0; i < wordsToShow.size(); i++)
+        {
+            String word = wordsToShow.get(i);
+            TextView tv = generateSeedWordTextView(word);
+            tv.setOnClickListener(view -> onSelectableWordClick(tv));
+            layoutWordHolder.addView(tv);
+            selectableWordViews[i] = tv;
+        }
+    }
+    
+    private void onSelectableWordClick(TextView tv)
+    {
+        if (currentFillIndex >= 4) return; // All positions filled
+        
+        String selectedWord = tv.getText().toString();
+        
+        // Fill the current position
+        int positionToFill = randomWordPositions[currentFillIndex];
+        TextView box = allWordBoxes[positionToFill];
+        if (box != null)
+        {
+            box.setText((positionToFill + 1) + "# " + selectedWord);
+            box.setTag(selectedWord);
+        }
+        
+        selectedWords.add(selectedWord);
+        
+        // Disable/dim the selected word
+        tv.setSelected(true);
+        tv.setAlpha(0.4f);
+        tv.setClickable(false);
+        tv.setOnClickListener(null);
+        
+        currentFillIndex++;
+        updateWordBoxHighlight();
+        
+        // Enable continue button when all 4 words are selected
+        if (currentFillIndex == 4)
+        {
+            functionButtonBar.setPrimaryButtonEnabled(true);
         }
     }
     
@@ -793,51 +1026,6 @@ public class BackupKeyActivity extends BaseActivity implements
         
         // Sort the positions so they appear in order (easier for user)
         java.util.Arrays.sort(randomWordPositions);
-    }
-
-    private void jumbleList()
-    {
-        List<Integer> numberList = new ArrayList<>();
-        for (int i = 0; i < mnemonicArray.length; i++)
-            numberList.add(i);
-
-        for (int i = 0; i < mnemonicArray.length; i++)
-        {
-            int random = (int) (Math.random() * (double) numberList.size());
-            int mnemonicIndex = numberList.get(random);
-            numberList.remove(random); //remove this index
-            TextView tv = generateSeedWordTextView(mnemonicArray[mnemonicIndex]);
-            tv.setOnClickListener(view -> onWordClick(tv));
-            layoutWordHolder.addView(tv);
-        }
-    }
-
-    private void onWordClick(TextView tv)
-    {
-        // Only allow selecting 4 words
-        if (selectedWords.size() >= 4)
-        {
-            return;
-        }
-        
-        tv.setSelected(true);
-        tv.setOnClickListener(null);
-        
-        String selectedWord = tv.getText().toString();
-        selectedWords.add(selectedWord);
-        
-        // Update the corresponding input box
-        int index = selectedWords.size() - 1;
-        if (index < 4 && wordInputs[index] != null)
-        {
-            wordInputs[index].setText(selectedWord);
-        }
-
-        // Enable continue button when 4 words are selected
-        if (selectedWords.size() == 4)
-        {
-            functionButtonBar.setPrimaryButtonEnabled(true);
-        }
     }
 
     private void WriteDownSeedPhrase()
@@ -990,9 +1178,9 @@ public class BackupKeyActivity extends BaseActivity implements
                     addSeedWordsToScreen();
                     break;
                 case VERIFY_SEED_PHRASE:
-                    // Mnemonic already set, just display jumbled list for selection
+                    // Mnemonic already set, display verification screen
                     mnemonicArray = mnemonic.split(" ");
-                    jumbleList();
+                    VerifySeedPhrase();
                     break;
                 case SHOW_PRIVATE_KEY:
                     displayPrivateKey(mnemonic);

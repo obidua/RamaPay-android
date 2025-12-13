@@ -205,4 +205,29 @@
     <style name="Aw.Component.Card" parent="">
         <item name="android:background">@color/active_session_card_background</item>
     </style>
+
+    <!-- Seed Word Box styles for verification -->
+    <style name="SeedWordBox" parent="Widget.MaterialComponents.TextView">
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">@dimen/sp13</item>
+        <item name="android:textColor">?android:textColorPrimary</item>
+        <item name="android:background">@drawable/background_seed_word_box</item>
+        <item name="android:padding">@dimen/tiny_8</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <style name="SeedWordBox.Disabled">
+        <item name="android:textColor">?android:textColorSecondary</item>
+        <item name="android:background">@drawable/background_seed_word_box_disabled</item>
+    </style>
+
+    <style name="SeedWordBox.Active">
+        <item name="android:background">@drawable/background_seed_word_box_active</item>
+    </style>
+
+    <style name="SeedWordBox.Filled">
+        <item name="android:textColor">?colorPrimary</item>
+        <item name="android:background">@drawable/background_seed_word_box_filled</item>
+    </style>
 </resources>

@@ -37,8 +37,11 @@ import com.alphawallet.app.entity.Wallet;
 import com.alphawallet.app.entity.analytics.FirstWalletAction;
 import com.alphawallet.app.router.HomeRouter;
 import com.alphawallet.app.router.ImportWalletRouter;
+import com.alphawallet.app.service.AppSecurityManager;
 import com.alphawallet.app.service.KeyService;
 import com.alphawallet.app.util.RootUtil;
+
+import javax.inject.Inject;
 import com.alphawallet.app.util.Utils;
 import com.alphawallet.app.viewmodel.SplashViewModel;
 import com.alphawallet.app.widget.AWalletAlertDialog;
@@ -50,11 +53,15 @@ import dagger.hilt.android.AndroidEntryPoint;
 @AndroidEntryPoint
 public class SplashActivity extends BaseActivity implements CreateWalletCallbackInterface, Runnable
 {
+    @Inject
+    AppSecurityManager appSecurityManager;
+    
     private SplashViewModel viewModel;
     private String errorMessage;
     private String pendingWalletAddress;
     private KeyService.AuthenticationLevel pendingAuthLevel;
     private View loadingLayout;
+    private boolean pendingHomeNavigation = false;
     
     // Network status views
     private ImageView iconNetworkStatus;
@@ -96,6 +103,20 @@ public class SplashActivity extends BaseActivity implements CreateWalletCallback
         }
     };
     private Handler handler = new Handler(Looper.getMainLooper());
+
+    private final ActivityResultLauncher<Intent> appLockHandler = registerForActivityResult(
+        new ActivityResultContracts.StartActivityForResult(),
+        result -> {
+            int resultCode = result.getResultCode();
+            if (resultCode == RESULT_OK || resultCode == AppLockActivity.RESULT_AUTHENTICATED) {
+                // Authentication successful - proceed to home
+                proceedToHome();
+            } else {
+                // User cancelled authentication - close app
+                finishAffinity();
+            }
+        }
+    );
 
     private final ActivityResultLauncher<Intent> handleBackupWallet = registerForActivityResult(
         new ActivityResultContracts.StartActivityForResult(),
@@ -335,6 +356,21 @@ public class SplashActivity extends BaseActivity implements CreateWalletCallback
 
     @Override
     public void run()
+    {
+        // Check if authentication is required before going to HomeActivity
+        if (appSecurityManager != null && appSecurityManager.requiresAuthentication())
+        {
+            pendingHomeNavigation = true;
+            Intent lockIntent = AppLockActivity.createIntent(this);
+            appLockHandler.launch(lockIntent);
+        }
+        else
+        {
+            proceedToHome();
+        }
+    }
+    
+    private void proceedToHome()
     {
         new HomeRouter().open(this, true);
         finish();
