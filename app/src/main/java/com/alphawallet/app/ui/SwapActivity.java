@@ -13,7 +13,10 @@ import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.biometric.BiometricPrompt;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.alphawallet.app.C;
@@ -33,6 +36,7 @@ import com.alphawallet.app.entity.lifi.Chain;
 import com.alphawallet.app.entity.lifi.Connection;
 import com.alphawallet.app.entity.lifi.Quote;
 import com.alphawallet.app.entity.lifi.Token;
+import com.alphawallet.app.service.AppSecurityManager;
 import com.alphawallet.app.service.GasService;
 import com.alphawallet.app.ui.widget.entity.ActionSheetCallback;
 import com.alphawallet.app.ui.widget.entity.ProgressInfo;
@@ -56,6 +60,9 @@ import org.web3j.utils.Numeric;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
+
+import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -64,6 +71,10 @@ public class SwapActivity extends BaseActivity implements StandardFunctionInterf
 {
     private static final long GET_QUOTE_INTERVAL_MS = 30000;
     private static final long COUNTDOWN_INTERVAL_MS = 1000;
+    
+    @Inject
+    AppSecurityManager appSecurityManager;
+    
     private SwapViewModel viewModel;
     private TokenSelector sourceSelector;
     private TokenSelector destSelector;
@@ -798,5 +809,45 @@ public class SwapActivity extends BaseActivity implements StandardFunctionInterf
     public GasService getGasService()
     {
         return viewModel.getGasService();
+    }
+
+    @Override
+    public boolean requiresTransactionAuth()
+    {
+        return appSecurityManager.isTransactionAuthEnabled() && appSecurityManager.isBiometricEnabled();
+    }
+
+    @Override
+    public void requestTransactionAuth(TransactionAuthCallback callback)
+    {
+        Executor executor = ContextCompat.getMainExecutor(this);
+        BiometricPrompt biometricPrompt = new BiometricPrompt(this, executor,
+                new BiometricPrompt.AuthenticationCallback() {
+                    @Override
+                    public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
+                        super.onAuthenticationSucceeded(result);
+                        callback.onTransactionAuthResult(true);
+                    }
+
+                    @Override
+                    public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
+                        super.onAuthenticationError(errorCode, errString);
+                        callback.onTransactionAuthResult(false);
+                    }
+
+                    @Override
+                    public void onAuthenticationFailed() {
+                        super.onAuthenticationFailed();
+                        // Don't call callback here - let user retry
+                    }
+                });
+
+        BiometricPrompt.PromptInfo promptInfo = new BiometricPrompt.PromptInfo.Builder()
+                .setTitle(getString(R.string.authenticate_transaction))
+                .setSubtitle(getString(R.string.transaction_auth_description))
+                .setNegativeButtonText(getString(R.string.action_cancel))
+                .build();
+
+        biometricPrompt.authenticate(promptInfo);
     }
 }

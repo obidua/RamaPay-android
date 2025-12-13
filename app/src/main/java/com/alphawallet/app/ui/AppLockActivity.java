@@ -65,6 +65,7 @@ public class AppLockActivity extends BaseActivity {
         
         initViews();
         setupListeners();
+        updateBiometricButton();
         
         // Auto-show biometric if enabled
         if (securityManager.isBiometricEnabled()) {
@@ -76,36 +77,73 @@ public class AppLockActivity extends BaseActivity {
         }
     }
     
+    private void updateBiometricButton() {
+        if (btnBiometric == null) return;
+        
+        AppSecurityManager.BiometricType biometricType = securityManager.getBiometricType();
+        switch (biometricType) {
+            case FACE:
+                btnBiometric.setIconResource(R.drawable.ic_face_id);
+                btnBiometric.setText(R.string.use_face_id);
+                break;
+            case FINGERPRINT:
+            case MULTIPLE:
+            default:
+                btnBiometric.setIconResource(R.drawable.ic_fingerprint);
+                btnBiometric.setText(R.string.use_biometric);
+                break;
+        }
+    }
+    
     private void initViews() {
         passwordLayout = findViewById(R.id.password_layout);
         passwordInput = findViewById(R.id.password_input);
         btnUnlock = findViewById(R.id.btn_unlock);
         btnBiometric = findViewById(R.id.btn_biometric);
+        
+        // Update UI based on whether user is using PIN or password
+        if (securityManager.isUsingPin()) {
+            passwordLayout.setHint(getString(R.string.enter_pin));
+            passwordInput.setInputType(android.text.InputType.TYPE_CLASS_NUMBER | 
+                    android.text.InputType.TYPE_NUMBER_VARIATION_PASSWORD);
+        } else {
+            passwordLayout.setHint(getString(R.string.enter_password));
+            passwordInput.setInputType(android.text.InputType.TYPE_CLASS_TEXT | 
+                    android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        }
     }
     
     private void setupListeners() {
-        btnUnlock.setOnClickListener(v -> verifyPassword());
+        btnUnlock.setOnClickListener(v -> verifyCredential());
         btnBiometric.setOnClickListener(v -> showBiometricPrompt());
         
         // Handle keyboard done action
         passwordInput.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_DONE) {
-                verifyPassword();
+                verifyCredential();
                 return true;
             }
             return false;
         });
     }
     
-    private void verifyPassword() {
-        String password = passwordInput.getText() != null ? passwordInput.getText().toString() : "";
+    private void verifyCredential() {
+        String credential = passwordInput.getText() != null ? passwordInput.getText().toString() : "";
         
-        if (password.isEmpty()) {
-            passwordLayout.setError(getString(R.string.enter_password));
+        if (credential.isEmpty()) {
+            passwordLayout.setError(securityManager.isUsingPin() ? 
+                    getString(R.string.enter_pin) : getString(R.string.enter_password));
             return;
         }
         
-        if (securityManager.verifyPassword(password)) {
+        boolean verified;
+        if (securityManager.isUsingPin()) {
+            verified = securityManager.verifyPin(credential);
+        } else {
+            verified = securityManager.verifyPassword(credential);
+        }
+        
+        if (verified) {
             onAuthenticationSuccess();
         } else {
             failedAttempts++;
@@ -118,7 +156,8 @@ public class AppLockActivity extends BaseActivity {
                     failedAttempts = 0;
                 }, 30000);
             } else {
-                passwordLayout.setError(getString(R.string.incorrect_password));
+                passwordLayout.setError(securityManager.isUsingPin() ? 
+                        getString(R.string.incorrect_pin) : getString(R.string.incorrect_password));
             }
             passwordInput.setText("");
         }

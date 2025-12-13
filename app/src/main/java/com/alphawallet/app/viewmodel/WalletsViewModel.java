@@ -577,7 +577,13 @@ public class WalletsViewModel extends BaseViewModel implements ServiceSyncCallba
             Wallet wallet = new Wallet(address);
             wallet.type = WalletType.HDKEY;
             wallet.authLevel = authLevel;
+            wallet.lastBackupTime = System.currentTimeMillis(); // Set backup time since user completed backup
             fetchWalletsInteract.storeWallet(wallet)
+                    .map(w -> {
+                        // Explicitly update backup time to ensure it's persisted
+                        fetchWalletsInteract.updateBackupTime(w.address);
+                        return w;
+                    })
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(account -> setNewWallet(wallet), this::onCreateWalletError).isDisposed();

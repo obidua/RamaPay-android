@@ -143,6 +143,16 @@
                 android:label="@string/security_settings" />
 
         <activity
+                android:name=".ui.SecuritySettingsActivity"
+                android:theme="@style/AppTheme.NoActionBar"
+                android:label="@string/security_settings" />
+
+        <activity
+                android:name=".ui.ChangePasswordActivity"
+                android:theme="@style/AppTheme.NoActionBar"
+                android:label="@string/change_password" />
+
+        <activity
                 android:name=".ui.AppLockActivity"
                 android:theme="@style/AppTheme.NoActionBar"
                 android:launchMode="singleTop"

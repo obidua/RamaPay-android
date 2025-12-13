@@ -133,6 +133,8 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
                 if (resultCode == RESULT_OK || resultCode == AppLockActivity.RESULT_AUTHENTICATED) {
                     // Authentication successful - refresh session and continue
                     appSecurityManager.refreshSession();
+                    // Force window refresh after unlock
+                    getWindow().getDecorView().invalidate();
                 } else {
                     // User cancelled or failed authentication - close app
                     finishAffinity();

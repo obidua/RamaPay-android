@@ -17,7 +17,10 @@ import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.biometric.BiometricPrompt;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.alphawallet.app.C;
@@ -38,6 +41,7 @@ import com.alphawallet.app.entity.WalletType;
 import com.alphawallet.app.entity.tokens.Token;
 import com.alphawallet.app.repository.EthereumNetworkBase;
 import com.alphawallet.app.repository.EthereumNetworkRepository;
+import com.alphawallet.app.service.AppSecurityManager;
 import com.alphawallet.app.service.GasService;
 import com.alphawallet.app.ui.QRScanning.QRScannerActivity;
 import com.alphawallet.app.ui.widget.entity.ActionSheetCallback;
@@ -68,6 +72,9 @@ import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Executor;
+
+import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -79,6 +86,10 @@ import timber.log.Timber;
 public class SendActivity extends BaseActivity implements AmountReadyCallback, StandardFunctionInterface, AddressReadyCallback, ActionSheetCallback
 {
     private static final BigDecimal NEGATIVE = BigDecimal.ZERO.subtract(BigDecimal.ONE);
+    
+    @Inject
+    AppSecurityManager appSecurityManager;
+    
     SendViewModel viewModel;
     private Wallet wallet;
     private Token token;
@@ -668,6 +679,46 @@ public class SendActivity extends BaseActivity implements AmountReadyCallback, S
     public GasService getGasService()
     {
         return viewModel.getGasService();
+    }
+
+    @Override
+    public boolean requiresTransactionAuth()
+    {
+        return appSecurityManager.isTransactionAuthEnabled() && appSecurityManager.isBiometricEnabled();
+    }
+
+    @Override
+    public void requestTransactionAuth(TransactionAuthCallback callback)
+    {
+        Executor executor = ContextCompat.getMainExecutor(this);
+        BiometricPrompt biometricPrompt = new BiometricPrompt(this, executor,
+                new BiometricPrompt.AuthenticationCallback() {
+                    @Override
+                    public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
+                        super.onAuthenticationSucceeded(result);
+                        callback.onTransactionAuthResult(true);
+                    }
+
+                    @Override
+                    public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
+                        super.onAuthenticationError(errorCode, errString);
+                        callback.onTransactionAuthResult(false);
+                    }
+
+                    @Override
+                    public void onAuthenticationFailed() {
+                        super.onAuthenticationFailed();
+                        // Don't call callback here - let user retry
+                    }
+                });
+
+        BiometricPrompt.PromptInfo promptInfo = new BiometricPrompt.PromptInfo.Builder()
+                .setTitle(getString(R.string.authenticate_transaction))
+                .setSubtitle(getString(R.string.transaction_auth_description))
+                .setNegativeButtonText(getString(R.string.action_cancel))
+                .build();
+
+        biometricPrompt.authenticate(promptInfo);
     }
 
     private void txWritten(TransactionReturn txData)

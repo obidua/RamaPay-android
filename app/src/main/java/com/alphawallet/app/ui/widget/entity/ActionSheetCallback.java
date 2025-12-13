@@ -73,4 +73,31 @@ public interface ActionSheetCallback
     }
 
     GasService getGasService();
+
+    /**
+     * Check if transaction-level authentication is required
+     * @return true if user must authenticate before each transaction
+     */
+    default boolean requiresTransactionAuth()
+    {
+        return false;
+    }
+
+    /**
+     * Request transaction-level authentication (biometric/password) before sending
+     * @param callback Called with result of authentication
+     */
+    default void requestTransactionAuth(TransactionAuthCallback callback)
+    {
+        // Default implementation: no additional auth required
+        callback.onTransactionAuthResult(true);
+    }
+
+    /**
+     * Callback for transaction-level authentication
+     */
+    interface TransactionAuthCallback
+    {
+        void onTransactionAuthResult(boolean authenticated);
+    }
 }

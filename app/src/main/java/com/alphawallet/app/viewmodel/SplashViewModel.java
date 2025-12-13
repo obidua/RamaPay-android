@@ -98,6 +98,8 @@ public class SplashViewModel extends BaseViewModel
             fetchWalletsInteract.storeWallet(wallet)
                 .map(w -> {
                     preferenceRepository.setCurrentWalletAddress(w.address);
+                    // Explicitly update backup time to ensure it's persisted
+                    fetchWalletsInteract.updateBackupTime(w.address);
                     return w;
                 })
                 .subscribeOn(Schedulers.io())

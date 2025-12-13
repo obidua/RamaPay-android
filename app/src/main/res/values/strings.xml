@@ -88,6 +88,7 @@
     <string name="action_localeth" translatable="false">LocalEthereum</string>
     <string name="coming_soon">Coming soon</string>
     <string name="action_changelly">Changelly (Buy with Credit card)</string>
+    <string name="action_change">Change</string>
     <!-- Subject -->
     <string name="subject_transaction_detail">Transaction detail</string>
     <string name="error_fail_generate_qr">Could not generate qr code.</string>
@@ -959,6 +960,8 @@
     <string name="confirm_password">Confirm Password</string>
     <string name="password_requirements">Password must be at least 6 characters</string>
     <string name="enable_biometric">Use Fingerprint / Face ID</string>
+    <string name="enable_biometric_title">Enable Biometric</string>
+    <string name="enable_biometric_subtitle">Verify your fingerprint or face to enable biometric login</string>
     <string name="biometric_description">Quick and secure authentication</string>
     <string name="enable_security">Enable Security</string>
     <string name="skip_for_now">Skip for now</string>
@@ -969,6 +972,8 @@
     <string name="unlock_ramapay">Unlock RamaPay</string>
     <string name="incorrect_password">Incorrect password</string>
     <string name="use_biometric">Use Fingerprint / Face ID</string>
+    <string name="use_face_id">Use Face ID</string>
+    <string name="use_fingerprint">Use Fingerprint</string>
     <string name="unlock">Unlock</string>
     <string name="app_security">App Security</string>
     <string name="security_settings">Security Settings</string>
@@ -987,6 +992,47 @@
     <string name="authenticate_to_continue">Authenticate to continue</string>
     <string name="biometric_not_available">Biometric authentication not available on this device</string>
     <string name="setup_security_later">You can enable security later from Settings</string>
+    
+    <!-- Timeout Options -->
+    <string name="auto_lock_timeout">Auto-lock timeout</string>
+    <string name="timeout_immediate">Immediate</string>
+    <string name="timeout_1_min">1 minute</string>
+    <string name="timeout_5_min">5 minutes</string>
+    <string name="timeout_15_min">15 minutes</string>
+    <string name="timeout_30_min">30 minutes</string>
+    <string name="select_timeout">Select auto-lock timeout</string>
+    
+    <!-- Transaction Auth -->
+    <string name="transaction_auth">Transaction Authentication</string>
+    <string name="transaction_auth_description">Require authentication for each transaction</string>
+    <string name="authenticate_transaction">Authenticate to send transaction</string>
+    
+    <!-- PIN (additional entries) -->
+    <string name="create_pin">Create PIN</string>
+    <string name="confirm_pin">Confirm PIN</string>
+    <string name="enter_pin">Enter PIN</string>
+    <string name="incorrect_pin">Incorrect PIN</string>
+    <string name="pin_must_be_6_digits">PIN must be 6 digits</string>
+    <string name="pins_do_not_match">PINs do not match</string>
+    <string name="switch_to_pin">Switch to PIN</string>
+    <string name="switch_to_password">Switch to Password</string>
+    <string name="pin_changed_successfully">PIN changed successfully</string>
+    
+    <!-- Security Settings Activity -->
+    <string name="auto_lock_description">Lock the app after being inactive</string>
+    <string name="biometric_disabled">Biometric authentication disabled</string>
+    <string name="biometric_enabled">Biometric authentication enabled</string>
+    <string name="transaction_auth_enabled">Transaction authentication enabled</string>
+    <string name="verify_identity">Verify Identity</string>
+    <string name="confirm_to_enable_transaction_auth">Confirm to enable transaction authentication</string>
+    <string name="biometric_authentication">Biometric Authentication</string>
+    <string name="biometric_authentication_description">Use fingerprint or face to unlock the app</string>
+    
+    <!-- Change Password Activity (unique strings only) -->
+    <string name="change_password_description">Enter your current password and create a new one</string>
+    <string name="new_password_same_as_current">New password must be different from current password</string>
+    <string name="password_changed_successfully">Password changed successfully</string>
+    <string name="error_changing_password">Error changing password</string>
     
     <string name="summary_change_24h">%1$s (%2$s) Today</string>
     <string name="performance">Performance</string>

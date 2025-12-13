@@ -759,8 +759,15 @@ public class NewSettingsFragment extends BaseFragment
 
     private void onAppSecuritySettingClicked()
     {
-        Intent intent = SetupSecurityActivity.createIntent(requireContext(), true, false);
-        startActivity(intent);
+        // If security is already enabled, go to security settings
+        // Otherwise, go to setup security
+        if (appSecurityManager.isSecurityEnabled()) {
+            Intent intent = SecuritySettingsActivity.createIntent(requireContext());
+            startActivity(intent);
+        } else {
+            Intent intent = SetupSecurityActivity.createIntent(requireContext(), true, false);
+            startActivity(intent);
+        }
     }
 
     private void onSupportSettingClicked()

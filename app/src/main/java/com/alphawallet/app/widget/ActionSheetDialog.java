@@ -834,7 +834,25 @@ public class ActionSheetDialog extends ActionSheet implements StandardFunctionIn
             }
         };
 
-        actionSheetCallback.getAuthorisation(signCallback);
+        // Check if transaction-level authentication is required
+        if (actionSheetCallback.requiresTransactionAuth()) {
+            actionSheetCallback.requestTransactionAuth(authenticated -> {
+                if (authenticated) {
+                    actionSheetCallback.getAuthorisation(signCallback);
+                } else {
+                    cancelAuthentication();
+                }
+            });
+        } else {
+            actionSheetCallback.getAuthorisation(signCallback);
+        }
+    }
+
+    private void cancelAuthentication() {
+        confirmationWidget.hide();
+        if (functionBar != null) {
+            functionBar.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
