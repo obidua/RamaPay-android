@@ -689,17 +689,34 @@ public class WalletsActivity extends BaseActivity implements
                     }
                 }
                 
-                if (!existingIndices.isEmpty()) {
-                    java.util.Collections.sort(existingIndices);
-                    StringBuilder sb = new StringBuilder();
-                    for (int i = 0; i < existingIndices.size(); i++) {
-                        if (i > 0) sb.append(", ");
-                        sb.append(existingIndices.get(i));
+                // Calculate missing indices (0-9 range)
+                java.util.List<Integer> missingIndices = new java.util.ArrayList<>();
+                for (int i = 0; i <= 9; i++) {
+                    if (!existingIndices.contains(i)) {
+                        missingIndices.add(i);
                     }
-                    existingAccountsInfo.setText(getString(R.string.existing_accounts_for_master, sb.toString()));
+                }
+                
+                if (!missingIndices.isEmpty()) {
+                    StringBuilder sb = new StringBuilder();
+                    for (int i = 0; i < missingIndices.size(); i++) {
+                        if (i > 0) sb.append(", ");
+                        sb.append(missingIndices.get(i));
+                    }
+                    existingAccountsInfo.setText(getString(R.string.missing_accounts_hint, sb.toString()));
+                    existingAccountsInfo.setTextColor(getResources().getColor(R.color.brand, getTheme()));
                     existingAccountsInfo.setVisibility(View.VISIBLE);
+                    
+                    // Set click listener to auto-fill first missing index
+                    final int firstMissing = missingIndices.get(0);
+                    existingAccountsInfo.setOnClickListener(v2 -> {
+                        indexInput.setText(String.valueOf(firstMissing));
+                    });
                 } else {
-                    existingAccountsInfo.setVisibility(View.GONE);
+                    existingAccountsInfo.setText(R.string.no_missing_accounts);
+                    existingAccountsInfo.setTextColor(getResources().getColor(android.R.color.darker_gray, getTheme()));
+                    existingAccountsInfo.setVisibility(View.VISIBLE);
+                    existingAccountsInfo.setOnClickListener(null);
                 }
             }
             

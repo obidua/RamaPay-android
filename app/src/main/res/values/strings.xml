@@ -136,6 +136,8 @@
     <string name="account_index_hint">Enter index (e.g., 3 for Account 4)</string>
     <string name="recover_account">Recover Account</string>
     <string name="existing_accounts_for_master">Existing accounts: %s</string>
+    <string name="missing_accounts_hint">Missing indices: %s (tap to recover)</string>
+    <string name="no_missing_accounts">All accounts 0–9 exist. Enter higher index if needed.</string>
     <string name="index_already_exists">This index already exists in your wallet</string>
     <string name="invalid_index">Please enter a valid index (0 or greater)</string>
     <string name="discovering_accounts">Discovering accounts...</string>
