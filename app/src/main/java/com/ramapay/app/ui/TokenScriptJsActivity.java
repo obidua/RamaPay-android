@@ -502,7 +502,7 @@ public class TokenScriptJsActivity extends BaseActivity implements StandardFunct
             tokenScriptView.setOnWalletActionListener(this);
 
             tokenScriptView.resetView();
-            tokenScriptView.loadUrl(VIEWER_URL + "/?viewType=alphawallet&chain=" + chainId + "&contract=" + token.tokenInfo.address + "&tokenId=" + tokenId);
+            tokenScriptView.loadUrl(VIEWER_URL + "/?viewType=ramapay&chain=" + chainId + "&contract=" + token.tokenInfo.address + "&tokenId=" + tokenId);
         }
         catch (Exception e)
         {

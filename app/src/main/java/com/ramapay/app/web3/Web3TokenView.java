@@ -142,7 +142,7 @@ public class Web3TokenView extends WebView
         addJavascriptInterface(new TokenScriptCallbackInterface(
                 this,
                 innerOnSignPersonalMessageListener,
-                innerOnSetValuesListener), "alpha");
+                innerOnSetValuesListener), "ramapay");
 
         setWebChromeClient(new WebChromeClient()
         {

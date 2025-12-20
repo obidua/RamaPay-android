@@ -1,4 +1,4 @@
-AlphaWallet is an easy to use and secure Ethereum wallet with native ERC20, ERC721 and ERC875 support. AlphaWallet supports all Ethereum based networks, Ethereum, xDai, Ethereum Classic, and Goerli.
+RamaPay is an easy to use and secure wallet for the Ramestta blockchain with native RAMA, ERC20, ERC721 and ERC875 support. RamaPay supports Ramestta mainnet and other Ethereum-compatible networks.
 
 Focus on Defi:
 - Shows comprehensive breakdown on Token transactions & swaps.
@@ -9,14 +9,12 @@ Coming soon:
 - Improved Defi interaction; full performance history on per-token and per-account basis.
 - Easy interaction with tokens using TokenScript.
 
-AlphaWallet has comprehensive Ethereum crypto management for most chains, however our main focus is managing and using tokens. The real power of Ethereum is in being able to interact with tokens in an intuitive and simple way. AlphaWallet and TokenScript together are working on the next generation of token usability; unlocking the real power and convenience of tokens. This is what sets us aside from other wallets - we are the wallet for token control and interaction.
+RamaPay has comprehensive crypto management for Ramestta and EVM chains. The real power of blockchain is in being able to interact with tokens in an intuitive and simple way. RamaPay is the wallet for the Ramestta ecosystem - designed for token control and seamless DApp interaction.
 
-Version 3.24 sees our new UX for any blockchain interactions.
+Version 3.91 brings improved dark mode support and enhanced security.
 
-We are still open source. Thank you for supporting us and open source projects. We welcome you to check our source code and fork our repo to produce your own wallet and encourage you to create exciting utility tokens powered by TokenScript, in your new wallet or using base AlphaWallet. Check out our exiting new TokenScript creation tools on the main website. Check the progress and adoption of TokenScript in the media by following our Medium account here: https://medium.com/alphawallet
+We are open source. Thank you for supporting us and open source projects. We welcome you to check our source code and contribute to the RamaPay ecosystem.
 
-GitHub: https://github.com/alphawallet
-Twitter: https://twitter.com/Alpha_wallet
-Reddit: https://www.reddit.com/r/AlphaWallet
-Forum: https://www.tokenscript.org/
-Discord: https://discord.gg/mx23YWRTYf
+GitHub: https://github.com/ramestta/RamaPay-android
+Website: https://ramestta.com
+Twitter: https://twitter.com/AltRamestta

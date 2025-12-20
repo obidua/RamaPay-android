@@ -21,7 +21,7 @@ web3 = {
             const { data } = msgParams
             const { id = 8888 } = msgParams
             window.web3CallBacks[id] = cb
-            alpha.signPersonalMessage(id, data);
+            ramapay.signPersonalMessage(id, data);
         }
     },
     tokens: {
@@ -39,7 +39,7 @@ web3 = {
                 typeof value === 'bigint' ? value.toString() : value
             ));
 
-            alpha.setValues(JSON.stringify(preParsedParams));
+            ramapay.setValues(JSON.stringify(preParsedParams));
         }
     }
 }

@@ -38,9 +38,9 @@ import timber.log.Timber;
 
 public class Web3View extends WebView {
     private static final String JS_PROTOCOL_CANCELLED = "cancelled";
-    private static final String JS_PROTOCOL_ON_SUCCESSFUL = "AlphaWallet.executeCallback(%1$s, null, \"%2$s\")";
-    private static final String JS_PROTOCOL_EXPR_ON_SUCCESSFUL = "AlphaWallet.executeCallback(%1$s, null, %2$s)";
-    private static final String JS_PROTOCOL_ON_FAILURE = "AlphaWallet.executeCallback(%1$s, \"%2$s\", null)";
+    private static final String JS_PROTOCOL_ON_SUCCESSFUL = "RamaPay.executeCallback(%1$s, null, \"%2$s\")";
+    private static final String JS_PROTOCOL_EXPR_ON_SUCCESSFUL = "RamaPay.executeCallback(%1$s, null, %2$s)";
+    private static final String JS_PROTOCOL_ON_FAILURE = "RamaPay.executeCallback(%1$s, \"%2$s\", null)";
     private final Web3ViewClient webViewClient;
     @Nullable
     private OnSignTransactionListener onSignTransactionListener;
@@ -200,7 +200,7 @@ public class Web3View extends WebView {
                 innerOnSignTypedMessageListener,
                 innerOnEthCallListener,
                 innerAddChainListener,
-                innerOnWalletActionListener), "alpha");
+                innerOnWalletActionListener), "ramapay");
 
         if (WebViewFeature.isFeatureSupported(WebViewFeature.ALGORITHMIC_DARKENING))
         {
