@@ -312,6 +312,15 @@ public class WalletDataRealmSource {
     public Single<String> getWalletRequiresBackup(String walletAddr)
     {
         return Single.fromCallable(() -> {
+            // Check if this is a derived HD account - derived accounts don't need backup
+            // since they share the same seed phrase with the parent wallet
+            String parentAddress = getParentAddress(walletAddr);
+            if (parentAddress != null && !parentAddress.isEmpty())
+            {
+                // This is a derived account, no backup required
+                return "";
+            }
+            
             boolean wasDismissed = isDismissedInSettings(walletAddr);
             long backupTime = getKeyBackupTime(walletAddr);
             if (!wasDismissed && backupTime == 0) return walletAddr;
@@ -322,10 +331,41 @@ public class WalletDataRealmSource {
     public Single<Boolean> getWalletBackupWarning(String walletAddr)
     {
         return Single.fromCallable(() -> {
+            // Check if this is a derived HD account - derived accounts don't need backup prompts
+            // since they share the same seed phrase with the parent wallet
+            String parentAddress = getParentAddress(walletAddr);
+            if (parentAddress != null && !parentAddress.isEmpty())
+            {
+                // This is a derived account, no backup warning needed
+                return false;
+            }
+            
             long backupTime = getKeyBackupTime(walletAddr);
             long warningTime = getWalletWarningTime(walletAddr);
             return requiresBackup(backupTime, warningTime);
         });
+    }
+    
+    /**
+     * Get the parent address for a wallet (if it's a derived HD account)
+     */
+    private String getParentAddress(String walletAddr)
+    {
+        try (Realm realm = realmManager.getWalletDataRealmInstance())
+        {
+            RealmKeyType realmKey = realm.where(RealmKeyType.class)
+                    .equalTo("address", walletAddr, Case.INSENSITIVE)
+                    .findFirst();
+
+            if (realmKey != null)
+            {
+                return realmKey.getParentAddress();
+            }
+            else
+            {
+                return null;
+            }
+        }
     }
 
     public Single<Wallet> deleteWallet(Wallet wallet)
