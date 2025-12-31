@@ -36,7 +36,6 @@
   "permissions": [
     "storage",
     "activeTab",
-    "notifications",
     "clipboardWrite",
     "alarms"
   ],
